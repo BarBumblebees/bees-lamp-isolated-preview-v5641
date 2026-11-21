@@ -10,14 +10,14 @@ assert(validation.includes("staff_card_details_v3"),'Must re-read card');
 assert(validation.includes("verified.member_id!==r.member_id"),'Must compare member identity');
 assert(validation.includes("activationSession!==staffSessionVersion"),'Must guard changed session');
 const run=async ({response,read,sessionChanged=false,cardChanged=false})=>{
- let pendingActivationToken=cardChanged?'new-card':'original-card';
- let staffSessionVersion=sessionChanged?2:1;
- let token='isolated-demo-auth',managementView='home';
- const activationSession=1,activationAuthToken='isolated-demo-auth',cardToken='original-card',r=response;
+ const state={pendingActivationToken:cardChanged?'new-card':'original-card',
+  staffSessionVersion:sessionChanged?2:1,token:'isolated-demo-auth',managementView:'home',
+  activationSession:1,activationAuthToken:'isolated-demo-auth',cardToken:'original-card'};
  let calls=0;
- const request=async()=>{calls++;if(typeof read==='function')return read(()=>{staffSessionVersion=2},()=>{pendingActivationToken='new-card'});if(read instanceof Error)throw read;return read};
- const fn=new Function('r','request','activationSession','staffSessionVersion','token','activationAuthToken','pendingActivationToken','cardToken','managementView',`return (async()=>{${validation}return {verified,calls:0};})()`);
- try{const value=await fn(r,request,activationSession,staffSessionVersion,token,activationAuthToken,pendingActivationToken,cardToken,managementView);return {ok:true,value,calls};}
+ const request=async()=>{calls++;if(typeof read==='function')return read(()=>{state.staffSessionVersion=2},()=>{state.pendingActivationToken='new-card'});if(read instanceof Error)throw read;return read};
+ // The mutable state object lets the extracted production guards observe changes during awaits.
+ const fn=new Function('r','request','state',`with(state){return (async()=>{${validation}return {verified};})()}`);
+ try{const value=await fn(response,request,state);return {ok:true,value,calls};}
  catch(e){return {ok:false,error:e.message,calls}}
 };
 (async()=>{
