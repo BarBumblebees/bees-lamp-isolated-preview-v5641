@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BEES POINT NFC｜実機読み取り確認（隔離）</title>
+<style>body{font-family:system-ui,sans-serif;background:#101418;color:#f5f5f5;max-width:640px;margin:0 auto;padding:24px;line-height:1.7}h1{font-size:1.45rem}button{font:inherit;padding:13px 20px;background:#ffca28;border:0;border-radius:10px;color:#111;font-weight:bold}button:disabled{opacity:.5}section{background:#222b31;padding:18px;border-radius:12px;margin-top:18px}small{color:#bbc6ca}#status{white-space:pre-wrap}</style></head>
+<body><h1>🐝 NFC実機読み取り確認</h1>
+<p>隔離診断専用。会員登録・ポイント操作・DB通信は一切行いません。</p>
+<section><button id="start">NFC読み取りを開始</button><p id="status" role="status" aria-live="polite">待機中</p><p id="result"></p></section>
+<section><strong>安全上の注意</strong><p>カード内のURL・会員番号・トークンは表示・保存・送信しません。読み取れたかどうかだけを確認します。</p><small>Android ChromeなどWeb NFC対応ブラウザで、HTTPSページを開いて使用してください。端末のNFCを有効にしてください。</small></section>
+<script>
+'use strict';
+const start=document.getElementById('start'),status=document.getElementById('status'),result=document.getElementById('result');
+let reader=null,controller=null;
+start.addEventListener('click',async()=>{
+ if(!('NDEFReader' in window)){status.textContent='このブラウザはWeb NFCに対応していません。Android Chromeでお試しください。';return}
+ if(!window.isSecureContext){status.textContent='HTTPS接続が必要です。';return}
+ start.disabled=true;result.textContent='';
+ status.textContent='読み取り許可を確認しています…';
+ try{
+  controller=new AbortController();
+  reader=new NDEFReader();
+  reader.onreading=event=>{
+   const count=event.message?.records?.length??0;
+   // Do not access record payload, serialNumber or card token.
+   result.textContent='読み取り成功：NDEFレコード '+count+' 件（内容は非表示）';
+   status.textContent='NFCタグを検出しました。会員登録やDB通信は行っていません。';
+   controller.abort();start.disabled=false;
+  };
+  reader.onreadingerror=()=>{status.textContent='NFCタグを検出しましたが、NDEF内容を読み取れませんでした。';start.disabled=false;controller.abort()};
+  await reader.scan({signal:controller.signal});
+  status.textContent='読み取り待機中。NFCカードを端末にかざしてください。';
+ }catch(e){
+  if(e.name!=='AbortError')status.textContent='読み取りを開始できません：'+e.name+'。ブラウザの許可設定とNFC状態を確認してください。';
+  start.disabled=false;
+ }
+});
+</script></body></html>
