@@ -176,14 +176,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 </style><link rel="stylesheet" href="./common/staff_theme.css">
 <style id="nfcDedicatedStyle">
 body.nfc-dedicated main > :not(h1):not(.sub):not(#scanReaderPanel):not(#pointOperationsHome) {display:none!important}
-body.nfc-dedicated:not(.nfc-customer) #scanReaderPanel {display:block!important}
-body.nfc-dedicated #selectedMemberInfo {display:block!important}
+/* Show member details on customer screen; keep a compact summary during point actions. */
+body.nfc-dedicated.nfc-customer #selectedMemberInfo {display:block!important}
 body.nfc-dedicated #pointOperationsTitle {display:none!important}
-body.nfc-dedicated.nfc-customer #selectedMemberPanel {display:block!important}
+body.nfc-dedicated.nfc-customer:not(.nfc-action-history) #selectedMemberPanel {display:block!important}
 body.nfc-dedicated.nfc-action-history #nfcDedicatedNav button[hidden] {display:none!important}
 body.nfc-dedicated #nfcDedicatedNav button[hidden] {display:none!important}
 body.nfc-dedicated #pointOperationsHome {display:block}
 body.nfc-dedicated #pointOperations {display:block!important}
+body.nfc-dedicated.nfc-scan #pointOperations {display:none!important}
 /* Keep the NFC reader exclusive to the scan screen; customer/action/history are separate screens. */
 body.nfc-dedicated #scanReaderPanel {display:none!important}
 body.nfc-dedicated.nfc-scan #scanReaderPanel {display:block!important}
@@ -201,6 +202,7 @@ body.nfc-dedicated.nfc-action-checkout #pointOperations .pointArea:has(#checkout
 body.nfc-dedicated.nfc-action-encounter #encounterAwardArea {display:block!important}
 /* History is a standalone screen, not an overlay on customer/point controls. */
 body.nfc-dedicated.nfc-action-history #selectedMemberPanel {display:none!important}
+body.nfc-dedicated.nfc-action-history #selectedMemberInfo {display:none!important}
 body.nfc-dedicated.nfc-action-history #staffCardDetails {display:none!important}
 body.nfc-dedicated.nfc-action-history #nfcCustomerHistory {display:block!important}
 body.nfc-dedicated.nfc-action-history #operationStore,
