@@ -57,3 +57,12 @@ test('old lookup cannot lock or overwrite a newly authenticated session',()=>{
 test('reader-only lookup does not retain card token for point mutation',()=>{
  assert.match(lookup,/selectMember\(result,document\.body\.classList\.contains\('reader-only'\)\?null:cardToken\)/);
 });
+
+test('read-only mode blocks all point mutation click handlers before any network request',()=>{
+ for(const id of ['awardVisit','awardEncounter','checkoutConfirm','checkoutRetry']){
+  const start=staff.indexOf("byId('"+id+"').addEventListener('click',async()=>{");
+  assert.ok(start>=0,id+' click handler must exist');
+  const first=staff.slice(start,start+200);
+  assert.match(first,/if\(document\.body\.classList\.contains\('reader-only'\)\)return;/,id+' must reject reader mode');
+ }
+});
