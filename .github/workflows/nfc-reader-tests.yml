@@ -1,0 +1,26 @@
+name: NFC reader regression tests
+on:
+  push:
+    paths:
+      - 'v8-offline-staging/common/bees_nfc_reader.js'
+      - 'v8-offline-staging/tests/bees_nfc_reader.test.cjs'
+      - '.github/workflows/nfc-reader-tests.yml'
+  pull_request:
+    paths:
+      - 'v8-offline-staging/common/bees_nfc_reader.js'
+      - 'v8-offline-staging/tests/bees_nfc_reader.test.cjs'
+      - '.github/workflows/nfc-reader-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  nfc-reader:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run offline NFC regression tests
+        run: node --test v8-offline-staging/tests/bees_nfc_reader.test.cjs
