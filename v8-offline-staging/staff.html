@@ -199,6 +199,8 @@ body.nfc-dedicated.nfc-action-visit #pointOperations .pointArea {display:none!im
 body.nfc-dedicated.nfc-action-visit #pointOperations .pointArea:has(#awardVisit),
 body.nfc-dedicated.nfc-action-checkout #pointOperations .pointArea:has(#checkoutConfirm),
 body.nfc-dedicated.nfc-action-encounter #encounterAwardArea {display:block!important}
+/* History is a standalone screen, not an overlay on customer/point controls. */
+body.nfc-dedicated.nfc-action-history #selectedMemberPanel {display:none!important}
 body.nfc-dedicated.nfc-action-history #staffCardDetails {display:none!important}
 body.nfc-dedicated.nfc-action-history #nfcCustomerHistory {display:block!important}
 body.nfc-dedicated.nfc-action-history #operationStore,
