@@ -42,7 +42,7 @@ async function lookup(raw){
  clearMember();$('cardUrl').value='';
  if(!isolated&&(!access||day!==jstDay())){reset('営業日または認証が無効です。再ログインしてください。');return}
  const card=validCard(raw);if(!card){$('status').textContent='カードURLの形式を確認してください。';return}
- if(isolated){$('status').textContent='NFCカードURLの形式を確認しました。会員情報は照会していません。';return}
+ if(isolated){epoch++;stop();$('start').disabled=false;$('status').textContent='NFCカードURLの形式を確認しました。会員情報は照会していません。次のカードを読むには「カードを読み取る」を押してください。';return}
  const mine=++epoch;busy=true;$('lookup').disabled=true;$('start').disabled=true;$('status').textContent='会員照会中…';stop();
  try{
   const state=await api('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:card},access);
@@ -66,6 +66,6 @@ $('start').addEventListener('click',async()=>{
  }catch(_){if(mine===epoch){stop();$('start').disabled=false;$('status').textContent='NFCを開始できません。Android版Chromeを確認してください。'}}
 });
 $('stop').addEventListener('click',()=>{epoch++;stop();$('start').disabled=!access&&!isolated;$('status').textContent='読み取りを停止しました。'});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access&&!isolated}});
 authenticate();
 })();
