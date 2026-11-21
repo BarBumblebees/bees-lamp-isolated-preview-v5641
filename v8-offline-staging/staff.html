@@ -179,6 +179,21 @@ body.reader-only main > :not(h1):not(.sub):not(#staffLoginPanel):not(#scanReader
 body.reader-only #scanReaderPanel{display:block!important}
 body.reader-only #readerNavigation{display:block!important}
 body.reader-only #staffLoginPanel.hidden,body.reader-only #scanReaderPanel.hidden{display:none!important}
+/* Read-only authenticated result is nested in the regular point-operation panel. */
+body.reader-only #pointOperationsHome{display:block!important}
+body.reader-only #pointOperations:not(.hidden){display:block!important}
+body.reader-only #pointOperations #selectedMemberPanel:not(.hidden){display:block!important}
+body.reader-only #pointOperations #selectedMemberInfo{display:block!important}
+body.reader-only #pointOperations #staffCardDetails:not(.hidden){display:block!important}
+body.reader-only #pointOperations button,
+body.reader-only #pointOperations .pointArea,
+body.reader-only #pointOperations #pointOperationsTitle,
+body.reader-only #pointOperations #nfcPointNotice,
+body.reader-only #pointOperations #directoryPointNotice{display:none!important}
+body.reader-only #scanReaderPanel #activationBox{display:none!important}
+body.reader-only #scanReaderPanel #lookupResult{overflow-wrap:anywhere}
+body.reader-only #readerNavigation a{display:block}
+
 </style><link rel="stylesheet" href="./common/staff_theme.css"></head><body><main><h1>BEES POINT NFC</h1><p class="sub">NFCカード事前準備・会員登録・ポイント操作 · スタッフ用 v5.6.41</p>
 <section class="card" id="staffLoginPanel"><h2>スタッフログイン</h2><label>メールアドレス<input id="email" type="email" autocomplete="username" placeholder="メールアドレス"></label><label>パスワード<input id="password" type="password" autocomplete="current-password" placeholder="パスワード"></label><button id="togglePassword" type="button" class="secondary" aria-controls="password" aria-pressed="false" aria-label="パスワードを表示">👁 表示</button><br><button id="signIn" type="button">ログイン</button>
 <details id="selfRecoveryDetails" style="margin-top:18px"><summary style="color:#154a3b;cursor:pointer;font-weight:700">パスワードを忘れた方はこちら</summary>
@@ -202,7 +217,7 @@ body.reader-only #staffLoginPanel.hidden,body.reader-only #scanReaderPanel.hidde
   <button id="openCustomerPreview" class="secondary staff-compact-action" type="button">お客様画面プレビュー</button>
 </section>
 <section class="card" id="separateReaderEntry" aria-label="NFCカード専用ページ"><h2>NFCカード読取・別ページ</h2><p class="hint">カード読み取りを独立したページで行えます。現在は隔離版のため、読み取りのみ対応し、会員照会やポイント変更は行いません。</p><a href="./nfc-reader.html" style="display:block;background:#184b3d;color:#fff;padding:15px;border-radius:10px;text-align:center;font-weight:700;text-decoration:none">カード読取専用ページを開く</a></section>
-<section class="card" id="readerNavigation"><h2>カード読取専用ページ</h2><p class="hint">既存のNFC読み取り・会員照会機能をそのまま使用します。操作にはスタッフログインが必要です。</p><a href="./staff.html" style="display:block;padding:12px;border-radius:10px;background:#edf4ef;color:#174839;text-align:center;font-weight:700;text-decoration:none">← 通常のスタッフ画面へ戻る</a></section>
+<section class="card" id="readerNavigation"><h2>カード読取専用ページ</h2><p class="hint">ログイン後にカードを読み取り、会員情報と残高を確認できます。隔離プレビューはDB通信を遮断しています。</p><a href="./staff.html" style="display:block;padding:12px;border-radius:10px;background:#edf4ef;color:#174839;text-align:center;font-weight:700;text-decoration:none">← 通常のスタッフ画面へ戻る</a></section>
 <section class="card hidden" id="scanReaderPanel"><h2>① NFCカード読取・会員照会</h2><button id="scanCard" type="button" disabled>NFCカードを読み取る</button> <button id="stopScan" type="button" class="secondary" disabled>読み取りを停止</button><p class="hint">最初にお客様のNFCカードを読み取ってください。<strong>Android版Chrome</strong>のNFC読み取りに対応した環境で使えます。非対応ブラウザの場合は、カードのURLをコピーして照会してください。</p><p id="scanStatus" class="hint">ログインすると使えるようになります</p><details><summary class="hint">NFC読み取りができないとき：URLを貼り付けて会員照会</summary><label>カード用URL（第三者には見せない）<input id="lookupUrl" type="password" autocomplete="off" placeholder="https:// から始まるカードURL" spellcheck="false"></label><button id="lookupButton" type="button" class="secondary" disabled>URLから会員を照会</button></details><div id="activationBox" class="hidden"><h3>未登録カード：お客様情報を登録</h3><p id="preparedCardNumber" class="subtle" role="status"></p><p class="hint">カードに記録済みの専用URLを使います。新たな書き込みは不要です。</p><label>このカードを発行する店舗<select id="activationStore"><option value="">権限のある店舗を確認中…</option></select></label><p id="activationStoreHint" class="hint"></p><label>お客様のお名前（最大8文字）<input id="newMemberName" type="text" maxlength="8" autocomplete="off" placeholder="例：山田太郎" spellcheck="false"></label><button type="button" id="activateCard" disabled>お名前を登録してカードを有効化</button><p class="hint" id="activateStatus" role="status"></p></div><div id="lookupResult" class="alert success hidden" role="status" aria-live="polite"></div><p id="lookupStatus" class="hint" role="status"></p><p class="hint">既存の有効カードは会員情報と残高を表示します。未登録カードはお名前を登録すると有効になります。有効カードを照会すると、下のポイント付与・会計操作が使えます。</p></section>
 <div id="pointOperationsHome">
 <section class="card hidden" id="pointOperations">
