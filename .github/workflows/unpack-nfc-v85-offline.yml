@@ -1,0 +1,67 @@
+name: Unpack NFC v8.5 offline preview archive
+
+on:
+  push:
+    branches:
+      - nfc-dedicated-v5-isolated-preview
+    paths:
+      - 'v8-offline-staging/upload/v8_5.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  unpack-offline-preview:
+    if: github.ref == 'refs/heads/nfc-dedicated-v5-isolated-preview'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Validate and extract ZIP to isolated staging
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import hashlib
+          archive = Path('v8-offline-staging/upload/v8_5.zip')
+          if not archive.is_file():
+              raise SystemExit('Missing v8_5.zip: upload the archive before dispatching')
+          target = Path('v8-offline-staging')
+          with ZipFile(archive) as z:
+              files = [i for i in z.infolist() if not i.is_dir()]
+              if len(files) != 24:
+                  raise SystemExit(f'Expected 24 files, got {len(files)}')
+              for info in files:
+                  name = info.filename
+                  path = Path(name)
+                  if path.is_absolute() or '..' in path.parts or name.startswith('/') or '\\' in name:
+                      raise SystemExit(f'Unsafe ZIP entry: {name}')
+                  if info.file_size > 5_000_000:
+                      raise SystemExit(f'Unexpectedly large entry: {name}')
+              names = {i.filename for i in files}
+              if not {'staff.html','index.html','OFFLINE_PREVIEW_README.txt'}.issubset(names):
+                  raise SystemExit('Not an expected offline preview archive')
+              readme = z.read('OFFLINE_PREVIEW_README.txt').decode('utf-8')
+              if 'OFFLINE' not in readme.upper() and 'オフライン' not in readme:
+                  raise SystemExit('Offline safety marker missing')
+              for info in files:
+                  destination = target / info.filename
+                  destination.parent.mkdir(parents=True,exist_ok=True)
+                  destination.write_bytes(z.read(info))
+          print('Unpacked 24 files, ZIP sha256:',hashlib.sha256(archive.read_bytes()).hexdigest())
+          PY
+      - name: Commit extracted files to isolated branch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v8-offline-staging
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Unpack v8.5 offline NFC preview artifact"
+            git push origin HEAD:nfc-dedicated-v5-isolated-preview
+          fi
