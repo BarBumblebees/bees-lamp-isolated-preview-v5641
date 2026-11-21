@@ -175,10 +175,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
  .operatingLampStaffRow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #cbd8cf}.operatingLampStaffRow strong{flex:1 1 160px}.operatingLampStaffRow select{flex:1 1 190px;min-height:42px}.operatingLampStaffRow button{min-height:42px}
 
 /* Authenticated NFC-only view: retain the original lookup logic, hide all mutations. */
-body.reader-only main > :not(h1):not(.sub):not(#staffLoginPanel):not(#scanReaderPanel):not(#readerNavigation):not(#pointOperationsHome){display:none!important}
+body.reader-only main > :not(h1):not(.sub):not(#staffLoginPanel):not(#scanReaderPanel):not(#readerNavigation):not(#pointOperationsHome):not(#staffLogoutPanel){display:none!important}
 body.reader-only #scanReaderPanel:not(.hidden),
 body.reader-only #readerNavigation,
 body.reader-only #pointOperationsHome{display:block!important}
+body.reader-only #staffLogoutPanel:not(.hidden){display:block!important}
 body.reader-only #staffLoginPanel.hidden,
 body.reader-only #scanReaderPanel.hidden,
 body.reader-only #pointOperations.hidden,
@@ -1261,7 +1262,7 @@ let activeScan=null,lookingUp=false;
 async function lookupCard(raw){
  if(operationBusy||managementView!=='home')return;
  const session=staffSessionVersion;
- if(!token){byId('lookupStatus').textContent='先にスタッフログインしてください。';return}
+ if(!token||!validBusinessDay()){byId('lookupStatus').textContent='先にスタッフログインしてください。';return}
  // Never leave a previously selected member actionable while checking another card.
  resetSelectedMember();
  const cardToken=getCardToken(raw);byId('lookupUrl').value='';byId('lookupResult').classList.add('hidden');pendingActivationToken=null;byId('activationBox').classList.add('hidden');
@@ -1298,7 +1299,7 @@ byId('lookupButton').addEventListener('click',()=>lookupCard(byId('lookupUrl').v
 function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('stopScan').disabled=true;byId('scanCard').disabled=!token}
 byId('stopScan').addEventListener('click',()=>{stopNfcScan();byId('scanStatus').textContent='読み取りを停止しました。'});
 byId('scanCard').addEventListener('click',async()=>{
- if(!token){byId('scanStatus').textContent='スタッフログインが必要です。';return}
+ if(!token||!validBusinessDay()){byId('scanStatus').textContent='スタッフログインが必要です。';return}
  stopNfcScan();byId('scanCard').disabled=true;byId('stopScan').disabled=false;
  byId('scanStatus').textContent='NFC読み取りを起動中… 許可を求められたら許可してください。';
  try{
