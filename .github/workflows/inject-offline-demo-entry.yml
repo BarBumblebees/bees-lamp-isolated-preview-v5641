@@ -1,0 +1,40 @@
+name: Add offline NFC demo entry to staged staff page
+on:
+  push:
+    branches: [nfc-dedicated-v5-isolated-preview]
+    paths:
+      - 'v8-offline-staging/common/offline_demo_entry.js'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  add-demo-entry:
+    if: github.ref == 'refs/heads/nfc-dedicated-v5-isolated-preview'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Insert offline demo script into staged staff HTML
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          page=Path('v8-offline-staging/staff.html')
+          if not page.is_file(): raise SystemExit('Staged staff.html missing')
+          script='<script src="./common/offline_demo_entry.js"></script>'
+          content=page.read_text(encoding='utf-8')
+          if script not in content:
+              if '</body>' not in content: raise SystemExit('HTML body closing tag missing')
+              content=content.replace('</body>',script+'\n</body>',1)
+              page.write_text(content,encoding='utf-8')
+          print('Demo entry script included:',script in page.read_text(encoding='utf-8'))
+          PY
+      - name: Commit isolated staff page change
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add v8-offline-staging/staff.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Link staged offline staff screen to NFC registration demo"
+            git push origin HEAD:nfc-dedicated-v5-isolated-preview
+          fi
