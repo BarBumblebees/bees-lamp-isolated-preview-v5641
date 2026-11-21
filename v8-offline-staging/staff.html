@@ -1288,11 +1288,12 @@ async function lookupCard(raw){
  byId('lookupStatus').textContent='会員を確認しています…';
  try{const cardStatus=await request('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:cardToken},token);
  if(cardStatus==='prepared'){
-   pendingActivationToken=cardToken;
    const preparedInfo=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
    byId('preparedCardNumber').textContent='事前準備カード：No.'+(preparedInfo?.card_number||'未割当');
    await loadActivationStores();
-   byId('activationBox').classList.remove('hidden');byId('goToCardRegistration').classList.remove('hidden');
+   if(session!==staffSessionVersion||managementView!=='home'||!token)return;
+   pendingActivationToken=cardToken;
+   byId('activationBox').classList.add('hidden');byId('goToCardRegistration').classList.remove('hidden');
    byId('activateCard').disabled=!byId('activationStore').value;
    byId('newMemberName').value='';
    byId('activateStatus').textContent='お客様の名前を確認後、登録してカードを有効化してください。';
@@ -1311,7 +1312,7 @@ async function lookupCard(raw){
  }catch(e){byId('lookupStatus').textContent='会員照会できません：'+e.message}
  finally{lookingUp=false;byId('lookupButton').disabled=!token}
 }
-byId('goToCardRegistration').addEventListener('click',()=>{if(operationBusy||!pendingActivationToken||byId('activationBox').classList.contains('hidden'))return;byId('cardRegistrationHeading').focus({preventScroll:true});byId('activationBox').scrollIntoView({behavior:'smooth',block:'start'});});
+byId('goToCardRegistration').addEventListener('click',()=>{if(operationBusy||activationInProgress||lookingUp||!token||!pendingActivationToken||managementView!=='home')return;byId('activationBox').classList.remove('hidden');byId('goToCardRegistration').classList.add('hidden');byId('cardRegistrationHeading').focus({preventScroll:true});byId('activationBox').scrollIntoView({behavior:'smooth',block:'start'});});
 byId('lookupButton').addEventListener('click',()=>lookupCard(byId('lookupUrl').value));
 function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('stopScan').disabled=true;byId('scanCard').disabled=!token}
 byId('stopScan').addEventListener('click',()=>{stopNfcScan();byId('scanStatus').textContent='読み取りを停止しました。'});
