@@ -446,6 +446,8 @@ function clearAuth(message='ログアウトしました。'){
  if(byId('activationBox'))byId('activationBox').classList.add('hidden');
  if(byId('lookupUrl'))byId('lookupUrl').value='';
  if(typeof resetSelectedMember==='function')resetSelectedMember();
+ if(byId('lookupResult')){byId('lookupResult').textContent='';byId('lookupResult').classList.add('hidden')}
+ if(byId('lookupStatus'))byId('lookupStatus').textContent='';
  resetRegisteredCards();
 }
 
@@ -1310,6 +1312,7 @@ byId('lookupButton').addEventListener('click',()=>lookupCard(byId('lookupUrl').v
 function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('stopScan').disabled=true;byId('scanCard').disabled=!token}
 byId('stopScan').addEventListener('click',()=>{stopNfcScan();byId('scanStatus').textContent='読み取りを停止しました。'});
 byId('scanCard').addEventListener('click',async()=>{
+ if(lookingUp){byId('scanStatus').textContent='会員照会中です。完了後に次のカードを読み取ってください。';return}
  if(!token||!validBusinessDay()){byId('scanStatus').textContent='スタッフログインが必要です。';return}
  stopNfcScan();byId('scanCard').disabled=true;byId('stopScan').disabled=false;
  byId('scanStatus').textContent='NFC読み取りを起動中… 許可を求められたら許可してください。';
