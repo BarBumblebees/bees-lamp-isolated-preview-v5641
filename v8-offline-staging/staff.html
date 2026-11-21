@@ -1465,10 +1465,19 @@ byId('activateCard').addEventListener('click',async()=>{
   const activationAuthToken=token;
   const r=await request('/rest/v1/rpc/activate_card_with_qr_v1',{p_card_token:cardToken,p_display_name:name,p_store_id:issuingStore},token);
   if(activationSession!==staffSessionVersion||token!==activationAuthToken||pendingActivationToken!==cardToken||managementView!=='home')return;
-  if(!r||!r.member_id||r.status!=='active')throw Error('登録結果が正しくありません');
+  if(!r||r.status!=='active'||typeof r.member_id!=='string'||!r.member_id.trim()||
+     typeof r.display_name!=='string'||!r.display_name.trim()||
+     (r.balance!==undefined&&Number(r.balance)!==0))throw Error('登録結果が正しくありません');
+  // Re-read the activated card before enabling point operations: never trust a partial write response.
+  const verified=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
+  if(activationSession!==staffSessionVersion||token!==activationAuthToken||
+     pendingActivationToken!==cardToken||managementView!=='home')return;
+  if(!verified||verified.status!=='active'||verified.member_id!==r.member_id||
+     typeof verified.display_name!=='string'||!Number.isFinite(Number(verified.balance)))
+     throw Error('登録後のカード照会が一致しません。再度カードを照会してください。');
   pendingActivationToken=null;byId('newMemberName').value='';byId('activationBox').classList.add('hidden');byId('goToCardRegistration').classList.add('hidden');
-  selectMember({member_id:r.member_id,display_name:r.display_name,balance:0,card_number:r.card_number,issued_store_name:r.issued_store_name},cardToken);
-  byId('lookupResult').textContent='新規会員登録・カード有効化 成功：'+r.display_name+' 様 ／ 初期残高 0pt';
+  selectMember(verified,cardToken);
+  byId('lookupResult').textContent='新規会員登録・カード有効化 成功：'+verified.display_name+' 様 ／ 共通残高 '+Number(verified.balance).toLocaleString('ja-JP')+'pt';
   byId('lookupResult').classList.remove('hidden');
   byId('lookupStatus').textContent='このカードは有効です。次回からカードタッチでお客様のポイント画面が開きます。';
  }catch(e){byId('activateStatus').textContent='有効化できません：'+e.message}
