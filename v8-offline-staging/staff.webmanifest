@@ -1,0 +1,31 @@
+{
+  "id": "/staff",
+  "name": "BEES POINT NFC スタッフ",
+  "short_name": "BEES スタッフ",
+  "lang": "ja",
+  "start_url": "/staff",
+  "scope": "/staff",
+  "display": "standalone",
+  "theme_color": "#f0f6f2",
+  "background_color": "#102820",
+  "icons": [
+    {
+      "src": "./icons/bumble-jerk-staff-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/bumble-jerk-staff-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/bumble-jerk-staff-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
