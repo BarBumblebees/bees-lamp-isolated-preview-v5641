@@ -1,21 +1,31 @@
-# BEES POINT NFC v8 — isolated offline preview deployment
+# BEES POINT NFC — NFC専用画面の実装・運用引継ぎ
 
-Status: **NOT DEPLOYED**. This branch contains navigation test harnesses only. The actual v8 offline ZIP has not been uploaded.
+更新: 2026-11-21
 
-## Deployment safety requirements
+## 今回の指示（作業範囲）
+スタッフ画面の「NFCカードを読み取る」から専用画面に切り替え、読み取ったお客様情報とポイント操作ボタンを表示する。ポイント付与・会計/利用・履歴を見るボタンはそれぞれ専用画面に遷移する。未登録カードは「カード登録へ進む」導線を表示する。
+OPEN/AWAY/CLOSE と既存 NFC 読み取り処理の再実装は対象外。
 
-1. Keep all changes on `nfc-dedicated-v5-isolated-preview`. Do not merge to `main` or publish as the production app.
-2. Source artifact: `BEES_POINT_NFC_v8_隔離オフライン検証_未公開.zip` (24 files; local artifact, not committed here).
-3. Preserve the relative paths of `staff.html`, `index.html`, `common/`, `icons/`, `images/`, and `_headers`.
-4. Verify against `BEES_NFC_v8_隔離配置マニフェスト.json` before/after upload. Do not upload credentials or real Supabase endpoints.
-5. This is an **offline UI-only** build: no real login, NFC, database reads/writes, or points transactions should be attempted.
-6. Only claim deployment after checking GitHub files and the actual preview URL; only claim functional validation after running browser tests.
+## 確認済み
+- 隔離ブランチ: `nfc-dedicated-v5-isolated-preview`
+- 専用画面の変更先: `v8-offline-staging/staff.html`
+- 専用画面ナビゲーション: `nfcDedicatedNavigation`、スタイル: `nfcDedicatedStyle`
+- 既存のカード照会・登録処理と、来店/会計/遭遇ポイントの操作処理は同じ HTML 内に存在する。
+- 画面表示分離、履歴画面、画面タイトル、メニューのボタン文言を隔離ブランチへ保存済み。
+- 2026-11-21 のブランチ比較: `main` に対し隔離ブランチは35コミット先行、遅れ0。差分は隔離用ファイル・テスト等の追加のみで、本番スタッフ画面への変更は含まれない。
+- GitHub Pages 上で隔離プレビューを表示できたことはユーザーのスクリーンショットで確認済み。ただし最新コミットのデプロイ完了・実機画面動作は未確認。
 
-## Existing test pages
+## 安全上の制限
+- 隔離 HTML は `BASE=https://offline-preview.invalid` / `KEY=sb_publishable_OFFLINE_PREVIEW_DISABLED`。本番認証・本番 DB・実ポイント処理は動かない。
+- 隔離版のまま本番公開しない。無効化した接続先を推測で本番値に戻さない。
+- NFC の実機検出は別診断ページで確認済みだが、本番統合動作の証明ではない。
+- 未登録カードの登録導線と登録後の再照会はコードに存在するが、本番 DB による実行結果は未確認。
 
-- `nfc-ui-isolated-smoke.html` — navigation-only mock.
-- `nfc-navigation-regression-v5.html` — separate regression harness with dummy customers.
+## 本番へ進む前に必要なもの
+1. 運用中アプリの**正しいソースリポジトリとスタッフ画面ファイル**を特定し、実際のコードを読む（本リポジトリの `main` は隔離用ベースであり本番ソースとは確認できない）。
+2. 既存 NFC 読み取り、会員選択、ポイント操作の関数を維持し、専用画面の CSS/ナビゲーション/未登録カード導線だけを最小差分で移植する。
+3. 本番への書き込み前にバックアップ・復旧経路・デプロイ先・差分を確認する。DB スキーマ・ポイント残高・認証設定は変更しない。
+4. 変更箇所のみのテストを行い、運用中サイトへの反映は対象と範囲を明示した承認に従う。
 
-## Blocker
-
-The connected GitHub interface can create UTF-8 text files, but cannot directly import a local ZIP. The local shell cannot reach github.com. Uploading the real 24-file build remains outstanding. No production database or production deployment has been changed by this documentation commit.
+## 現在のブロッカー
+運用中アプリの正しいソースファイルとデプロイ経路が未特定。隔離版から本番への反映を行うことはできない。
