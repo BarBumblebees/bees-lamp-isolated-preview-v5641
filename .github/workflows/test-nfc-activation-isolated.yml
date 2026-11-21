@@ -5,6 +5,7 @@ on:
     paths:
       - 'v8-offline-staging/staff.html'
       - 'v8-offline-staging/tests/activation-verification.test.cjs'
+      - 'v8-offline-staging/tests/activation-uncertain.test.cjs'
       - '.github/workflows/test-nfc-activation-isolated.yml'
   workflow_dispatch:
 permissions:
@@ -18,4 +19,6 @@ jobs:
         with:
           node-version: '22'
       - name: Verify activation result handling
-        run: node v8-offline-staging/tests/activation-verification.test.cjs
+        run: |
+          node v8-offline-staging/tests/activation-verification.test.cjs
+          node v8-offline-staging/tests/activation-uncertain.test.cjs
