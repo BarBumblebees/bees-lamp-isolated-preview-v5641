@@ -426,6 +426,7 @@ function setAuthControls(isLoggedIn){
 }
 function clearAuth(message='ログアウトしました。'){
  staffSessionVersion++;
+ if(typeof lookupEpoch!=='undefined')lookupEpoch++;
  token=null;refreshToken=null;tokenExpiresAt=0;loginBusinessDay=null;refreshPromise=null;
  clearStoredSession();
  encounterStaffProfile=null;encounterPermissionEnabled=false;
@@ -1263,24 +1264,28 @@ function getCardToken(value){
   return match?match[1]:null;
  }catch(_){return null}
 }
-let activeScan=null,lookingUp=false;
+let activeScan=null,lookingUp=false,lookupEpoch=0;
 async function lookupCard(raw){
  if(operationBusy||managementView!=='home')return;
- const session=staffSessionVersion;
+ if(lookingUp){byId('lookupStatus').textContent='前のカードの照会が完了するまでお待ちください。';byId('lookupUrl').value='';return;}
+ const session=staffSessionVersion,epoch=++lookupEpoch;
+ const stillCurrent=()=>session===staffSessionVersion&&epoch===lookupEpoch&&managementView==='home'&&Boolean(token);
  if(!token||!validBusinessDay()){byId('lookupStatus').textContent='先にスタッフログインしてください。';return}
  // Never leave a previously selected member actionable while checking another card.
  resetSelectedMember();
  const cardToken=getCardToken(raw);byId('lookupUrl').value='';byId('lookupResult').classList.add('hidden');pendingActivationToken=null;byId('activationBox').classList.add('hidden');
  if(!cardToken){byId('lookupStatus').textContent='カードURLの形式または発行元を確認してください。既存の本番用カードURLはプレビューでも利用できます。';return}
- if(lookingUp){byId('lookupStatus').textContent='前のカードの照会が完了するまでお待ちください。';return}lookingUp=true;byId('lookupButton').disabled=true;
+ lookingUp=true;byId('lookupButton').disabled=true;
  byId('lookupStatus').textContent='会員を確認しています…';
  try{const cardStatus=await request('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:cardToken},token);
+ if(!stillCurrent())return;
  if(cardStatus==='prepared'){
    if(document.body.classList.contains('reader-only')){byId('lookupStatus').textContent='未登録の準備済みカードです。登録操作は通常のスタッフ画面で行ってください。';return;}
    pendingActivationToken=cardToken;
    const preparedInfo=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
    byId('preparedCardNumber').textContent='事前準備カード：No.'+(preparedInfo?.card_number||'未割当');
    await loadActivationStores();
+   if(!stillCurrent())return;
    byId('activationBox').classList.remove('hidden');
    byId('activateCard').disabled=!byId('activationStore').value;
    byId('newMemberName').value='';
@@ -1291,14 +1296,15 @@ async function lookupCard(raw){
  if(cardStatus==='revoked')throw Error('このカードは現在使えません。再発行済みの場合は新しいカードを読み取ってください。');
  if(cardStatus!=='active')throw Error('このカードは準備済み・有効カードのいずれでもありません。URLを確認してください。');
  const result=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
+ if(!stillCurrent())return;
  if(!result||result.status!=='active'||!result.member_id)throw Error('有効なカードを確認できません');
  if(typeof result.display_name!=='string'||!Number.isFinite(Number(result.balance)))throw Error('応答形式が正しくありません');
- if(session!==staffSessionVersion||managementView!=='home')return;
+ if(!stillCurrent())return;
  selectMember(result,cardToken);
  byId('lookupResult').textContent='会員照会成功：'+result.display_name+' 様 ／ 共通残高 '+Number(result.balance).toLocaleString('ja-JP')+'pt';
  byId('lookupResult').classList.remove('hidden');byId('lookupStatus').textContent=document.body.classList.contains('reader-only')?'会員情報・残高・利用履歴を表示しています。ポイント操作はこの画面では行えません。':'会員を選択しました。下の②で来店ポイント・会計操作を確認できます。';
- }catch(e){byId('lookupStatus').textContent='会員照会できません：'+e.message}
- finally{lookingUp=false;byId('lookupButton').disabled=!token}
+ }catch(e){if(stillCurrent())byId('lookupStatus').textContent='会員照会できません：'+e.message}
+ finally{lookingUp=false;if(stillCurrent())byId('lookupButton').disabled=!token}
 }
 byId('lookupButton').addEventListener('click',()=>lookupCard(byId('lookupUrl').value));
 function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('stopScan').disabled=true;byId('scanCard').disabled=!token}
