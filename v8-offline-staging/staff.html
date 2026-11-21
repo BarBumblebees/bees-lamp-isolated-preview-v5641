@@ -195,6 +195,11 @@ body.reader-only #nfcPointNotice,
 body.reader-only #directoryPointNotice,
 body.reader-only #scanReaderPanel #activationBox{display:none!important}
 body.reader-only #lookupResult{overflow-wrap:anywhere}
+body.reader-only #staffLogoutPanel:not(.hidden){display:block!important}
+body.reader-only #staffLogoutPanel button{display:block!important}
+body.reader-only #pointOperations #noSelectedMember{display:block}
+body.reader-only #pointOperations #noSelectedMember.hidden{display:none!important}
+
 </style><link rel="stylesheet" href="./common/staff_theme.css"></head><body><main><h1>BEES POINT NFC</h1><p class="sub">NFCカード事前準備・会員登録・ポイント操作 · スタッフ用 v5.6.41</p>
 <section class="card" id="staffLoginPanel"><h2>スタッフログイン</h2><label>メールアドレス<input id="email" type="email" autocomplete="username" placeholder="メールアドレス"></label><label>パスワード<input id="password" type="password" autocomplete="current-password" placeholder="パスワード"></label><button id="togglePassword" type="button" class="secondary" aria-controls="password" aria-pressed="false" aria-label="パスワードを表示">👁 表示</button><br><button id="signIn" type="button">ログイン</button>
 <details id="selfRecoveryDetails" style="margin-top:18px"><summary style="color:#154a3b;cursor:pointer;font-weight:700">パスワードを忘れた方はこちら</summary>
@@ -1267,7 +1272,7 @@ async function lookupCard(raw){
  resetSelectedMember();
  const cardToken=getCardToken(raw);byId('lookupUrl').value='';byId('lookupResult').classList.add('hidden');pendingActivationToken=null;byId('activationBox').classList.add('hidden');
  if(!cardToken){byId('lookupStatus').textContent='カードURLの形式または発行元を確認してください。既存の本番用カードURLはプレビューでも利用できます。';return}
- if(lookingUp)return;lookingUp=true;byId('lookupButton').disabled=true;
+ if(lookingUp){byId('lookupStatus').textContent='前のカードの照会が完了するまでお待ちください。';return}lookingUp=true;byId('lookupButton').disabled=true;
  byId('lookupStatus').textContent='会員を確認しています…';
  try{const cardStatus=await request('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:cardToken},token);
  if(cardStatus==='prepared'){
