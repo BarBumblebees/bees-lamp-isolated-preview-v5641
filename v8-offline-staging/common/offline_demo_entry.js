@@ -13,3 +13,5 @@ const attach=()=>{
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',attach,{once:true});else attach();
 })();
+
+// Offline preview integration requested; trigger isolated workflow.
