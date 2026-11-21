@@ -193,6 +193,20 @@ body.reader-only #pointOperations #directoryPointNotice{display:none!important}
 body.reader-only #scanReaderPanel #activationBox{display:none!important}
 body.reader-only #scanReaderPanel #lookupResult{overflow-wrap:anywhere}
 body.reader-only #readerNavigation a{display:block}
+body.reader-only main > #pointOperationsHome{display:block!important}
+body.reader-only #pointOperationsHome > #pointOperations{display:block!important}
+body.reader-only #pointOperationsHome > #pointOperations.hidden{display:none!important}
+body.reader-only #pointOperationsHome #noSelectedMember{display:block}
+body.reader-only #pointOperationsHome #noSelectedMember.hidden{display:none}
+body.reader-only #pointOperationsHome #selectedMemberPanel.hidden{display:none!important}
+body.reader-only #pointOperationsHome #selectedMemberPanel:not(.hidden){display:block!important}
+body.reader-only #pointOperationsHome #staffCardDetails.hidden{display:none!important}
+body.reader-only #pointOperationsHome #staffCardDetails:not(.hidden){display:block!important}
+body.reader-only #pointOperationsHome #selectedMemberInfo{display:block!important}
+body.reader-only #pointOperationsHome .pointArea,
+body.reader-only #pointOperationsHome button{display:none!important}
+body.reader-only #scanReaderPanel #activationBox{display:none!important}
+
 
 </style><link rel="stylesheet" href="./common/staff_theme.css"></head><body><main><h1>BEES POINT NFC</h1><p class="sub">NFCカード事前準備・会員登録・ポイント操作 · スタッフ用 v5.6.41</p>
 <section class="card" id="staffLoginPanel"><h2>スタッフログイン</h2><label>メールアドレス<input id="email" type="email" autocomplete="username" placeholder="メールアドレス"></label><label>パスワード<input id="password" type="password" autocomplete="current-password" placeholder="パスワード"></label><button id="togglePassword" type="button" class="secondary" aria-controls="password" aria-pressed="false" aria-label="パスワードを表示">👁 表示</button><br><button id="signIn" type="button">ログイン</button>
@@ -1270,6 +1284,7 @@ async function lookupCard(raw){
  byId('lookupStatus').textContent='会員を確認しています…';
  try{const cardStatus=await request('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:cardToken},token);
  if(cardStatus==='prepared'){
+   if(document.body.classList.contains('reader-only')){byId('lookupStatus').textContent='未登録の準備済みカードです。登録操作は通常のスタッフ画面で行ってください。';return;}
    pendingActivationToken=cardToken;
    const preparedInfo=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
    byId('preparedCardNumber').textContent='事前準備カード：No.'+(preparedInfo?.card_number||'未割当');
@@ -1289,7 +1304,7 @@ async function lookupCard(raw){
  if(session!==staffSessionVersion||managementView!=='home')return;
  selectMember(result,cardToken);
  byId('lookupResult').textContent='会員照会成功：'+result.display_name+' 様 ／ 共通残高 '+Number(result.balance).toLocaleString('ja-JP')+'pt';
- byId('lookupResult').classList.remove('hidden');byId('lookupStatus').textContent='会員を選択しました。下の②で来店ポイント・会計操作を確認できます。';
+ byId('lookupResult').classList.remove('hidden');byId('lookupStatus').textContent=document.body.classList.contains('reader-only')?'会員情報・残高・利用履歴を表示しています。ポイント操作はこの画面では行えません。':'会員を選択しました。下の②で来店ポイント・会計操作を確認できます。';
  }catch(e){byId('lookupStatus').textContent='会員照会できません：'+e.message}
  finally{lookingUp=false;byId('lookupButton').disabled=!token}
 }
