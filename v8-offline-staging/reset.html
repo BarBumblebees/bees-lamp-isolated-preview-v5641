@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; base-uri 'none'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#173f39"><meta http-equiv="Cache-Control" content="no-store"><title>BEES POINT NFC｜パスワード再設定</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#edf4ef;color:#1b392d;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}main{max-width:520px;margin:auto;padding:40px 18px 60px}h1{font-size:24px;margin:0 0 10px}h2{font-size:19px}p{line-height:1.8;font-size:14px}.card{background:#fff;border:1px solid #dbe7de;padding:22px;border-radius:18px;margin-top:20px}label{display:block;font-weight:700;font-size:13px;margin-top:16px}input{margin-top:7px;border:1px solid #b8c7bc;padding:14px;width:100%;border-radius:10px;font:inherit}button,.link{display:inline-block;border:0;border-radius:10px;padding:13px 18px;background:#164b3b;color:white;font:inherit;font-weight:700;font-size:14px;margin-top:20px;text-decoration:none}button:disabled{opacity:.5}.hint{color:#677669;font-size:12px}.info{padding:12px;border:1px solid #cce0d1;background:#eff8f0;border-radius:10px;margin-top:16px;font-size:13px;line-height:1.7}.alert{padding:12px;border:1px solid #ebcf91;background:#fff6df;border-radius:10px;font-size:13px;line-height:1.7}.hidden{display:none}</style></head><body><main>
+<h1>BEES POINT NFC</h1><p>スタッフ用パスワード再設定</p><div class="card"><h2>再設定リンクを確認しています</h2>
+<p id="resetStatus" class="alert" role="status" aria-live="polite">リンクを確認しています…</p>
+<div id="resetForm" class="hidden"><p class="hint">新しいパスワードを入力してください。以前使用したパスワードの再利用は避けてください。</p>
+<label>新しいパスワード<input id="newPassword" type="password" autocomplete="new-password" minlength="10" placeholder="10文字以上"></label>
+<label>確認用パスワード<input id="confirmPassword" type="password" autocomplete="new-password" minlength="10" placeholder="もう一度入力"></label>
+<p class="hint">10文字以上、英大文字・英小文字・数字を各1文字以上含めてください。記号は使用できます。</p>
+<button id="resetSubmit" type="button">新しいパスワードを設定</button></div>
+<a class="link hidden" id="staffLink" href="./staff.html">スタッフログイン画面へ</a></div>
+<p class="hint">※再設定URLとパスワードは秘密情報です。メールや画面を他人に共有しないでください。</p></main><script>
+'use strict';
+const BASE='https://offline-preview.invalid',KEY='sb_publishable_OFFLINE_PREVIEW_DISABLED';
+const state=new URLSearchParams(location.hash.replace(/^#/,''));
+const params=new URLSearchParams(location.search);
+const recoveryType=state.get('type');
+let accessToken=state.get('access_token');
+const linkError=state.get('error_description')||params.get('error_description');
+// Do not allow sensitive recovery tokens to remain visible or enter browser history.
+if(location.hash||location.search)history.replaceState(null,'',location.pathname);
+const status=document.getElementById('resetStatus');
+const form=document.getElementById('resetForm');
+const submit=document.getElementById('resetSubmit');
+async function verifyLink(){
+ if(linkError){status.textContent='リンクを確認できません。再設定メールをもう一度申請してください。';accessToken=null;return}
+ if(recoveryType!=='recovery'||!accessToken){status.textContent='有効な再設定リンクがありません。メール内の再設定リンクから開いてください。';accessToken=null;return}
+ try{
+  const res=await fetch(BASE+'/auth/v1/user',{headers:{'apikey':KEY,'Authorization':'Bearer '+accessToken},cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+  const data=await res.json().catch(()=>null);
+  if(!res.ok||!data?.id)throw Error('無効なリンクです');
+  status.textContent='本人確認ができました。新しいパスワードを設定してください。';status.className='info';form.classList.remove('hidden');
+ }catch(_){accessToken=null;status.textContent='リンクの期限が切れているか無効です。再設定メールをもう一度申請してください。'}
+}
+submit.addEventListener('click',async()=>{
+ if(!accessToken)return;
+ const password=document.getElementById('newPassword').value,confirmPassword=document.getElementById('confirmPassword').value;
+ if(password.length<10||!/[A-Z]/.test(password)||!/[a-z]/.test(password)||!/[0-9]/.test(password)){status.textContent='10文字以上で、英大文字・英小文字・数字を各1文字以上含めてください。';return}
+ if(password!==confirmPassword){status.textContent='確認用パスワードが一致しません。';return}
+ if(!window.confirm('新しいパスワードを設定しますか？'))return;
+ submit.disabled=true;status.textContent='パスワードを更新しています…';
+ try{
+  const res=await fetch(BASE+'/auth/v1/user',{method:'PUT',headers:{'apikey':KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},body:JSON.stringify({password}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+  const data=await res.json().catch(()=>null);
+  if(!res.ok)throw Error(res.status===422?'パスワード条件を確認してください。':'変更を確認できませんでした。');
+  // Revoke refresh sessions after recovery. Existing access tokens expire separately.
+  try{await fetch(BASE+'/auth/v1/logout?scope=global',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+accessToken},cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});}catch(_){}
+  document.getElementById('newPassword').value='';document.getElementById('confirmPassword').value='';
+  form.classList.add('hidden');status.className='info';status.textContent='パスワードを変更しました。スタッフ画面から新しいパスワードでログインしてください。';
+  document.getElementById('staffLink').classList.remove('hidden');accessToken=null;
+ }catch(e){status.textContent='更新に失敗しました：'+e.message}
+ finally{submit.disabled=false}
+});
+void verifyLink();
+</script></body></html>

@@ -32,4 +32,3 @@ window.BeesOperatingStatus = (()=>{
  }
  return {create};
 })();
-

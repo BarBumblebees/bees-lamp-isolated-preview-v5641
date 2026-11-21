@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ja"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; base-uri 'none'"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#173f39"><meta http-equiv="Cache-Control" content="no-store"><title>BEES POINT NFC｜スタッフ招待</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf4ef;color:#1b392d;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}main{max-width:500px;margin:auto;padding:40px 18px 60px}h1{font-size:24px;margin:0 0 10px}h2{font-size:19px}p{line-height:1.8;font-size:14px}.card{background:#fff;border:1px solid #dbe7de;padding:22px;border-radius:18px;margin-top:20px}label{display:block;font-weight:700;font-size:13px;margin-top:16px}input{margin-top:7px;border:1px solid #b8c7bc;padding:14px;width:100%;border-radius:10px;font:inherit}button,.link{display:inline-block;border:0;border-radius:10px;padding:13px 18px;background:#164b3b;color:white;font:inherit;font-weight:700;font-size:14px;margin-top:20px;text-decoration:none}button:disabled{opacity:.5}.hint{color:#677669;font-size:12px}.info{padding:12px;border:1px solid #cce0d1;background:#eff8f0;border-radius:10px;margin-top:16px;font-size:13px;line-height:1.7}.alert{padding:12px;border:1px solid #ebcf91;background:#fff6df;border-radius:10px;font-size:13px;line-height:1.7}.hidden{display:none}
+.password-field{display:flex;gap:8px;align-items:center;margin-top:7px}
+.password-field input{flex:1;min-width:0;margin:0}
+.password-field button{flex:none;min-height:44px;margin:0;padding:8px 10px;background:#eaf2ed;color:#164b3b;white-space:nowrap}
+.password-field button:focus-visible{outline:2px solid #164b3b;outline-offset:2px}
+</style></head><body><main><h1>BEES POINT NFC</h1><p>スタッフ招待・初回パスワード設定</p>
+<div class="card"><h2 id="inviteTitle">招待を確認しています</h2><p id="inviteStatus" class="alert" role="status" aria-live="polite">招待リンクを確認しています…</p>
+<div id="inviteForm" class="hidden">
+<p class="hint">このページは招待されたスタッフ専用です。パスワードは他人に教えず、この画面で設定してください。</p>
+<label for="newPassword">新しいパスワード</label>
+<div class="password-field">
+ <input id="newPassword" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" autocorrect="off" minlength="10" placeholder="10文字以上">
+ <button type="button" data-password-toggle aria-controls="newPassword" aria-pressed="false" aria-label="新しいパスワードを表示">👁 表示</button>
+</div>
+<label for="confirmPassword">確認用パスワード</label>
+<div class="password-field">
+ <input id="confirmPassword" type="password" autocomplete="new-password" autocapitalize="none" spellcheck="false" autocorrect="off" minlength="10" placeholder="もう一度入力">
+ <button type="button" data-password-toggle aria-controls="confirmPassword" aria-pressed="false" aria-label="確認用パスワードを表示">👁 表示</button>
+</div>
+<p class="hint">最低10文字。英大文字・英小文字・数字を各1文字以上含めてください。記号は使用できますが必須ではありません。</p>
+<button id="submitPassword" type="button">パスワードを設定</button>
+</div>
+<a class="link hidden" id="staffLink" href="./staff.html">スタッフログイン画面へ</a>
+</div><p class="hint">※招待リンクやパスワードをスクリーンショットに写して共有しないでください。画面にエラーが出たら、管理者に招待の再送を依頼してください。</p>
+</main><script>
+'use strict';
+const BASE='https://offline-preview.invalid',KEY='sb_publishable_OFFLINE_PREVIEW_DISABLED';
+const status=document.getElementById('inviteStatus'),form=document.getElementById('inviteForm');
+const btn=document.getElementById('submitPassword');let accessToken=null;
+const hash=new URLSearchParams(location.hash.replace(/^#/,''));
+const query=new URLSearchParams(location.search);
+const incomingType=hash.get('type');
+accessToken=hash.get('access_token');
+const queryError=hash.get('error_description')||query.get('error_description');
+// A recovery token must never be processed by the invitation flow.
+// Forward it to the password recovery page before stripping the fragment.
+const isRecoveryRedirect=incomingType==='recovery';
+if(isRecoveryRedirect)location.replace('./reset.html'+location.search+location.hash);
+else if(location.hash||location.search)history.replaceState(null,'',location.pathname);
+async function loadInvitation(){
+ if(isRecoveryRedirect)return;
+ if(queryError){status.textContent='招待リンクを確認できません：'+queryError;return}
+ if(!accessToken){status.textContent='有効な招待リンクが見つかりません。メールに記載された招待リンクから開いてください。';return}
+ try{
+  const res=await fetch(BASE+'/auth/v1/user',{headers:{'apikey':KEY,'Authorization':'Bearer '+accessToken},cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+  const data=await res.json().catch(()=>null);
+  if(!res.ok||!data?.id)throw Error('招待リンクが期限切れ、または無効です。');
+  if(incomingType&& !['invite','signup'].includes(incomingType))throw Error('このリンクはパスワード設定に使用できません。');
+  status.className='info';status.textContent='招待メールを確認しました。新しいパスワードを設定してください。';form.classList.remove('hidden');
+ }catch(e){accessToken=null;status.textContent=e.message||'招待情報の確認に失敗しました。'}
+}
+const passwordToggles = document.querySelectorAll('[data-password-toggle]');
+
+function setPasswordVisibility(toggle, visible) {
+  const input = document.getElementById(toggle.getAttribute('aria-controls'));
+  input.type = visible ? 'text' : 'password';
+  toggle.setAttribute('aria-pressed', String(visible));
+  toggle.textContent = visible ? '👁 隠す' : '👁 表示';
+  const label = input.labels[0].textContent.trim();
+  toggle.setAttribute('aria-label', label + (visible ? 'を隠す' : 'を表示'));
+}
+
+function hidePasswords() {
+  passwordToggles.forEach(toggle => setPasswordVisibility(toggle, false));
+}
+
+passwordToggles.forEach(toggle => {
+  toggle.addEventListener('click', () => {
+    setPasswordVisibility(toggle, toggle.getAttribute('aria-pressed') === 'false');
+  });
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) hidePasswords();
+});
+window.addEventListener('pagehide', hidePasswords);
+
+btn.addEventListener('click',async()=>{
+ if(!accessToken)return;
+ hidePasswords();
+ const password=document.getElementById('newPassword').value,
+       confirmPassword=document.getElementById('confirmPassword').value;
+ if(password.length<10||!/[A-Z]/.test(password)||!/[a-z]/.test(password)||!/[0-9]/.test(password)){
+  status.textContent='パスワードは10文字以上、英大文字・英小文字・数字を各1文字以上含めてください。';return;
+ }
+ if(password!==confirmPassword){status.textContent='確認用パスワードが一致しません。';return}
+ if(!window.confirm('新しいスタッフ用パスワードを設定しますか？'))return;
+ btn.disabled=true;status.textContent='パスワードを設定しています…';
+ try{
+  const res=await fetch(BASE+'/auth/v1/user',{
+   method:'PUT',headers:{'apikey':KEY,'Authorization':'Bearer '+accessToken,'Content-Type':'application/json'},
+   body:JSON.stringify({password}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+  const data=await res.json().catch(()=>null);
+  if(!res.ok)throw Error(data?.msg||data?.message||'設定できませんでした。');
+  // The invitation session is not kept on this page. Staff sign in afresh on their own page.
+  document.getElementById('newPassword').value='';document.getElementById('confirmPassword').value='';
+  form.classList.add('hidden');status.className='info';
+  document.getElementById('inviteTitle').textContent='パスワードを設定しました';
+  let pending=true;
+  try{
+   const result=await fetch(BASE+'/rest/v1/rpc/staff_invitation_pending_v1',{
+    method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+accessToken},
+    body:'{}',cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+   });
+   if(result.ok)pending=await result.json()!==false;
+  }catch(_){}
+  accessToken=null;
+  status.textContent=pending?'管理者の承認をお待ちください。承認後、登録メールアドレスにインストール案内が届きます。':
+   'スタッフ画面でメールアドレスとパスワードを使ってログインしてください。';
+  if(!pending)document.getElementById('staffLink').classList.remove('hidden');
+ }catch(e){status.textContent='設定に失敗しました：'+e.message}
+ finally{btn.disabled=false;}
+});
+void loadInvitation();
+</script></body></html>
