@@ -1483,13 +1483,14 @@ byId('activateCard').addEventListener('click',async()=>{
   byId('lookupResult').classList.remove('hidden');
   byId('lookupStatus').textContent='このカードは有効です。次回からカードタッチでお客様のポイント画面が開きます。';
  }catch(e){
-  if(activationWriteConfirmed){
-   pendingActivationToken=null;
-   byId('activateCard').disabled=true;
-   byId('activationBox').classList.add('hidden');
-   byId('goToCardRegistration').classList.add('hidden');
-   byId('activateStatus').textContent='登録APIは応答しましたが、登録後の照会を確認できません。登録ボタンを再度押さず、カードを読み直してください：'+e.message;
-  }else byId('activateStatus').textContent='登録結果を確定できません。二重登録を避けるため、再度カードを照会してください：'+e.message;
+  // Even a network error may happen after the server committed the registration.
+  // Invalidate the pending card on every uncertain result; require a fresh lookup.
+  pendingActivationToken=null;
+  byId('activateCard').disabled=true;
+  byId('activationBox').classList.add('hidden');
+  byId('goToCardRegistration').classList.add('hidden');
+  const reason=activationWriteConfirmed?'登録後の照会を確認できません。':'登録結果を確定できません。';
+  byId('lookupStatus').textContent=reason+' 二重登録を避けるため、登録ボタンを押さず、カードを読み直してください：'+e.message;
  }
  finally{activationInProgress=false;byId('activateCard').disabled=!token||!pendingActivationToken}
 });
