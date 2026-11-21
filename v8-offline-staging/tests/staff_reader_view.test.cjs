@@ -45,3 +45,11 @@ test('reader-only result panel hides operational inputs while retaining member s
  assert.match(css,/#selectedMemberPanel:not\(\.hidden\)/);
  assert.match(css,/#staffCardDetails:not\(\.hidden\)/);
 });
+
+test('old lookup cannot lock or overwrite a newly authenticated session',()=>{
+ const clear=staff.slice(staff.indexOf("function clearAuth("),staff.indexOf("function validBusinessDay()"));
+ assert.match(clear,/lookupEpoch\+\+/);
+ assert.match(clear,/lookingUp=false/);
+ assert.match(lookup,/if\(epoch===lookupEpoch\)\{lookingUp=false/);
+ assert.match(lookup,/if\(!stillCurrent\(\)\|\|!validBusinessDay\(\)\)return;/);
+});
