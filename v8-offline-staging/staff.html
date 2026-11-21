@@ -196,6 +196,7 @@ body.reader-only #nfcPointNotice,
 body.reader-only #directoryPointNotice,
 body.reader-only #scanReaderPanel #activationBox{display:none!important}
 body.reader-only #lookupResult{overflow-wrap:anywhere}
+/* In read-only mode only the two explicitly permitted summary children are visible. */
 body.reader-only #staffLogoutPanel:not(.hidden){display:block!important}
 body.reader-only #staffLogoutPanel button{display:block!important}
 body.reader-only #pointOperations #noSelectedMember{display:block}
@@ -1304,7 +1305,7 @@ async function lookupCard(raw){
  if(!result||result.status!=='active'||!result.member_id)throw Error('有効なカードを確認できません');
  if(typeof result.display_name!=='string'||!Number.isFinite(Number(result.balance)))throw Error('応答形式が正しくありません');
  if(!stillCurrent()||!validBusinessDay())return;
- selectMember(result,cardToken);
+ selectMember(result,document.body.classList.contains('reader-only')?null:cardToken);
  byId('lookupResult').textContent='会員照会成功：'+result.display_name+' 様 ／ 共通残高 '+Number(result.balance).toLocaleString('ja-JP')+'pt';
  byId('lookupResult').classList.remove('hidden');byId('lookupStatus').textContent=document.body.classList.contains('reader-only')?'会員情報・残高・利用履歴を表示しています。ポイント操作はこの画面では行えません。':'会員を選択しました。下の②で来店ポイント・会計操作を確認できます。';
  }catch(e){if(stillCurrent())byId('lookupStatus').textContent='会員照会できません：'+e.message}
