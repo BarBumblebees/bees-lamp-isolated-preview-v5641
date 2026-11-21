@@ -3,12 +3,12 @@ const BASE='https://cuoruflxfyubjpboqprb.supabase.co';
 const KEY='sb_publishable_EdoSdDxZAEeXDKzuN9gVDg_ThW89nz8';
 const STORAGE='shop-point-nfc.staff-session.v4';
 const $=id=>document.getElementById(id);
-let access=null,refresh=null,day=null,epoch=0,scanner=null,busy=false;
+let access=null,day=null,epoch=0,scanner=null,busy=false;
 const isolated=(()=>{const meta=document.querySelector('meta[http-equiv="Content-Security-Policy"]');return !!meta&&/connect-src\s+'none'/.test(meta.content)})();
 const jstDay=()=>{const d=new Date(Date.now()-8*3600000);return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)};
 function clearMember(){ $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
 function stop(){if(scanner){scanner.stop();scanner=null}$('stop').disabled=true}
-function reset(message){epoch++;stop();busy=false;access=null;refresh=null;day=null;clearMember();$('cardUrl').value='';$('start').disabled=true;$('lookup').disabled=true;$('authStatus').textContent=message;$('status').textContent='スタッフ認証が必要です。'}
+function reset(message){epoch++;stop();busy=false;access=null;day=null;clearMember();$('cardUrl').value='';$('start').disabled=true;$('lookup').disabled=true;$('authStatus').textContent=message;$('status').textContent='スタッフ認証が必要です。'}
 function validCard(value){try{const raw=String(value||'').trim();const u=new URL(/^https:\/\//i.test(raw)?raw:'https://'+raw);if(u.protocol!=='https:'||u.hostname!=='shop-point-nfc-customer-test-1107.pages.dev'||u.port||u.username||u.password||u.search||!['/','/index.html'].includes(u.pathname))return null;const m=u.hash.match(/^#card=([A-Za-z0-9_-]{43})$/);return m?m[1]:null}catch(_){return null}}
 async function api(path,body,bearer){const res=await fetch(BASE+path,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+bearer,'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});if(!res.ok)throw Error('スタッフ認証または会員照会に失敗しました ('+res.status+')');return res.json()}
 async function authenticate(){
@@ -18,14 +18,13 @@ async function authenticate(){
  if(!stored||!stored.refresh_token||stored.business_day!==jstDay()){reset('通常のスタッフ画面でログインしてください。');return}
  const mine=epoch;
  try{
-  const auth=await api('/auth/v1/token?grant_type=refresh_token',{refresh_token:stored.refresh_token},KEY);
-  if(mine!==epoch)return;
-  if(!auth.access_token||!auth.refresh_token)throw Error('認証情報を更新できません');
-  await api('/rest/v1/rpc/staff_card_stock_stores',{},auth.access_token);
+  // Reuse the verified staff access token without rotating the shared refresh token.
+  // The original staff page remains the sole owner of session renewal.
+  if(!stored.access_token||Number(stored.expires_at)<=Date.now()/1000+30)throw Error('スタッフ画面でログインし直してください');
+  await api('/rest/v1/rpc/staff_card_stock_stores',{},stored.access_token);
   if(mine!==epoch)return;
   if(stored.business_day!==jstDay())throw Error('営業日が切り替わりました');
-  access=auth.access_token;refresh=auth.refresh_token;day=stored.business_day;
-  // Keep the session only in memory. Do not overwrite the original staff page's refresh token.
+  access=stored.access_token;day=stored.business_day;
   $('authStatus').textContent='スタッフ権限を確認しました。';
   $('start').disabled=false;$('lookup').disabled=false;$('status').textContent='カードをかざしてください。';
  }catch(_){reset('認証を確認できません。通常のスタッフ画面で再ログインしてください。')}
