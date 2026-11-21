@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Cache-Control" content="no-store"><meta name="theme-color" content="#091611">
+<title>BEES POINT NFC | ポイント確認</title>
+<style>
+:root{--dark:#18463d;--deep:#102f29;--mint:#eef5f0;--gold:#f3ce82;--ink:#1a332b;--muted:#66766d;--line:#e3e9e3}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:linear-gradient(#eaf1eb 0 340px,#f7f7f2 340px);color:var(--ink)}main{width:min(100% - 30px,520px);margin:auto;padding:22px 0 55px}.header{display:flex;align-items:center;gap:10px;margin-bottom:32px;font-size:13px;font-weight:900;letter-spacing:.09em}.mark{background:var(--dark);color:white;width:36px;height:36px;display:grid;place-items:center;border-radius:11px}h1{font-size:26px;margin:0 0 8px;line-height:1.35}.sub{font-size:13px;color:var(--muted);margin:0 0 22px}.balance{background:linear-gradient(140deg,#265c4d,#173f36 70%,#112c27);border-radius:25px;color:white;padding:24px;box-shadow:0 14px 28px #12372b31}.eyebrow{font-size:11px;letter-spacing:.13em;color:#d5e8d7}.name{font-size:20px;font-weight:800;margin:8px 0 22px;min-height:1.4em}.balance .desc{font-size:12px;color:#c7ded2}.num{font-size:57px;font-weight:850;font-variant-numeric:tabular-nums;letter-spacing:-.06em}.num small{font-size:20px;letter-spacing:0}.rule{height:1px;background:#ffffff30;margin:16px 0}.conditions{display:flex;justify-content:space-between;font-size:12px;color:#e1f0e6;gap:8px}.conditions strong{color:#ffe7aa}.note{font-size:12px;line-height:1.7;color:#566f62;margin:14px 3px 25px}.panel{background:white;border:1px solid var(--line);border-radius:19px;overflow:hidden;box-shadow:0 8px 18px #1c45310b;margin-bottom:19px}.panelHead{display:flex;justify-content:space-between;align-items:baseline;padding:20px 18px 12px;gap:10px}h2{font-size:17px;margin:0}.panelHead span{font-size:11px;color:var(--muted)}.filters{display:flex;gap:8px;padding:0 18px 14px}.filter{border:1px solid var(--line);border-radius:50px;background:#f6f8f5;color:#64736c;font-size:12px;font-weight:700;padding:8px 14px}.filter[aria-pressed=true]{background:var(--dark);color:white;border-color:var(--dark)}.item{display:flex;gap:11px;align-items:center;padding:14px 18px;border-top:1px solid #edf0eb}.icon{width:38px;height:38px;display:grid;place-items:center;flex-shrink:0;background:#e6f4ea;border-radius:12px;font-weight:900;color:#217248}.icon.minus{background:#fff0e6;color:#a55a32}.detail{flex:1;min-width:0}.label{font-size:13px;font-weight:800}.meta{font-size:11px;color:#88958d;margin-top:5px}.delta{font-weight:900;font-variant-numeric:tabular-nums;font-size:16px;color:#277e4c}.delta.minus{color:#ac6a39}.shop{display:flex;align-items:center;gap:11px;padding:16px 18px;border-top:1px solid #edf0eb}.shopIcon{width:39px;height:39px;display:grid;place-items:center;background:#eaf2ed;border-radius:12px;color:var(--dark);font-size:18px;font-weight:900}.shopText{flex:1;min-width:0;font-size:13px;font-weight:800}.link{font-size:12px;text-decoration:none;color:var(--dark);background:#eef5ee;padding:8px 10px;border-radius:8px}.empty{padding:23px;text-align:center;color:var(--muted);font-size:13px}.status{background:#fff8e4;border:1px solid #efd29b;border-radius:13px;padding:12px 14px;color:#6b541f;font-size:12px;line-height:1.7;margin-bottom:19px}.status[hidden],.balance[hidden],.panel[hidden]{display:none}.encounterCopy{padding:0 18px 12px;font-size:13px;line-height:1.8;color:#52695f}.encounterPeopleTitle{font-size:12px;font-weight:800;padding:2px 18px 8px;color:var(--ink)}.encounterPeople{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 20px}.encounterPerson{display:inline-flex;align-items:center;background:#eef5f0;border:1px solid #d8e7dd;border-radius:999px;padding:8px 13px;font-weight:800;font-size:12px;color:var(--dark)}.encounterNone{font-size:12px;color:#66766d;padding:2px 0 4px}.encounterPoint{color:#217248;font-weight:900}.encounterBusinessDay{font-size:11px;color:#66766d;margin:7px 0 0}.actions{display:flex;gap:8px;align-items:center;margin-bottom:17px}.refresh{border:1px solid #a3bdb2;color:#214f3c;border-radius:9px;background:white;padding:9px 14px;font-size:12px;font-weight:700}.caption{color:#7c8981;font-size:11px;line-height:1.7}.footer{text-align:center;color:#9aa59b;font-size:11px;padding:22px 0}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid #c9a75e;outline-offset:2px}@media(max-width:350px){.num{font-size:48px}.balance{padding:19px}.panelHead,.item,.shop{padding-left:14px;padding-right:14px}}
+
+/* v5.3.2: compact history preview and a dedicated history screen */
+#customerScreen[hidden],#historyScreen[hidden],.viewHistory[hidden]{display:none}
+.historyActions{padding:12px 16px 16px;border-top:1px solid #edf0eb}
+.viewHistory{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;border:1px solid #b4d0bf;border-radius:12px;background:#eef7f0;color:var(--dark);font-weight:850;font-size:14px}
+.viewHistory span{font-size:25px;line-height:1}
+.viewHistory:active,.historyBack:active{filter:brightness(.95)}
+.historyBack{margin:3px 0 18px;min-height:44px;padding:10px 15px;background:#fff;border:1px solid #aac7b6;color:var(--dark);border-radius:12px;font-weight:800;font-size:13px}
+.historyScreen h1{margin-bottom:7px}
+.historyFilters{padding-top:17px}
+/* High-contrast, Instagram-inspired action with a camera mark and 44px touch target. */
+.shop{flex-wrap:wrap;gap:10px}
+.shopText{flex:1 1 125px;overflow-wrap:anywhere}
+.link{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:11px 14px;margin-left:auto;border:0;border-radius:12px;background:linear-gradient(115deg,#8134af 0%,#c13584 46%,#e1306c 76%,#f77737 100%);color:#fff;font-size:12px;font-weight:900;line-height:1.1;white-space:nowrap;text-decoration:none;box-shadow:0 3px 10px #8b2c7850}
+.link svg{width:19px;height:19px;flex-shrink:0}
+.link:hover{filter:brightness(1.08)}
+.link:active{filter:brightness(.90)}
+@media(max-width:380px){.shop{gap:9px}.shopText{flex-basis:135px}.link{padding:11px 12px}}
+.shopLinks{display:flex;flex-wrap:wrap;gap:8px;margin-left:auto}.shopLinks .link{margin-left:0}.shopLinks .externalLink{background:#edf5ef;color:#1a5140;box-shadow:none;border:1px solid #c5d9c9;white-space:normal}.shop{align-items:flex-start}@media(max-width:440px){.shopLinks{width:100%;padding-left:50px;justify-content:flex-start}}
+.staffPreview{margin:0 0 22px;padding:14px 16px;border:1px solid #baa16a;border-radius:13px;background:#2c2c1e;color:#fff0c5;font-size:13px;line-height:1.65}
+.staffPreview p{margin:3px 0 5px}
+.staffPreview a{display:inline-flex;align-items:center;min-height:44px;color:inherit;font-weight:750}
+.customerQr{margin-top:16px}
+.customerQrToggle{display:block;min-height:48px;width:100%;padding:10px 14px;border:1px solid #89b69b;border-radius:12px;background:#e9f4eb;color:#19513d;font:inherit;font-weight:800}
+.customerQrDetails{margin-top:8px;padding:16px;border:1px solid #3b5949;border-radius:12px}
+.customerQrDetails img{display:block;width:min(220px,100%);height:auto;margin:0 auto 14px;background:#fff;image-rendering:pixelated}
+.customerQrDetails img[hidden]{display:none}
+.customerQrDetails h2{margin:0 0 6px;font-size:14px}
+.customerQrDetails code{display:block;font-size:12px;line-height:1.6;overflow-wrap:anywhere;user-select:text}
+.customerQrWarning{margin:12px 0 0;color:#ffdf9c;font-size:13px;font-weight:800;line-height:1.65}
+
+/* v5.6.41: Borderless, transparent-edge BEES FACTORY artwork on the page background. */
+.customerBrandBanner{margin:-20px -15px 10px;padding:0;line-height:0;overflow:visible;border:0;border-radius:0;background:transparent;box-shadow:none}
+.customerBrandBanner[hidden]{display:none}
+.customerBrandBanner img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;background:transparent;border:0;border-radius:0;box-shadow:none}
+@media(min-width:550px){.customerBrandBanner{margin-inline:0}}
+</style><link rel="stylesheet" href="./common/store_directory.css"><link rel="stylesheet" href="./common/customer_theme.css"></head><body>
+<main>
+<section id="staffPreview" class="staffPreview" aria-label="スタッフ用プレビュー" hidden>
+ <strong>お客様画面プレビュー</strong>
+ <p>会員名・残高・履歴はサンプルです。店舗情報とイベントは現在の公開内容です。</p>
+ <a href="./staff">‹ スタッフ画面に戻る</a>
+</section>
+<div id="customerScreen">
+<header class="header"><span class="mark" aria-hidden="true">◆</span>BEES POINT NFC</header>
+<figure id="customerBrandBanner" class="customerBrandBanner" aria-label="BEES FACTORY イメージ" hidden>
+  <img src="./images/bees-factory-720.webp"
+       srcset="./images/bees-factory-720.webp 720w, ./images/bees-factory-1080.webp 1080w"
+       sizes="(max-width: 550px) calc(100vw - 30px), 520px"
+       width="1819" height="1248" decoding="async" fetchpriority="high"
+       alt="BEES FACTORY。ミツバチとハニカム模様を描いたグラフィティアート">
+</figure>
+<h1>ポイントをチェック</h1><p class="sub">系列店共通のポイントをスマホで確認できます。</p>
+<div id="status" class="status" role="status">カード情報を確認しています…</div>
+<div id="controls" class="actions" hidden><button class="refresh" id="refresh">残高を再取得</button><span class="caption">ポイント操作は店舗スタッフが行います</span></div>
+<section id="balance" class="balance" hidden aria-label="ポイント残高"><div class="eyebrow">MEMBERSHIP CARD</div><div class="name" id="name"></div><div class="desc" id="cardPublicNumber" hidden></div><div class="desc">現在の共通ポイント残高</div><div class="num"><span id="points">—</span> <small>pt</small></div><div class="rule"></div><div class="conditions"><span>1pt ＝ 1円</span><strong>10pt単位で利用可能</strong></div></section>
+<p class="note">NFCカードを提示するとスタッフがポイントを付与・利用します。この画面ではポイントを変更できません。</p>
+<section id="encounterPanel" class="panel" hidden aria-label="スタッフ遭遇ポイントのご案内">
+  <div class="panelHead"><h2>🤝 スタッフ遭遇ポイント</h2><span>街中・イベントでも +1pt</span></div>
+  <div class="encounterCopy">街中やイベントなどで、下記の対象スタッフに遭遇したらNFCカードを提示してください。<span class="encounterPoint">スタッフ1人につき1営業日1回、1pt</span>をプレゼントします。<strong>違うスタッフなら同じ日にもそれぞれ1ptずつ</strong>獲得できます。<div class="encounterBusinessDay">※ 営業日は日本時間の朝8:00〜翌朝7:59です。ポイントの付与はスタッフが行います。</div></div>
+  <div class="encounterPeopleTitle">遭遇ポイントを付与できるスタッフ</div>
+  <div id="encounterPeople" class="encounterPeople" aria-live="polite"></div>
+</section>
+<section id="historyPanel" class="panel" hidden aria-label="最近のポイント履歴">
+  <div class="panelHead"><h2>最近のポイント履歴</h2><span id="historySummary">最新3件</span></div>
+  <div id="historyPreview"></div>
+  <div class="historyActions"><button type="button" id="historyOpen" class="viewHistory">もっと履歴を見る <span aria-hidden="true">›</span></button></div>
+</section>
+<section id="storesPanel" class="panel" hidden><div class="panelHead"><h2>系列店舗</h2><span>現在営業対象の店舗</span></div><div id="shops"></div></section>
+<section id="customerQr" class="customerQr" aria-label="カード専用QR" hidden>
+  <button type="button" id="customerQrToggle" class="customerQrToggle" aria-expanded="false" aria-controls="customerQrDetails">QRコードを表示する</button>
+  <div id="customerQrDetails" class="customerQrDetails" hidden>
+    <img id="customerQrImage" alt="お客様カード専用URLのQRコード" hidden>
+    <h2>お客様カードのURL</h2>
+    <code id="customerQrUrl"></code>
+    <p class="customerQrWarning">スタッフ以外には絶対に提示しないでください</p>
+    <p id="customerQrStatus" class="caption" role="status" hidden></p>
+  </div>
+</section>
+</div>
+<section id="historyScreen" class="historyScreen" hidden aria-label="ポイント履歴の全画面表示">
+  <button type="button" id="historyBack" class="historyBack">← ポイント画面に戻る</button>
+  <h1 tabindex="-1" id="fullHistoryTitle">ポイント履歴</h1>
+  <p class="sub">最近の20件まで表示します。タブで「貯めた」「使った」を絞り込めます。</p>
+  <div class="panel">
+    <div class="filters historyFilters" aria-label="履歴を絞り込む"><button class="filter" data-filter="all" aria-pressed="true">すべて</button><button class="filter" data-filter="plus" aria-pressed="false">貯めた</button><button class="filter" data-filter="minus" aria-pressed="false">使った</button></div>
+    <div id="history"></div>
+  </div>
+</section>
+<div class="caption">※ カードURLは本人確認の代わりとなる閲覧用の鍵です。第三者に共有しないでください。紛失時はお店へお申し出ください。来店ポイントは朝8時から翌朝7:59までの営業日で管理されます。</div>
+<div class="footer">BEES POINT NFC · CUSTOMER VIEW v5.6.41 · DARK PREVIEW<div style="margin-top:8px;font-size:12px;font-weight:600;color:#526e61">BEES アプリ 開発/管理 FMITAKA</div></div>
+</main>
+<script src="./common/store_directory.js"></script>
+<script src="./common/store_status_customer_v5640.js"></script>
+<script src="./common/qrcode-generator-2.0.4.js"></script>
+<script src="./common/card_qr.js"></script>
+<script>
+'use strict';
+const URL_BASE='https://cuoruflxfyubjpboqprb.supabase.co',PUBLIC_KEY='sb_publishable_EdoSdDxZAEeXDKzuN9gVDg_ThW89nz8';
+const statusEl=document.getElementById('status'),balanceEl=document.getElementById('balance'),controls=document.getElementById('controls');
+let historyRows=[],currentFilter='all';
+function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=String(txt);return n}
+function validInstagram(s){try{const u=new URL(s);return u.protocol==='https:'&&(u.hostname==='instagram.com'||u.hostname==='www.instagram.com')?u.href:null}catch(_){return null}}
+function shortTime(date){try{return new Date(date).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})}catch(_){return ''}}
+function kindLabel(t){return ({visit:'来店ポイント',earn:'お会計ポイント',redeem:'ポイント利用',adjust:'ポイント調整',encounter:'スタッフ遭遇ポイント'})[t.kind]||'ポイント履歴'}
+function makeHistoryItem(tx){const plus=Number(tx.delta)>=0,wrap=el('div','item'),ico=el('div','icon'+(plus?'':' minus'),plus?'+':'−'),detail=el('div','detail'),lab=el('div','label',kindLabel(tx)),meta=el('div','meta',tx.kind==='encounter'?`付与スタッフ：${tx.staff_name||'名前未登録'} · ${shortTime(tx.created_at)}`:`${tx.store||'店舗'} · ${shortTime(tx.created_at)}`),amt=el('div','delta'+(plus?'':' minus'),(plus?'+':'')+Number(tx.delta).toLocaleString()+'pt');detail.append(lab,meta);wrap.append(ico,detail,amt);return wrap}
+function renderHistory(){
+ const preview=document.getElementById('historyPreview'),full=document.getElementById('history');
+ preview.replaceChildren();full.replaceChildren();
+ const mostRecent=historyRows.slice(0,3);
+ if(!mostRecent.length)preview.append(el('div','empty','まだポイント履歴はありません'));
+ else for(const tx of mostRecent)preview.append(makeHistoryItem(tx));
+ document.getElementById('historySummary').textContent=`最新${mostRecent.length}件`;
+ const open=document.getElementById('historyOpen');open.hidden=!historyRows.length;
+ const filtered=historyRows.filter(x=>currentFilter==='all'||(currentFilter==='plus'?Number(x.delta)>=0:Number(x.delta)<0));
+ if(!filtered.length)full.append(el('div','empty','該当する履歴はありません'));
+ else for(const tx of filtered)full.append(makeHistoryItem(tx));
+}
+function renderStores(stores, directory = []) {
+ const root = document.getElementById('shops');
+ const openStores = new Set([...root.querySelectorAll('details[open]')].map(node => node.dataset.storeName));
+ const byName = new Map(directory.map(entry => [entry.name, entry]));
+ root.replaceChildren();
+ if (!stores.length) {
+  root.append(el('div', 'empty', '営業対象の店舗はありません'));
+  return;
+ }
+ for (const store of stores) {
+  const metadata = byName.get(store.name);
+  const links = Array.isArray(store.links) ? store.links : (
+   validInstagram(store.instagram_url) ? [{label: 'Instagram', url: store.instagram_url}] : []
+  );
+  const card = BeesStoreDirectory.storeCard(
+   {...metadata?.profile, id: store.id, name: store.name}, metadata?.event,
+   links.slice(0, 5).filter(link => link && typeof link.url === 'string').map(link => ({
+    label: typeof link.label === 'string' && link.label.trim() ? link.label.trim().slice(0, 24) : 'サイトを見る',
+    url: link.url
+   })),
+   path => typeof path === 'string' && /^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|png|webp)$/.test(path)
+    ? URL_BASE + '/storage/v1/object/public/store-event-posters/' + path : null
+  );
+  card.dataset.storeName = store.name;
+  card.open = openStores.has(store.name);
+  root.append(card);
+ }
+ refreshOperatingStatuses();startOperatingStatusRefresh();
+}
+let operatingStatusController=null;
+function operatingStatusControllerInstance(){
+ if(!operatingStatusController)operatingStatusController=BeesOperatingStatus.create({
+  ready:()=>!!document.getElementById('shops')?.querySelector('.store-detail-card'),
+  read:async signal=>{
+   const response=await fetch(URL_BASE+'/rest/v1/rpc/public_store_operating_status_v5640',{
+    method:'POST',headers:{apikey:PUBLIC_KEY,Authorization:'Bearer '+PUBLIC_KEY,'Content-Type':'application/json'},
+    body:'{}',cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal
+   });
+   if(!response.ok)throw Error('status unavailable');return response.json();
+  },
+  apply:rows=>BeesStoreDirectory.applyStatuses(document.getElementById('shops'),rows),
+  onResult:result=>{
+   if(!result.ok)document.querySelectorAll('#shops .store-detail-card[data-operating-status="UNKNOWN"] .store-status-text')
+    .forEach(node=>{node.textContent='営業状況を確認できません'});
+  }
+ });
+ return operatingStatusController;
+}
+function refreshOperatingStatuses(){return operatingStatusControllerInstance().refresh()}
+function startOperatingStatusRefresh(){operatingStatusControllerInstance().start()}
+async function loadStoreDirectory(stores, requestId) {
+ try {
+  const response = await fetch(URL_BASE + '/rest/v1/rpc/public_store_directory_details', {
+   method: 'POST', headers: {apikey: PUBLIC_KEY, Authorization: 'Bearer ' + PUBLIC_KEY, 'Content-Type': 'application/json'},
+   body: '{}', cache: 'no-store', credentials: 'omit', referrerPolicy: 'no-referrer'
+  });
+  if (!response.ok) return;
+  const directory = await response.json();
+  if (requestId === loadRequestId && Array.isArray(directory)) renderStores(stores, directory);
+ } catch (_) {
+  // Existing store links remain available if the supplementary directory cannot load.
+ }
+}
+function renderEncounterStaff(staffNames){const root=document.getElementById('encounterPeople');root.replaceChildren();if(!staffNames.length){root.append(el('span','encounterNone','現在、対象スタッフは登録されていません。'));return}for(const name of staffNames){if(typeof name!=='string'||!name.trim())continue;root.append(el('span','encounterPerson',name))}if(!root.childNodes.length)root.append(el('span','encounterNone','現在、対象スタッフは登録されていません。'))}
+function setState(msg){statusEl.hidden=false;statusEl.textContent=msg}
+function showSnapshot(data, requestId, directory){
+ if(!data||typeof data.display_name!=='string'||!Number.isFinite(Number(data.balance))||
+    !Array.isArray(data.history)||!Array.isArray(data.stores)||!Array.isArray(data.encounter_staff))throw Error('受信データが正しくありません');
+ document.getElementById('name').textContent=data.display_name+' 様';
+ const serial=document.getElementById('cardPublicNumber');
+ serial.hidden=!data.card_number;
+ serial.textContent=data.card_number?'カードNo.'+data.card_number:'';
+ document.getElementById('points').textContent=Number(data.balance).toLocaleString('ja-JP');
+ balanceEl.hidden=false;
+ document.getElementById('customerBrandBanner').hidden=false;
+ document.getElementById('historyPanel').hidden=false;
+ document.getElementById('storesPanel').hidden=false;
+ controls.hidden=false;
+ historyRows=data.history;
+ renderHistory();
+ renderStores(data.stores,directory);
+ if(!directory)void loadStoreDirectory(data.stores,requestId);
+ renderEncounterStaff(data.encounter_staff);
+ document.getElementById('encounterPanel').hidden=false;
+ statusEl.hidden=true;
+}
+const match=location.hash.match(/^#card=([a-zA-Z0-9_-]{43})$/);
+const staffPreviewMode=!location.hash&&new URLSearchParams(location.search).get('preview')==='staff';
+const refreshButton=document.getElementById('refresh');
+const customerQr=document.getElementById('customerQr');
+const customerQrToggle=document.getElementById('customerQrToggle');
+const customerQrDetails=document.getElementById('customerQrDetails');
+const customerQrImage=document.getElementById('customerQrImage');
+const customerQrUrl=document.getElementById('customerQrUrl');
+const customerQrStatus=document.getElementById('customerQrStatus');
+function closeCustomerQr(){
+ customerQrDetails.hidden=true;
+ customerQrToggle.setAttribute('aria-expanded','false');
+ customerQrToggle.textContent='QRコードを表示する';
+ customerQrImage.hidden=true;
+ customerQrImage.removeAttribute('src');
+ customerQrUrl.textContent='';
+ customerQrStatus.hidden=true;
+ customerQrStatus.textContent='';
+}
+customerQrToggle.addEventListener('click',()=>{
+ if(customerQr.hidden||!match||location.hash!==match[0])return;
+ if(!customerQrDetails.hidden){closeCustomerQr();return;}
+ const url='https://shop-point-nfc-customer-test-1107.pages.dev/'+match[0];
+ customerQrUrl.textContent=url;
+ try{
+  customerQrImage.src=cardQrPng(url);
+  customerQrImage.hidden=false;
+ }catch(_){
+  customerQrStatus.textContent='QRコードを表示できませんでした。上の専用URLをスタッフに提示してください。';
+  customerQrStatus.hidden=false;
+ }
+ customerQrDetails.hidden=false;
+ customerQrToggle.setAttribute('aria-expanded','true');
+ customerQrToggle.textContent='QRコードを閉じる';
+ customerQrDetails.scrollIntoView({block:'nearest'});
+});
+window.addEventListener('hashchange',()=>{
+ closeCustomerQr();
+ customerQr.hidden=true;
+ location.reload();
+});
+let loadRequestId = 0;
+async function loadStaffPreview(){
+ document.getElementById('customerBrandBanner').hidden=true;
+ setState('公開中の店舗情報を取得しています…');
+ refreshButton.disabled=true;
+ try{
+  let session;
+  try{session=JSON.parse(localStorage.getItem('shop-point-nfc.staff-session.v4')||'null')}catch(_){}
+  if(!session?.access_token){
+   setState('スタッフ画面に戻ってログインしてから、プレビューを開いてください。');
+   return;
+  }
+  const res=await fetch(URL_BASE+'/rest/v1/rpc/staff_customer_preview_v1',{
+   method:'POST',headers:{apikey:PUBLIC_KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+   body:'{}',cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+  });
+  if(res.status===401||res.status===403){
+   setState('スタッフ画面に戻ってログイン状態を確認し、プレビューを開き直してください。');
+   return;
+  }
+  if(!res.ok)throw Error('公開情報を取得できません');
+  const data=await res.json();
+  if(!Array.isArray(data?.stores)||!Array.isArray(data?.directory))throw Error('公開情報の形式を確認できません');
+  const store=data.stores[0]?.name||'サンプル店舗';
+  const now=Date.now();
+  const history=[
+   {kind:'visit',delta:5,store,created_at:new Date(now).toISOString()},
+   {kind:'earn',delta:25,store,created_at:new Date(now-86400000).toISOString()},
+   {kind:'redeem',delta:-10,store,created_at:new Date(now-172800000).toISOString()}
+  ];
+  showSnapshot({...data,display_name:'BEE太郎',card_number:'000000',balance:120,history},null,data.directory);
+ }catch(_){
+  setState('公開中の情報を取得できませんでした。通信環境を確認して更新してください。');
+ }finally{
+  refreshButton.disabled=false;
+  if(!statusEl.hidden){
+   balanceEl.hidden=true;
+   for(const id of ['historyPanel','storesPanel','encounterPanel'])document.getElementById(id).hidden=true;
+  }
+ }
+}
+async function load(){
+ const requestId=++loadRequestId;
+ document.getElementById('customerBrandBanner').hidden=true;
+ closeCustomerQr();
+ customerQr.hidden=true;
+ if(!match){
+  setState('NFCカードをスマホにタッチして開いてください。このページにはカード専用URLが必要です。');
+  return;
+ }
+ setState('ポイント情報を取得しています…');
+ refreshButton.disabled=true;
+ try{
+  const res=await fetch(URL_BASE+'/rest/v1/rpc/customer_card_snapshot_v3',{
+   method:'POST',headers:{apikey:PUBLIC_KEY,Authorization:'Bearer '+PUBLIC_KEY,'Content-Type':'application/json'},
+   body:JSON.stringify({p_card_token:match[1]}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+  });
+  if(!res.ok)throw Error('通信に失敗しました');
+  const data=await res.json();
+  if(requestId!==loadRequestId||location.hash!==match[0])return;
+  if(!data){
+   setState('カードを確認できませんでした。このカードはまだ会員登録されていないか、無効になっています。ご利用前に店舗スタッフへお渡しください。');
+   return;
+  }
+  showSnapshot(data,requestId);
+  customerQr.hidden=false;
+ }catch(_){
+  if(requestId===loadRequestId)setState('ポイント情報を取得できませんでした。通信環境を確認して、再度お試しください。');
+ }finally{
+  if(requestId===loadRequestId)refreshButton.disabled=false;
+ }
+}
+document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{currentFilter=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderHistory()}));let homeScrollY=0;
+document.getElementById('historyOpen').addEventListener('click',()=>{
+ closeCustomerQr();
+ homeScrollY=window.scrollY;
+ currentFilter='all';
+ document.querySelectorAll('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.filter==='all')));
+ renderHistory();
+ document.getElementById('customerScreen').hidden=true;
+ document.getElementById('historyScreen').hidden=false;
+ window.scrollTo(0,0);
+ document.getElementById('fullHistoryTitle').focus({preventScroll:true});
+});
+document.getElementById('historyBack').addEventListener('click',()=>{
+ document.getElementById('historyScreen').hidden=true;
+ document.getElementById('customerScreen').hidden=false;
+ window.scrollTo(0,homeScrollY);
+ document.getElementById('historyOpen').focus({preventScroll:true});
+});
+if(staffPreviewMode){
+ document.getElementById('staffPreview').hidden=false;
+ controls.hidden=false;
+ refreshButton.textContent='公開情報を更新';
+}
+const loadCurrentScreen=staffPreviewMode?loadStaffPreview:load;
+refreshButton.addEventListener('click',loadCurrentScreen);
+void loadCurrentScreen();
+</script></body></html>

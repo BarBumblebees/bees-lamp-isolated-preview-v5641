@@ -1,0 +1,47 @@
+/* BEES POINT NFC v5.6.7 — CUSTOMER DARK MODE
+ * Exclusively included by the two customer pages, never staff/admin pages.
+ * Rich ink-green surfaces for viewing; edit screens remain bright and obvious.
+ */
+:root { color-scheme: dark; --ink:#eff8f2; --muted:#b0c9bb; --line:#3b5748; }
+body{background:linear-gradient(175deg,#091611 0%,#10291f 44%,#09140f 100%) fixed!important;color:#f0f8f2!important}
+main{color:#f0f8f2}
+h1,h2,h3,.header,.logo{color:#f0f8f2}
+.sub,p.sub,.hint,.mini,.note,.caption,.footer,footer,.meta{color:#b4cbbd!important}
+.panel,.card{background:#1b2e25!important;border-color:#3b5949!important;color:#f0f8f2!important;box-shadow:0 10px 28px rgba(0,0,0,.21)!important}
+.panel h2,.panel h3,.card h2,.card h3{color:#f7fbf8}
+.hero,.balance{background:linear-gradient(140deg,#23634f 0%,#124232 60%,#0c3026 100%);box-shadow:0 14px 30px rgba(0,0,0,.35)}
+.history-row,.item,.shop,.store,.store-detail-card,.historyActions,.divider{border-color:#3b5949!important}
+.history-row .when,.issued-row .when,.issued-row .url,.panelHead span{color:#a6c1b1!important}
+.history-row .delta,.delta:not(.minus),.encounterPoint{color:#8ce3b0!important}
+.history-row .delta.minus,.delta.minus{color:#ffba9d!important}
+.store-summary{color:#eff8f2}
+.store-summary:after{color:#89d6ad!important}
+.store-detail-body,.store-detail-line,.detail,.shopText,.label{color:#e9f5eb}
+/* Event notices stay light and look like a prominent card on the dark background. */
+.next-event-card{background:#f1f8ef;color:#224737;border-color:#93b89f}
+.next-event-card .next-event-heading,.next-event-card .store-detail-line{color:#224737}
+.next-event-card .store-link,.store-link,.link,.viewHistory,.historyBack,.refresh{background:#e9f4eb;color:#19513d;border-color:#a9cbb7}
+.status{background:#ecf4ec;color:#264234;border-color:#adcfb8}
+.status[data-type='error']{background:#fff0e9;color:#823422;border-color:#e7b5a7}
+.status[data-type='notice']{background:#fff5da;color:#66511c;border-color:#e8c980}
+.status{color:#264234}
+.filter{background:#294436;color:#d7eadc;border-color:#557362}
+.filter[aria-pressed=true]{background:#daf2e1;color:#1b4935;border-color:#daf2e1}
+.encounterCopy,.encounterPeopleTitle,.encounterNone,.encounterBusinessDay{color:#c6ddcd}
+.encounterPerson,.pill{background:#284b3a;color:#e2f3e6;border-color:#47725a}
+.empty{color:#b1c8b9}
+/* Neutral links in a dark surface are still light and readable. */
+a.btn:not(.btn-secondary),a.btn.full{background:#287255;color:#fff}
+.btn-secondary{background:#dcefe3;color:#1b4c37;border-color:#a4c8af}
+/* Keep controls legible, including on low-brightness phones. */
+input,textarea,select{background:#f9fcfa;color:#19392a;border:1px solid #a6c7b4}
+input::placeholder,textarea::placeholder{color:#6a8073}
+button:focus-visible,a:focus-visible,input:focus,select:focus,textarea:focus{outline:3px solid #f2d38c;outline-offset:2px}
+.footer div[style],footer div[style]{color:#adcdbc!important}
+/* Add a subtle role cue without changing dynamic customer content. */
+body main>h1::before, body #customerScreen>h1::before{content:'CUSTOMER  ';color:#f2cb79;font-size:.55em;letter-spacing:.12em;vertical-align:middle}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+/* v5.6.8: expanded details remain legible in the light event card */
+.next-event-card .event-description,.next-event-card .event-info-heading{color:#224737}
+.next-event-card .event-expanded-details{border-color:#b8d5c2}
+.next-event-card .event-details-button{background:#e9f4eb;color:#19513d;border:1px solid #a9cbb7}

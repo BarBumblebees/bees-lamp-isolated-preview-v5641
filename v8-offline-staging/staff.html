@@ -1,0 +1,2661 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta name="theme-color" content="#f0f6f2"><title>BEES POINT NFC｜スタッフ用 v5.6.41</title>
+<link rel="manifest" href="./staff.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/bumble-jerk-staff-192.png">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f1f5f1;color:#23362b;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}main{max-width:530px;margin:0 auto;padding:30px 18px 65px}h1{font-size:24px;margin:0 0 5px}h2{font-size:17px;margin:0 0 14px}.sub{color:#67766c;font-size:13px;line-height:1.7}.card{background:#fff;border:1px solid #dfe8e0;border-radius:16px;padding:21px;margin:18px 0;box-shadow:0 8px 25px #1d45310d}label{display:block;font-size:13px;font-weight:700;margin-top:12px}input,textarea,select{display:block;width:100%;border:1px solid #a5b6ab;border-radius:10px;padding:13px;font:inherit;margin-top:6px}select{background:#fff}textarea{font-size:12px;line-height:1.6;resize:vertical;min-height:100px}button{border:0;border-radius:10px;background:#184b3d;color:white;padding:12px 18px;font:inherit;font-size:14px;font-weight:700;margin-top:15px;cursor:pointer}button.secondary{background:#edf4ef;color:#174839}button.danger{background:#8f422d}button:disabled{opacity:.55}.hint{font-size:12px;line-height:1.8;color:#6b766f}.alert{font-size:12px;line-height:1.7;background:#fff4dc;border:1px solid #ebca8c;padding:13px;border-radius:12px;margin:15px 0}.success{background:#e8f5eb;border-color:#b4d4c0}.hidden{display:none}.code{font:12px/1.8 ui-monospace,monospace;overflow-wrap:anywhere}.card .actionsRow{display:flex;gap:8px;flex-wrap:wrap}.card .actionsRow button{flex:1}
+.footer{font-size:11px;color:#768a7c;text-align:center}
+.pointArea{border-top:1px solid #e4ebe5;margin-top:18px;padding-top:14px}
+.operationSummary{border:1px solid #bfd7c7;background:#f0f8f1;padding:12px;border-radius:10px;font-size:13px;line-height:1.7}
+.operationSummary strong{color:#124834;font-size:18px}
+.formRow{display:flex;gap:10px}.formRow>*{flex:1;min-width:0}
+.subtle{border:1px solid #e1e7e2;border-radius:10px;background:#f7faf7;padding:12px;font-size:13px;line-height:1.8;margin-top:12px}
+.preparedQr{margin:14px 0;padding:14px;border:1px solid #d8e5da;border-radius:12px;background:#f7faf7;text-align:center}
+.preparedQr h4{margin:0 0 8px;font-size:14px}
+.preparedQr img{display:block;width:min(100%,200px);height:auto;aspect-ratio:1;margin:0 auto 10px;background:#fff;image-rendering:pixelated}
+.preparedQrDownload{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 15px;border-radius:9px;background:#184b3d;color:#fff;font-size:13px;font-weight:700;text-decoration:none}
+.preparedQr .hint{margin:8px 0 0}
+.registeredCard .cardQrOpen{background:none;color:#184835;padding:0;margin:0;min-height:44px;font:inherit;text-decoration:underline;text-underline-offset:3px}
+#cardQrDialog{width:min(390px,calc(100% - 28px));max-height:calc(100dvh - 32px);overflow:auto;border:1px solid #a5bcac;border-radius:16px;padding:18px;color:#203a2e}
+#cardQrDialog::backdrop{background:#13291f99}
+#cardQrDialog h3{margin:0 0 8px}
+#cardQrDialog #closeCardQr{margin:10px 0 0}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #d6b56e;outline-offset:2px}
+.encounterStaffRow{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #e3e9e3;padding:10px 0;font-size:14px}
+.encounterStaffRow label{display:flex;align-items:center;gap:7px;margin:0;white-space:nowrap}
+.encounterStaffRow input[type="checkbox"]{display:inline-block;width:22px;height:22px;margin:0;accent-color:#184b3d;cursor:pointer}
+
+.encounterStaffRow strong{overflow-wrap:anywhere}
+.encounterStaffRow{align-items:stretch;flex-direction:column;gap:10px}
+.encounterStaffRow .encounterTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.encounterStaffRow .encounterEdit{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.encounterStaffRow .encounterEdit input{flex:1 1 165px;min-width:0;margin-top:4px}
+.encounterStaffRow .encounterEdit button{margin:0;padding:11px 13px;font-size:12px}
+.encounterStaffRow .encounterEdit small{display:block;color:#67766c;font-size:12px;line-height:1.5;margin-bottom:3px}
+.encounterStaffRow .encounterEdit label{display:block;flex:1 1 160px;white-space:normal}
+
+
+
+.staffAdminEntry{border-top:1px solid #e3ebe5;padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.staffAdminEntry strong{font-size:14px}.staffAdminEntry small{display:block;color:#728075;margin-top:4px;font-size:12px}
+.staffAdminEntry .staffAdminControls{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.staffAdminEntry .staffAdminControls label{margin:0}
+.staffAdminEntry .staffAdminControls button{grid-column:1 / -1}
+.staffAdminEntry input[type="checkbox"]{display:inline-block;width:22px;height:22px;vertical-align:middle;accent-color:#184b3d}
+@media(max-width:400px){.staffAdminEntry .staffAdminControls{grid-template-columns:1fr}}
+#staffDirectory{display:grid;gap:16px}
+#staffDirectory .staffAdminEntry{border:1px solid #9dbdae;border-radius:14px;background:#f5faf7;padding:0;gap:0;overflow:hidden}
+.staff-directory-edit{padding:14px}
+.staff-directory-edit .staffAdminControls label{min-width:0}
+.staffAdminControls .directoryPointsGrant{grid-column:1/-1}
+.staffAdminControls .directoryPointsGrant[hidden]{display:none}
+#directoryPointsHost #pointOperations{margin:0 0 16px;box-shadow:none}
+.registeredCard .directoryPointsButton{margin:8px 0}
+.staff-directory-edit .staffAdminControls button,.staff-directory-edit>button{width:100%;min-height:44px}
+.staff-directory-edit .staffAdminControls input[type=checkbox]{margin:0 0 0 7px}
+.staff-directory-state{display:inline-block;border-radius:99px;padding:3px 9px;background:#dfefe6;color:#1d523e;font-size:12px;font-weight:750}
+.staff-directory-state[data-inactive="true"]{background:#f5e8e1;color:#843925}
+.staff-onboarding{margin:12px 0;padding:12px;border:1px solid #9dbdae;background:#edf6ef;border-radius:11px}
+.staff-onboarding p{margin:0;font-size:13px}
+.staff-onboarding button{width:100%;min-height:44px;margin-top:10px}
+.staff-directory-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 9px;font-size:13px}
+.staff-work-permissions{border-top:1px solid #d3e3d9;margin:10px 0 16px;padding-top:10px}
+.staff-work-permission{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;margin-bottom:10px}
+.staff-work-permission .permissionState{margin-top:4px}
+.staff-work-permission .permissionAction{margin:0;font-size:13px;padding:8px 10px}
+.staff-work-permissions .hint{margin:4px 0 0}
+#staffDirectory .staff-directory-edit>small{margin:10px 0 0}
+.staff-display-name-form button{min-height:44px;width:100%}
+@media(min-width:365px){#staffDirectory .staffAdminControls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+@media(max-width:365px){.formRow{display:block}}
+
+.storeLinkRow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border:1px solid #d7e2d9;border-radius:10px;padding:10px;margin:10px 0;background:#f7faf7}.storeLinkRow select{max-width:110px}.storeLinkRow input[type=url]{min-width:180px;flex:1 1 180px}.storeLinkRow input:not([type=url]){min-width:120px;flex:1 1 130px}.storeLinksEditor{margin:10px 0 16px}.storeLinksEditor button{margin:4px}.staffAdminEntry details{border-top:1px solid #dce6df;margin-top:10px;padding-top:10px}.staffAdminEntry summary{cursor:pointer;font-weight:750;padding:6px 0}#storeDirectoryAdmin{margin-top:20px}
+#scanCard{display:block;width:100%;min-height:56px;font-size:17px;border-radius:12px}
+#scanReaderPanel{border-color:#a4cdb5;box-shadow:0 8px 25px #1d453118}
+#scanReaderPanel h2{color:#15533d}
+
+#managementMenu .managementButtonGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#managementMenu .managementButton{width:100%;min-height:106px;margin:0;padding:16px 12px;background:#edf4ef;color:#174839;text-align:left;border:1px solid #c9dbce;display:flex;flex-direction:column;gap:7px;position:relative}
+#managementMenu .managementButtonTitle{font-size:16px;font-weight:800}
+#managementMenu .managementButton small{font-size:11px;line-height:1.6;font-weight:500;padding-right:10px}
+#managementMenu .managementArrow{position:absolute;right:11px;top:8px;font-size:23px}
+#managementMenu .managementButton.hidden{display:none}
+#managementHeader{border-color:#b9d3c0;background:#f8fbf8}
+#managementHeader .backToOperations,#managementFooter .backToOperations{margin:0 0 16px;width:100%;min-height:46px}
+#managementFooter .backToOperations{margin:0}
+#managementHeader h2{margin:0 0 6px;font-size:21px}
+#managementHeader .hint{margin:0}
+@media(max-width:370px){#managementMenu .managementButtonGrid{grid-template-columns:1fr}#managementMenu .managementButton{min-height:80px}}
+#storeSettingsList{
+  display:grid;
+  gap:22px;
+  margin:20px 0;
+}
+.storeAdminCard.staffAdminEntry{
+  display:block;
+  min-width:0;
+  padding:0;
+  background:#f7fbf8;
+  border:2px solid #729f89;
+  border-radius:14px;
+}
+.storeAdminCard .storeAdminTitle{
+  position:sticky;
+  top:0;
+  z-index:1;
+  margin:0;
+  padding:12px 14px;
+  border-bottom:3px solid #85b29b;
+  border-radius:11px 11px 0 0;
+  background:#194b3d;
+  color:#fff;
+  font-size:17px;
+  font-weight:800;
+  line-height:1.4;
+  overflow-wrap:anywhere;
+}
+.storeAdminCard .storeAdminBody{padding:14px}
+.storeAdminCard .staffAdminControls{grid-template-columns:minmax(0,1fr)}
+.storeAdminCard .staffAdminControls .storeActiveLabel{display:flex;align-items:flex-start;gap:8px}
+.storeAdminCard .storeActiveLabel input[type="checkbox"]{flex:none;margin:0}
+.storeAdminCard details{margin-top:14px}
+.storeAdminCard summary{min-height:44px;padding:10px 0;overflow-wrap:anywhere}
+.storeAdminCard summary:focus-visible{outline:2px solid #2e795d;outline-offset:3px}
+.storeAdminCard .storeLinkRow input{min-width:0;max-width:100%}
+.storeAdminCard .storeLinkRow button{max-width:100%}
+#managementMenu .managementButtonGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#managementMenu .managementButton{min-height:84px;padding-right:26px}
+#managementMenu .managementButton small{padding-right:0;font-size:12px}
+#managementMenu .permissionMenuButton:not(.hidden){border-color:#80ac96;background:#e4f1e9}
+@media(max-width:420px){#managementMenu .managementButtonGrid{grid-template-columns:1fr}}
+#cardActivationPermissionList{display:grid;gap:12px}
+.cardPermissionRow{border:1px solid #a5bcac;border-radius:12px;padding:13px;background:#f7faf8}
+.cardPermissionRow h3{margin:0;font-size:16px;overflow-wrap:anywhere}
+.cardPermissionStore{margin:4px 0 9px;font-size:13px;color:#456054;overflow-wrap:anywhere}
+.permissionState{display:inline-block;padding:3px 8px;border:1px solid #c6d6cc;border-radius:6px;background:#eef3ef;color:#395045;font-size:12px;font-weight:800}
+.permissionState[data-allowed="true"]{border-color:#8dbca3;background:#dcf0e3;color:#184835}
+.permissionAction{min-height:44px;white-space:normal}
+.cardPermissionRow .permissionAction{display:block;width:100%;margin:10px 0 0}
+#encounterStaffList .encounterTop{flex-wrap:wrap;align-items:center}
+#encounterStaffList .encounterTop strong{flex:1 1 135px}
+#encounterStaffList .encounterTop .permissionAction{margin:0}
+.permissionSettingsNote{margin-top:13px}
+#registeredCardSearchForm{display:grid;gap:10px;margin-bottom:16px}
+#registeredCardSearchForm label{margin:0}
+#registeredCardSearchForm button{margin:0}
+#registeredCardResults{display:grid;gap:12px}
+.registeredCard{padding:14px;border:1px solid #a5bcac;border-radius:12px;background:#f7faf8;overflow-wrap:anywhere}
+.registeredCard h3,.registeredCard p{margin:0 0 6px}
+.registeredCard dl{display:grid;grid-template-columns:max-content 1fr;gap:5px 12px;font-size:14px}
+.registeredCard dt{font-weight:750;color:#456054}
+.registeredCard dd{margin:0}
+.customerNote{border-top:1px solid #cdded3;margin:12px 0 4px;padding-top:10px}
+.customerNote label{margin:0}
+.customerNote input{font-size:16px}
+.customerNote button{min-height:44px;margin:7px 0}
+.customerNote p:empty{display:none}
+
+.registeredCard summary{min-height:44px;padding:10px 0;cursor:pointer;color:#184835;font-weight:750}
+.registeredCardActivity{border-top:1px solid #cdded3;padding-top:8px;font-size:13px}
+.registeredCardActivity h4{margin:6px 0}
+.registeredCardActivity ul{margin:6px 0 12px;padding-left:22px}
+.registeredCardActivity li{margin-bottom:6px}
+.registeredCard .cardEditPanel{border-top:1px solid #cdded3;margin-top:12px}
+.cardEditPanel form{margin:0 0 12px}
+.cardEditPanel button{min-height:44px;margin:8px 8px 8px 0}
+.cardEditPanel .replacementConfirmLabel{display:flex;gap:8px;align-items:flex-start;margin:10px 0}
+.cardEditPanel .replacementConfirmLabel input{width:auto;margin:3px 0}
+.registeredCard .cardRevoked{color:#983b2e;font-weight:750}
+#registeredCardsMore[hidden]{display:none}
+ .directoryFields textarea{width:100%;font:inherit;min-height:80px;padding:10px;border:1px solid #b4c8ba;border-radius:10px;resize:vertical}
+ .directoryFields{margin:14px 0}
+ .directoryFields form+form{margin-top:20px;padding-top:16px;border-top:1px solid #dce6df}
+ .directoryFields input[type=checkbox]{width:auto}
+ .directoryFields button{margin:8px 6px 0 0}
+ .operatingLampStaffRow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #cbd8cf}.operatingLampStaffRow strong{flex:1 1 160px}.operatingLampStaffRow select{flex:1 1 190px;min-height:42px}.operatingLampStaffRow button{min-height:42px}
+</style><link rel="stylesheet" href="./common/staff_theme.css"></head><body><main><h1>BEES POINT NFC</h1><p class="sub">NFCカード事前準備・会員登録・ポイント操作 · スタッフ用 v5.6.41</p>
+<section class="card" id="staffLoginPanel"><h2>スタッフログイン</h2><label>メールアドレス<input id="email" type="email" autocomplete="username" placeholder="メールアドレス"></label><label>パスワード<input id="password" type="password" autocomplete="current-password" placeholder="パスワード"></label><button id="togglePassword" type="button" class="secondary" aria-controls="password" aria-pressed="false" aria-label="パスワードを表示">👁 表示</button><br><button id="signIn" type="button">ログイン</button>
+<details id="selfRecoveryDetails" style="margin-top:18px"><summary style="color:#154a3b;cursor:pointer;font-weight:700">パスワードを忘れた方はこちら</summary>
+<p class="hint">登録メール宛に期限付きの再設定リンクを送ります。メールを第三者へ転送しないでください。</p>
+<label>登録メールアドレス<input id="recoveryEmail" type="email" autocomplete="email" placeholder="メールアドレス"></label>
+<button id="selfRecoverySend" type="button" class="secondary">パスワード再設定メールを送信</button>
+<p id="selfRecoveryStatus" class="hint" role="status" aria-live="polite"></p></details>
+<p id="authStatus" class="hint">まだログインしていません</p>
+<p id="encounterPermissionStatus" class="hint">遭遇ポイント権限はログイン後に確認します。</p></section>
+<section class="card hidden" id="staffAccessPanel" aria-labelledby="staffAccessTitle">
+  <h2 id="staffAccessTitle">ログイン中のスタッフ</h2>
+  <div id="staffAccessDetails" class="staff-access-details" hidden>
+    <p id="signedInStaffName" class="staff-current-name"></p>
+    <p id="signedInStaffRole" class="staff-role"></p>
+    <p id="signedInStaffStore" class="staff-current-store"></p>
+    <h3>許可されている操作</h3>
+    <ul id="signedInStaffPermissions" class="staff-access-list"></ul>
+  </div>
+  <p id="staffAccessStatus" class="hint" role="status"></p>
+  <button id="refreshStaffAccess" class="secondary staff-compact-action" type="button">権限を再確認</button>
+  <button id="openCustomerPreview" class="secondary staff-compact-action" type="button">お客様画面プレビュー</button>
+</section>
+<section class="card hidden" id="scanReaderPanel"><h2>① NFCカード読取・会員照会</h2><button id="scanCard" type="button" disabled>NFCカードを読み取る</button> <button id="stopScan" type="button" class="secondary" disabled>読み取りを停止</button><p class="hint">最初にお客様のNFCカードを読み取ってください。<strong>Android版Chrome</strong>のNFC読み取りに対応した環境で使えます。非対応ブラウザの場合は、カードのURLをコピーして照会してください。</p><p id="scanStatus" class="hint">ログインすると使えるようになります</p><details><summary class="hint">NFC読み取りができないとき：URLを貼り付けて会員照会</summary><label>カード用URL（第三者には見せない）<input id="lookupUrl" type="password" autocomplete="off" placeholder="https:// から始まるカードURL" spellcheck="false"></label><button id="lookupButton" type="button" class="secondary" disabled>URLから会員を照会</button></details><div id="activationBox" class="hidden"><h3>未登録カード：お客様情報を登録</h3><p id="preparedCardNumber" class="subtle" role="status"></p><p class="hint">カードに記録済みの専用URLを使います。新たな書き込みは不要です。</p><label>このカードを発行する店舗<select id="activationStore"><option value="">権限のある店舗を確認中…</option></select></label><p id="activationStoreHint" class="hint"></p><label>お客様のお名前（最大8文字）<input id="newMemberName" type="text" maxlength="8" autocomplete="off" placeholder="例：山田太郎" spellcheck="false"></label><button type="button" id="activateCard" disabled>お名前を登録してカードを有効化</button><p class="hint" id="activateStatus" role="status"></p></div><div id="lookupResult" class="alert success hidden" role="status" aria-live="polite"></div><p id="lookupStatus" class="hint" role="status"></p><p class="hint">既存の有効カードは会員情報と残高を表示します。未登録カードはお名前を登録すると有効になります。有効カードを照会すると、下のポイント付与・会計操作が使えます。</p></section>
+<div id="pointOperationsHome">
+<section class="card hidden" id="pointOperations">
+<h2 id="pointOperationsTitle" tabindex="-1">② ポイント付与・利用</h2>
+<button class="secondary hidden" id="closeDirectoryPoints" type="button">一覧に戻る</button>
+<p class="hint hidden" id="directoryPointNotice">一覧で選んだ会員のポイントを操作します。<strong>確定すると実際の残高が変わります。</strong></p>
+<p class="hint" id="nfcPointNotice">必ず実物のカードを照会して会員を選択してください。ポイントは系列店で共通です。<strong>この操作は実際のデータベース残高を変更します。</strong></p>
+<div id="noSelectedMember" class="subtle" role="status">先に①で今回操作するカードを読み取り、またはURLで照会してください。</div>
+<div id="selectedMemberPanel" class="hidden">
+<div id="selectedMemberInfo" class="operationSummary" role="status"></div><div id="staffCardDetails" class="subtle hidden" aria-label="カードの管理情報・履歴（スタッフ専用）"></div>
+<div class="pointArea hidden" id="encounterAwardArea">
+<h3>スタッフ遭遇ポイント（+1pt）</h3>
+<p class="hint">街中・イベント等でお客様から有効なカードを提示してもらったときに使います。同じお客様には、あなたから1営業日1回だけ付与できます。別の許可スタッフからの付与は別に1回可能です。店舗選択は不要です。</p>
+<button type="button" id="awardEncounter" disabled>この会員へ遭遇ポイント +1pt を付与</button>
+<p id="encounterStatus" class="hint" role="status" aria-live="polite"></p></div>
+<label>ポイント操作を行う店舗<select id="operationStore"></select></label>
+<p id="operationStoreHint" class="hint"></p>
+<div class="pointArea"><h3>来店ポイント</h3><p class="hint">会計なしでも付与可能。通常5pt（イベント時は店舗設定を優先）。同じ会員・同じ店舗で1営業日1回だけ付与できます。</p>
+<button type="button" id="awardVisit" disabled>この店舗で来店ポイントを付与</button>
+<p class="hint" id="visitStatus" role="status"></p></div>
+<div class="pointArea"><h3>お会計ポイント・ポイント利用</h3>
+<p class="hint">税込会計総額はポイント利用前の金額を入力します。実際の税込支払額100円ごとに5pt付与。ポイント利用は10pt単位・1pt＝1円です。</p>
+<label>税込会計総額（ポイント利用前・円）<input id="totalYen" type="number" min="0" max="2147483647" step="1" inputmode="numeric" placeholder="例：1200"></label>
+<label>今回使うポイント（0、10、20…pt）<input id="redeemPoints" type="number" min="0" max="2147483647" step="10" inputmode="numeric" value="0"></label>
+<div id="checkoutPreview" class="subtle" aria-live="polite">金額を入力すると計算結果を表示します。</div>
+<button type="button" id="checkoutConfirm" disabled>内容を確認して会計を確定</button>
+<p id="checkoutStatus" class="hint" role="status"></p>
+<div id="checkoutPending" class="alert hidden" role="status">前回の会計が確定したか不明です。同じ受付IDで再照会します。<br><button type="button" id="checkoutRetry" class="secondary">同じ受付IDで再確認</button></div>
+</div></div></section>
+</div>
+<div id="operationsSafetyNotice" class="alert">事前準備カードはお客様の名前を登録するまで無効です。登録前のカードは会員管理画面に表示されません。URLはカード固有の秘密情報です。他人に共有しないでください。既存カードや残高はデプロイだけでは変更されません。ポイント操作が確定すると、選択した会員の残高が変わります。</div>
+<section class="card hidden" id="preparing"><h2>③ 未登録のNFCカードを事前準備</h2>
+<p class="hint">最高管理責任者だけが全店舗共通の未登録カードをまとめて準備します。カード番号は準備時に確定し、ニックネーム登録時に発行店舗を記録します。<strong>未登録カードは会員管理画面には表示されず、ポイント操作もできません。</strong></p>
+<p class="alert">カードのリンク先はプレビューごとに変えず、固定のテスト用サイト <strong>shop-point-nfc-customer-test-1107.pages.dev</strong> を使います。実際の店舗運用でカードを配布する前に、正式な公開先ドメインを決定してください。カードへの書き込み後は、このURLは自動変更されません。</p>
+<select id="stockStore" hidden aria-hidden="true"><option value="">店舗一覧読み込み</option></select><label>カード区分<select id="stockKind"><option value="regular">一般用：No.000101〜を自動採番</option><option value="reserved">関係者用：No.000001〜000100を指定</option></select></label><label id="reservedCardNumberLabel" class="hidden">関係者用の指定番号（1～100）<input id="stockReservedNumber" type="number" min="1" max="100" inputmode="numeric" placeholder="例：1"></label>
+<label>準備する枚数<select id="stockCount"><option value="1">1枚（まずはテスト）</option><option value="5">5枚</option><option value="10">10枚</option><option value="20">20枚</option><option value="30">30枚</option></select></label>
+<button type="button" id="prepareCards" disabled>専用URLをまとめて発行</button><p class="hint" id="stockStatus" role="status"></p>
+<div id="preparedPanel" class="hidden"><h3 id="preparedCounter">1 / 1</h3>
+<p class="subtle" id="preparedPublicNumber"></p><label>現在のカード専用URL（秘密）<input id="preparedUrl" type="password" autocomplete="off" readonly spellcheck="false"></label>
+<div class="actionsRow"><button type="button" id="preparedPrev" class="secondary">前のカード</button><button type="button" id="preparedCopy">📋 NFC Tools PRO用コピー（https://除く）</button><button type="button" id="preparedNext" class="secondary">次のカード</button></div>
+<div class="preparedQr" id="preparedQr" hidden>
+  <h4>カード専用URLのQRコード</h4>
+  <img id="preparedQrImage" alt="表示中のカード専用URLのQRコード">
+  <a class="preparedQrDownload" id="preparedQrDownload" download>QRコードをPNG保存</a>
+  <p class="hint">専用URLと同じ閲覧用の鍵です。カードの持ち主だけにお渡しください。</p>
+</div>
+<p class="hint" id="preparedQrStatus" role="status" hidden></p>
+<button type="button" class="secondary" id="preparedSave">カードURL一覧をCSV保存（URL全文）</button>
+<p class="alert">このURL一覧はカードごとの秘密情報です。保存したCSVは厳重に管理し、全カードを書き込んだ後は不要なコピーを削除してください。NFC Tools PROでは「URL / URI」の左側で「https://」を選び、「NFC Tools PRO用コピー」で取得した文字列を右側に貼り付けます。CSVはURL全文を含みます。</p>
+</div></section>
+
+<section id="managementMenu" class="card hidden" aria-label="管理メニュー">
+  <h2>管理メニュー</h2>
+  <div class="managementButtonGrid">
+    <button type="button" id="openCardPermissionManagement" class="managementButton secondary hidden permissionMenuButton"><span class="managementButtonTitle">カード登録の許可</span><small>未登録NFCカードを有効化できるスタッフ</small><span class="managementArrow" aria-hidden="true">›</span></button>
+    <button type="button" id="openEncounterPermissionManagement" class="managementButton secondary hidden permissionMenuButton"><span class="managementButtonTitle">遭遇ポイントの許可</span><small>遭遇ポイントを付与できるスタッフと公開名</small><span class="managementArrow" aria-hidden="true">›</span></button>
+    <button type="button" id="openStaffManagement" class="managementButton secondary hidden"><span class="managementButtonTitle">スタッフ管理</span><small>カード登録・遭遇ポイントの許可、アカウント設定</small><span class="managementArrow" aria-hidden="true">›</span></button>
+    <button type="button" id="openMemberCards" class="managementButton secondary hidden"><span class="managementButtonTitle">登録済みカード一覧</span><small>カード番号・登録名・ポイント履歴</small><span class="managementArrow" aria-hidden="true">›</span></button>
+    <button type="button" id="openStoreManagement" class="managementButton secondary hidden"><span class="managementButtonTitle">店舗管理</span><small>来店ポイント・店舗情報・イベント</small><span class="managementArrow" aria-hidden="true">›</span></button>
+  </div>
+</section>
+<section id="managementHeader" class="card managementPageHeader hidden" aria-label="管理画面のナビゲーション">
+  <button type="button" id="backToOperationsTop" class="secondary backToOperations">‹ いつもの操作画面に戻る</button>
+  <h2 id="managementTitle" tabindex="-1">管理</h2>
+  <p id="managementDescription" class="hint"></p>
+</section>
+<section class="card hidden" id="encounterAdminPanel"><h3>スタッフ別の付与設定</h3>
+<p class="hint">許可されたスタッフだけが、お客様の有効NFCカードを照会して1営業日・1スタッフにつき1ptを付与できます。初期状態はすべてOFFです。お客様に表示する名前は、ログイン用の名前とは別に変更できます。過去の付与履歴の名前は変わりません。</p>
+<div id="encounterStaffList" role="region" aria-label="スタッフ別遭遇ポイント権限"></div>
+<button id="reloadEncounterStaff" class="secondary" type="button">遭遇ポイントの許可一覧を更新</button>
+<p id="encounterAdminStatus" class="hint" role="status" aria-live="polite"></p></section>
+<section class="card hidden" id="staffAdminPanel">
+<div id="staffInvitePanel" class="hidden">
+<p class="hint">招待されたスタッフがパスワードを設定したら、一覧の「承認して案内メールを送る」を押してください。</p>
+<h3>新しいスタッフを招待</h3>
+<label>スタッフ名<input id="inviteName" maxlength="24" autocomplete="off" placeholder="例：山田" spellcheck="false"></label>
+<label>スタッフのメールアドレス<input id="inviteEmail" type="email" autocomplete="off" placeholder="staff@example.com" spellcheck="false"></label>
+<label>役職<select id="inviteRole"><option value="staff">一般スタッフ</option><option value="store_admin">店舗管理者</option></select></label>
+<label>担当店舗<select id="inviteStore"><option value="">読み込み中…</option></select></label>
+<button id="sendStaffInvite" type="button" disabled>スタッフ招待メールを送る</button>
+<p class="hint">招待された一般スタッフのカード登録・遭遇ポイント付与の許可は初期状態でオフです。下の「登録済みスタッフ」から設定できます。</p>
+<p id="staffInviteStatus" role="status" aria-live="polite" class="hint"></p>
+</div>
+<h3>登録済みスタッフ</h3>
+<button class="secondary" id="reloadStaffDirectory" type="button">スタッフ一覧を更新</button>
+<p id="staffDirectoryStatus" role="status" aria-live="polite" class="hint"></p>
+<div id="staffDirectory" role="region" aria-label="登録済みスタッフの管理"></div>
+</section>
+<section class="card hidden" id="cardActivationPermissionsPanel" aria-label="スタッフ別のカード登録許可">
+<h3>スタッフ別のカード登録設定</h3>
+<div id="cardActivationPermissionList"></div>
+<p class="hint permissionSettingsNote" id="cardActivationPermissionStatus" role="status" aria-live="polite"></p>
+<button class="secondary" type="button" id="reloadCardActivationPermissions">カード登録の許可一覧を更新</button>
+</section>
+<section class="card hidden" id="registeredCardsPanel" aria-label="登録済みカード">
+<form id="registeredCardSearchForm">
+<label>カード番号または登録名<input id="registeredCardQuery" type="search" maxlength="80" autocomplete="off" placeholder="例：000100 または 発行テスト"></label>
+<label>カード区分<select id="registeredCardKind">
+<option value="all">すべての区分</option><option value="reserved">関係者用（No.000001〜000100）</option>
+<option value="general">一般用（No.000101〜）</option><option value="legacy">番号未割当（旧カード）</option>
+</select></label>
+<label>カードの状態<select id="registeredCardState">
+<option value="active">有効</option><option value="revoked">一時停止中</option>
+</select></label>
+<button type="submit">検索・更新</button>
+</form>
+<p class="hint" id="registeredCardStatus" role="status" aria-live="polite"></p>
+<div id="directoryPointsHost"></div>
+<div id="registeredCardResults"></div>
+<button class="secondary" id="registeredCardsMore" type="button" hidden>次の30件を表示</button>
+</section>
+<dialog id="cardQrDialog" aria-labelledby="cardQrTitle">
+  <h3 id="cardQrTitle">カード専用QR</h3>
+  <p class="hint" id="cardQrStatus" role="status" aria-live="polite"></p>
+  <div class="preparedQr" id="directoryQrPreview" hidden>
+    <img id="directoryQrImage" alt="カード専用URLのQRコード">
+    <a id="directoryQrDownload" class="preparedQrDownload" download>QRコードをPNG保存</a>
+    <p class="hint">専用URLと同じ閲覧用の鍵です。カードの持ち主だけにお渡しください。</p>
+  </div>
+  <form id="cardQrImport" hidden>
+    <label>保存済みのQR画像<input id="cardQrFile" type="file" accept="image/*"></label>
+    <label>またはカード専用URL<input id="cardQrUrl" type="password" autocomplete="off" spellcheck="false"></label>
+    <button id="cardQrSave" type="submit">このカードのQRを登録</button>
+  </form>
+  <button type="button" id="closeCardQr" class="secondary">閉じる</button>
+</dialog>
+<section class="card hidden" id="storeSettingsPanel"><h2>管理者：店舗別の来店ポイント・公開設定</h2>
+<p class="hint">来店ポイントは次回以降の付与から反映され、過去の履歴や残高は変更されません。店舗管理者は自店舗の来店ポイント数のみ変更できます。店舗の公開・停止は最高管理責任者のみ操作できます。</p>
+<button id="openStoreCustomerPreview" class="secondary staff-compact-action" type="button">お客様画面プレビュー</button>
+<div id="storeSettingsList" role="region" aria-label="店舗別設定"></div>
+<button id="reloadStoreSettings" type="button" class="secondary">店舗設定を再取得</button>
+<p id="storeSettingsStatus" class="hint" role="status" aria-live="polite"></p>
+<div id="storeDirectoryAdmin" class="hidden">
+<hr><h3>最高管理責任者：新しい系列店舗を追加</h3>
+<p class="hint">登録すると系列共通ポイントの対象店舗になります。Instagram以外にも公式サイト、LINE、予約ページなど最大5件のリンクを設定できます。未公開で準備する場合は「店舗を有効にする」をOFFにしてください。</p>
+<label>新店舗名（1〜80文字）<input id="newStoreName" maxlength="80" autocomplete="off" placeholder="例：Bar NEW BEES" spellcheck="false"></label>
+<label>通常来店ポイント（1〜100000）<input id="newStorePoints" type="number" min="1" max="100000" step="1" value="5" inputmode="numeric"></label>
+<label><input id="newStoreActive" type="checkbox" checked> 店舗を有効にする（お客様に表示・ポイント付与対象）</label>
+<div id="newStoreLinks" aria-label="新店舗の外部リンク"></div>
+<button id="newStoreAddLink" class="secondary" type="button">＋ リンクを追加（最大5件）</button>
+<button id="createNewStore" type="button">新しい系列店舗を登録</button>
+<p class="hint" id="newStoreStatus" role="status" aria-live="polite"></p>
+</div></section>
+
+<section class="card hidden" id="operatingLampStaffPanel" aria-label="店舗の営業ランプ管理"><h2>🚦 店舗営業ランプ</h2><p class="hint">担当店舗の営業状態を変更できます。最高管理責任者は全店舗を操作できます。営業状態は翌朝8時（日本時間）にCLOSE扱いになります。</p><div id="operatingLampStaffList"></div><button id="operatingLampStaffRefresh" type="button" class="secondary">営業状態を再取得</button><p id="operatingLampStaffMessage" role="status" aria-live="polite" class="hint">スタッフ情報の確認後に読み込みます。</p></section>
+<section id="managementFooter" class="card hidden managementPageFooter">
+  <button type="button" id="backToOperationsBottom" class="secondary backToOperations">‹ NFC読み取り画面に戻る</button>
+</section>
+<section class="card hidden" id="staffLogoutPanel" aria-label="ログアウト">
+<h2>ログアウト</h2>
+<p id="logoutSessionStatus" class="hint" role="status" aria-live="polite">ログイン中です。</p>
+<p class="hint">端末を他の人に渡す場合は、ここからログアウトしてください。翌朝8時以降は再ログインが必要です。</p>
+<button id="signOut" type="button" class="secondary">ログアウト</button>
+</section>
+<footer class="footer">
+  BEES POINT NFC · v5.6.41 STAFF
+  <div style="margin-top:8px;font-size:12px;font-weight:600">BEES アプリ 開発/管理 FMITAKA</div>
+</footer></main>
+<script src="./common/qrcode-generator-2.0.4.js"></script>
+<script src="./common/card_qr.js"></script>
+<script src="./common/jsqr-1.4.0.js"></script>
+<script>
+'use strict';const BASE='https://cuoruflxfyubjpboqprb.supabase.co',KEY='sb_publishable_EdoSdDxZAEeXDKzuN9gVDg_ThW89nz8';let token=null,refreshToken=null,tokenExpiresAt=0,loginBusinessDay=null,refreshPromise=null;
+let staffSessionVersion=0;
+const SESSION_STORAGE_KEY='shop-point-nfc.staff-session.v4';
+const CHECKOUT_PENDING_KEY='shop-point-nfc.checkout-pending.v5';
+// Japan does not use daylight-saving time: 08:00 JST is 23:00 UTC on the prior date.
+function businessDayJst(){return new Date(Date.now()+3600000).toISOString().slice(0,10)}
+function clearStoredSession(){try{localStorage.removeItem(SESSION_STORAGE_KEY)}catch(_){}}
+function persistSession(){
+ if(!token||!refreshToken||!loginBusinessDay)return;
+ try{localStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({
+  access_token:token,refresh_token:refreshToken,
+  expires_at:tokenExpiresAt,business_day:loginBusinessDay
+ }))}catch(_){authStatus.textContent='ログイン成功。ただしこのブラウザでは保存できず、開き直すと再ログインが必要です。'}
+}
+function setAuthControls(isLoggedIn){
+ // ログイン中は入力フォーム全体を隠し、最下部のログアウト操作だけを表示。
+ // ログアウト・営業日切替時にはログインフォームを復帰させる。
+ byId('staffLoginPanel').classList.toggle('hidden',isLoggedIn);
+ byId('staffLogoutPanel').classList.toggle('hidden',!isLoggedIn);
+ for(const panelId of ['scanReaderPanel','preparing']){
+   byId(panelId).classList.toggle('hidden',!isLoggedIn);
+ }
+ if(!isLoggedIn){
+   byId('encounterAdminPanel').classList.add('hidden');
+   byId('staffAdminPanel').classList.add('hidden');
+   byId('storeSettingsPanel').classList.add('hidden');
+   byId('storeDirectoryAdmin').classList.add('hidden');
+   byId('encounterAwardArea').classList.add('hidden');
+   byId('awardEncounter').disabled=true;
+   byId('encounterPermissionStatus').textContent='遭遇ポイント権限はログイン後に確認します。';
+ }
+ byId('scanCard').disabled=!isLoggedIn;byId('lookupButton').disabled=!isLoggedIn;
+ if(!isLoggedIn){byId('prepareCards').disabled=true;byId('activateCard').disabled=true;
+  byId('stopScan').disabled=true;byId('stockStore').replaceChildren(new Option('ログイン後に読み込みます',''))}
+ if(!isLoggedIn)managementView='home';
+ renderManagementView();
+}
+function clearAuth(message='ログアウトしました。'){
+ staffSessionVersion++;
+ token=null;refreshToken=null;tokenExpiresAt=0;loginBusinessDay=null;refreshPromise=null;
+ clearStoredSession();
+ encounterStaffProfile=null;encounterPermissionEnabled=false;
+ staffActivationStores=null;
+ operationStores=null;
+ renderStaffAccess();
+ byId('refreshStaffAccess').disabled=false;
+ byId('staffDirectory').replaceChildren();
+ setAuthControls(false);authStatus.textContent=message;
+ byId('password').value='';byId('password').type='password';
+ byId('togglePassword').textContent='👁 表示';
+ byId('togglePassword').setAttribute('aria-pressed','false');
+ byId('togglePassword').setAttribute('aria-label','パスワードを表示');
+ if(typeof activeScan!=='undefined'&&activeScan){activeScan.abort();activeScan=null}
+ if(typeof pendingActivationToken!=='undefined')pendingActivationToken=null;
+ if(typeof preparedCards!=='undefined'){preparedCards=[];preparedIndex=0;preparedStoreName='';renderPrepared()}
+ if(byId('activationBox'))byId('activationBox').classList.add('hidden');
+ if(byId('lookupUrl'))byId('lookupUrl').value='';
+ if(typeof resetSelectedMember==='function')resetSelectedMember();
+ resetRegisteredCards();
+}
+
+function validBusinessDay(){
+ if(!token||!loginBusinessDay)return false;
+ if(loginBusinessDay!==businessDayJst()){
+  clearAuth('午前8時に営業日が切り替わりました。再ログインしてください。');return false;
+ }
+ return true;
+}
+function receiveSession(auth,firstLogin=false){
+ if(!auth||typeof auth.access_token!=='string'||typeof auth.refresh_token!=='string')throw Error('認証情報が不足しています');
+ token=auth.access_token;refreshToken=auth.refresh_token;
+ tokenExpiresAt=Number(auth.expires_at)||Math.floor(Date.now()/1000)+Number(auth.expires_in||3600);
+ if(firstLogin)loginBusinessDay=businessDayJst();
+ persistSession();
+}
+async function refreshSession(){
+ if(!validBusinessDay())throw Error('営業日が切り替わりました。再ログインしてください');
+ if(!refreshToken)throw Error('ログイン情報を更新できません。再ログインしてください');
+ if(refreshPromise)return refreshPromise;
+ const session=staffSessionVersion;
+ const pending=(async()=>{
+  const res=await fetch(BASE+'/auth/v1/token?grant_type=refresh_token',{
+   method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},
+   body:JSON.stringify({refresh_token:refreshToken}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+  });
+  const data=await res.json().catch(()=>null);
+  if(session!==staffSessionVersion||!validBusinessDay())throw Error('再ログインしてください');
+  if(!res.ok){clearAuth('ログインの有効期限が切れました。再ログインしてください。');throw Error('認証を更新できません。再ログインしてください')}
+  receiveSession(data);
+  return token;
+ })();
+ refreshPromise=pending;
+ try{return await pending}finally{if(refreshPromise===pending)refreshPromise=null}
+}
+async function openCustomerPreview(button,status){
+ if(!validBusinessDay()||button.disabled)return;
+ button.disabled=true;
+ const session=staffSessionVersion;
+ try{
+  if(Date.now()/1000>=tokenExpiresAt-90)await refreshSession();
+  if(session!==staffSessionVersion||!validBusinessDay())return;
+  window.location.assign('./?preview=staff');
+ }catch(_){
+  status.textContent='プレビューを開けませんでした。ログイン状態と通信環境を確認してください。';
+ }finally{
+  button.disabled=false;
+ }
+}
+function showAuthenticated(message){
+ // Do not reuse an earlier account's displayed admin permissions during a new login.
+ encounterStaffProfile=null;
+ setAuthControls(true);authStatus.textContent=message;
+ byId('staffAccessStatus').textContent='スタッフ名と権限を確認しています…';
+ byId('logoutSessionStatus').textContent=message;
+ byId('scanStatus').textContent='NFC読み取りの準備ができました。Android版Chromeでお試しください。';
+}
+async function restoreSession(){
+ let stored;
+ try{stored=JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY)||'null')}catch(_){clearStoredSession();return}
+ if(!stored)return;
+ if(!stored.access_token||!stored.refresh_token||stored.business_day!==businessDayJst()){
+  clearStoredSession();authStatus.textContent='営業日が切り替わった場合は再ログインしてください。';return
+ }
+ loginBusinessDay=stored.business_day;token=stored.access_token;refreshToken=stored.refresh_token;
+ tokenExpiresAt=Number(stored.expires_at)||0;
+ authStatus.textContent='ログイン情報を確認しています…';
+ try{
+  // Refresh immediately and verify staff permissions on the server before displaying a logged-in state.
+  await refreshSession();
+  await request('/rest/v1/rpc/staff_card_stock_stores',{},token);
+  showAuthenticated('ログイン状態を復元しました。翌朝8時に再ログインが必要です。');
+  await Promise.all([loadStockStores(),loadEncounterAccess()]);
+ }catch(_){clearAuth('ログイン状態を復元できませんでした。再ログインしてください。')}
+}
+
+const byId=id=>document.getElementById(id),authStatus=byId('authStatus');
+for(const [buttonId,statusId] of [['openCustomerPreview','staffAccessStatus'],['openStoreCustomerPreview','storeSettingsStatus']]){
+ const button=byId(buttonId);
+ button.addEventListener('click',()=>openCustomerPreview(button,byId(statusId)));
+}
+
+// The server remains authoritative for management access.
+const managementPages = {
+ card: {
+  button: 'openCardPermissionManagement', panel: 'cardActivationPermissionsPanel', storeManager: true,
+  hash: '#card-permissions', title: 'カード登録の許可',
+  description: '一般スタッフが担当店舗で、未登録のNFCカードにお客様の名前を登録して使えるようにする許可です。',
+  load: () => loadCardActivationPermissions()
+ },
+ encounter: {
+  button: 'openEncounterPermissionManagement', panel: 'encounterAdminPanel',
+  hash: '#encounter-permissions', title: '遭遇ポイントの許可',
+  description: 'スタッフごとに、遭遇ポイントの付与とお客様に表示する公開名を設定します。',
+  load: () => loadEncounterStaffList()
+ },
+ staff: {
+  button: 'openStaffManagement', panel: 'staffAdminPanel', storeManager: true,
+  hash: '#staff-management', title: 'スタッフ管理',
+  description: 'スタッフごとの未登録カードの登録と遭遇ポイント付与の許可を設定します。',
+  load: () => loadStaffDirectory()
+ },
+ members: {
+  button: 'openMemberCards', panel: 'registeredCardsPanel', storeManager: true,
+  hash: '#registered-cards', title: '登録済みカード一覧',
+  description: 'お客様の登録名を変更できます。紛失時はカードを一時停止し、会員情報・残高・履歴を引き継いで再発行できます。',
+  load: () => loadRegisteredCards()
+ },
+ store: {
+  button: 'openStoreManagement', panel: 'storeSettingsPanel', storeManager: true,
+  hash: '#store-management', title: '店舗管理',
+  description: '来店ポイント、店舗情報、外部リンク、次回イベントを管理します。',
+  load: () => loadStoreSettings()
+ }
+};
+let managementView='home';
+function canOpenManagement(page){
+ const role=encounterStaffProfile?.role;
+ return !!page && (role==='super_admin'||(page.storeManager&&role==='store_admin'));
+}
+function renderManagementView(){
+ const loggedIn=Boolean(token&&loginBusinessDay===businessDayJst());
+ const page=Object.hasOwn(managementPages,managementView)?managementPages[managementView]:null;
+ if(!loggedIn||!canOpenManagement(page))managementView='home';
+ const home=managementView==='home';
+ const role=encounterStaffProfile?.role;
+ for(const [key, settings] of Object.entries(managementPages)){
+   byId(settings.button).classList.toggle('hidden',!loggedIn||!canOpenManagement(settings));
+   byId(settings.panel).classList.toggle('hidden',key!==managementView);
+ }
+ byId('managementMenu').classList.toggle('hidden',!loggedIn||!home||!['super_admin','store_admin'].includes(role));
+ byId('staffInvitePanel').classList.toggle('hidden',role!=='super_admin');
+ byId('managementHeader').classList.toggle('hidden',home);
+ byId('managementFooter').classList.toggle('hidden',home);
+ for(const id of ['staffAccessPanel','scanReaderPanel','preparing','operationsSafetyNotice']){
+   byId(id).classList.toggle('hidden',!loggedIn||!home||(id==='preparing'&&role!=='super_admin'));
+ }
+ if(managementView!=='members'&&directorySelection)resetSelectedMember();
+ if(managementView!=='members')closeDirectoryQr();
+ placePointOperations();
+ if(!home){
+   byId('managementTitle').textContent=page.title;
+   byId('managementDescription').textContent=page.description;
+ }
+}
+function goToManagement(view){
+ const page=managementPages[view];
+ if(!token||!validBusinessDay()||!canOpenManagement(page))return;
+ stopNfcScan();
+ managementView=view;
+ history.pushState({beesManagementView:view},'',page.hash);
+ renderManagementView();
+ void page.load();
+ window.scrollTo({top:0,behavior:'instant'});
+ byId('managementTitle').focus({preventScroll:true});
+}
+function returnToOperations(){
+ if(history.state?.beesManagementView){history.back();return;}
+ managementView='home';renderManagementView();window.scrollTo({top:0,behavior:'instant'});
+}
+for(const [view, page] of Object.entries(managementPages)){
+ byId(page.button).addEventListener('click',()=>goToManagement(view));
+}
+byId('backToOperationsTop').addEventListener('click',returnToOperations);
+byId('backToOperationsBottom').addEventListener('click',returnToOperations);
+window.addEventListener('popstate',e=>{
+ managementView=e.state?.beesManagementView||'home';
+ renderManagementView();
+ if(managementView!=='home')void managementPages[managementView].load();
+ window.scrollTo({top:0,behavior:'instant'});
+});
+const cardDirectoryForm = byId('registeredCardSearchForm');
+const cardDirectoryResults = byId('registeredCardResults');
+const cardDirectoryStatus = byId('registeredCardStatus');
+const cardDirectoryNext = byId('registeredCardsMore');
+const cardDirectoryDate = new Intl.DateTimeFormat('ja-JP', {
+ timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit'
+});
+const cardDirectoryNumber = new Intl.NumberFormat('ja-JP');
+const cardDirectoryKinds = {
+ visit:'来店ポイント', encounter:'スタッフ遭遇ポイント', earn:'会計ポイント',
+ redeem:'ポイント利用', adjust:'ポイント調整'
+};
+let cardDirectoryRequest = 0;
+let cardDirectoryOffset = 0;
+let cardDirectoryFilter;
+let directoryQrContext = null;
+
+function resetDirectoryQr(){
+ directoryQrContext=null;
+ byId('directoryQrPreview').hidden=true;
+ byId('directoryQrImage').removeAttribute('src');
+ byId('directoryQrDownload').removeAttribute('href');
+ byId('directoryQrDownload').removeAttribute('download');
+ byId('cardQrImport').reset();
+ byId('cardQrImport').hidden=true;
+ byId('cardQrSave').disabled=false;
+ byId('cardQrStatus').textContent='';
+}
+function closeDirectoryQr(){
+ const dialog=byId('cardQrDialog');
+ if(dialog.open)dialog.close();
+ if(directoryQrContext)resetDirectoryQr();
+}
+function isCurrentDirectoryQr(context){
+ return !!context && context===directoryQrContext && context.requestId===cardDirectoryRequest &&
+  context.session===staffSessionVersion && managementView==='members' && byId('cardQrDialog').open &&
+  canOpenManagement(managementPages.members) && validBusinessDay();
+}
+function showDirectoryQr(context, result){
+ const status=byId('cardQrStatus');
+ if(result?.status==='needs_url'){
+  status.textContent='このカードのQR表示には、保存済みのQR画像またはカード専用URLを一度登録してください。';
+  byId('cardQrImport').hidden=false;
+  return;
+ }
+ if(result?.status!=='ready'||!/^[A-Za-z0-9_-]{43}$/.test(result.card_token??''))throw Error('カードのQR情報を確認できません。');
+ const png=cardQrPng(CARD_SITE_ORIGIN+'/#card='+result.card_token);
+ const download=byId('directoryQrDownload');
+ byId('directoryQrImage').src=png;
+ download.href=png;
+ download.download=cardQrFilename(context.card.card_number);
+ byId('directoryQrPreview').hidden=false;
+ byId('cardQrImport').reset();
+ byId('cardQrImport').hidden=true;
+ status.textContent='';
+}
+async function openDirectoryQr(card,requestId){
+ if(requestId!==cardDirectoryRequest||managementView!=='members'||!validBusinessDay()||
+    !canOpenManagement(managementPages.members))return;
+ resetDirectoryQr();
+ const context={card,requestId,session:staffSessionVersion};
+ directoryQrContext=context;
+ byId('cardQrTitle').textContent=card.card_number?'No.'+card.card_number+' のQRコード':'番号未割当カードのQRコード';
+ byId('cardQrStatus').textContent='カードのQR情報を確認中…';
+ byId('cardQrDialog').showModal();
+ try{
+  const result=await request('/rest/v1/rpc/registered_card_qr_v1',{p_card_id:card.id},token);
+  if(isCurrentDirectoryQr(context))showDirectoryQr(context,result);
+ }catch(error){
+  if(isCurrentDirectoryQr(context))byId('cardQrStatus').textContent='QRコードを表示できません。'+error.message;
+ }
+}
+async function readCardQrImage(file){
+ const source=URL.createObjectURL(file);
+ try{
+  const image=new Image();
+  image.src=source;
+  await image.decode();
+  const scale=Math.min(1,1400/Math.max(image.naturalWidth,image.naturalHeight));
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
+  canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
+  const context=canvas.getContext('2d');
+  context.drawImage(image,0,0,canvas.width,canvas.height);
+  const pixels=context.getImageData(0,0,canvas.width,canvas.height);
+  return window.jsQR(pixels.data,pixels.width,pixels.height,{inversionAttempts:'dontInvert'})?.data;
+ }finally{URL.revokeObjectURL(source)}
+}
+byId('closeCardQr').addEventListener('click',closeDirectoryQr);
+byId('cardQrDialog').addEventListener('close',()=>{if(!byId('cardQrDialog').open)resetDirectoryQr()});
+byId('directoryQrDownload').addEventListener('click',event=>{
+ if(!isCurrentDirectoryQr(directoryQrContext))event.preventDefault();
+});
+byId('cardQrImport').addEventListener('submit',async event=>{
+ event.preventDefault();
+ const context=directoryQrContext;
+ const save=byId('cardQrSave');
+ if(save.disabled||!isCurrentDirectoryQr(context))return;
+ const status=byId('cardQrStatus');
+ const file=byId('cardQrFile').files[0];
+ let url=byId('cardQrUrl').value.trim();
+ save.disabled=true;
+ status.textContent='カード専用URLを照合中…';
+ try{
+  if(!url&&file){
+   try{url=await readCardQrImage(file)}catch(_){throw Error('QR画像を読み取れません。画像を選び直すか専用URLを貼り付けてください。');}
+  }
+  if(!isCurrentDirectoryQr(context))return;
+  const cardToken=getCardToken(url);
+  if(!cardToken)throw Error('このカードのQR画像か、カード専用URLを確認してください。');
+  const result=await request('/rest/v1/rpc/registered_card_qr_v1',{p_card_id:context.card.id,p_card_token:cardToken},token);
+  if(isCurrentDirectoryQr(context))showDirectoryQr(context,result);
+ }catch(error){
+  if(isCurrentDirectoryQr(context))status.textContent=error.message;
+ }finally{if(isCurrentDirectoryQr(context))save.disabled=false;}
+});
+
+function directoryElement(tag, text, className){
+ const node = document.createElement(tag);
+ if(text !== undefined) node.textContent = text;
+ if(className) node.className = className;
+ return node;
+}
+function directoryField(list, label, value){
+ list.append(directoryElement('dt', label), directoryElement('dd', value));
+}
+function directoryDate(value){
+ return value ? cardDirectoryDate.format(new Date(value)) : '記録なし';
+}
+function resetRegisteredCards(){
+ cardDirectoryRequest++;
+ closeDirectoryQr();
+ cardDirectoryForm.reset();
+ cardDirectoryResults.replaceChildren();
+ cardDirectoryStatus.textContent = '';
+ cardDirectoryNext.hidden = true;
+ cardDirectoryNext.disabled = false;
+}
+function renderCustomerNote(card, requestId){
+ const section = directoryElement('div', undefined, 'customerNote');
+ const label = directoryElement('label', 'お客様メモ（管理者のみ・60文字まで）');
+ const input = directoryElement('input');
+ input.type = 'text';
+ input.autocomplete = 'off';
+ input.spellcheck = false;
+ input.placeholder = '例：〇〇市在住';
+ input.value = card.customer_note || '';
+ label.append(input);
+ const save = directoryElement('button', 'メモを保存', 'secondary');
+ save.type = 'button';
+ save.disabled = true;
+ const status = directoryElement('p', '', 'hint');
+ status.setAttribute('role','status');
+ let saved = input.value;
+ function syncButton(){
+  const note = input.value.trim();
+  save.disabled = input.disabled || note === saved || [...note].length > 60;
+ }
+ input.addEventListener('input',()=>{
+  status.textContent = [...input.value.trim()].length > 60 ? 'メモは60文字以内で入力してください。' : '';
+  syncButton();
+ });
+ async function saveNote(){
+  if(save.disabled || requestId !== cardDirectoryRequest ||
+     !token || !validBusinessDay() || !canOpenManagement(managementPages.members)) return;
+  const note = input.value.trim();
+  input.disabled = true;
+  syncButton();
+  status.textContent = 'メモを保存中…';
+  try{
+   const result = await request('/rest/v1/rpc/save_registered_card_note_v1',{
+    p_card_id:card.id, p_note:note
+   },token);
+   if(requestId !== cardDirectoryRequest) return;
+   if(typeof result !== 'string') throw Error('保存結果を確認できません。');
+   saved = input.value = result;
+   status.textContent = result ? 'メモを保存しました。' : 'メモを削除しました。';
+  }catch(error){
+   if(requestId === cardDirectoryRequest) status.textContent = 'メモを保存できません。 ' + error.message;
+  }finally{
+   input.disabled = false;
+   syncButton();
+  }
+ }
+ save.addEventListener('click',saveNote);
+ input.addEventListener('keydown',event=>{
+  if(event.key !== 'Enter' || event.isComposing) return;
+  event.preventDefault();
+  void saveNote();
+ });
+ section.append(label,save,status);
+ return section;
+}
+
+function renderCardManagement(card, requestId, nameField){
+ const panel = directoryElement('details',undefined,'cardEditPanel');
+ panel.append(directoryElement('summary','登録名の変更・カード手続き'));
+ const form = directoryElement('form');
+ const label = directoryElement('label','お客様のお名前（1〜8文字）');
+ const input = directoryElement('input');
+ input.type = 'text';
+ input.value = card.display_name;
+ input.autocomplete = 'off';
+ label.append(input);
+ const rename = directoryElement('button','名前を保存','secondary');
+ rename.type = 'submit';
+ form.append(label,rename);
+ const suspend = directoryElement('button','カードを一時停止','secondary');
+ const reissue = directoryElement('button','再発行のURLを作る','secondary');
+ const deleteCard = directoryElement('button','カードと会員データを完全削除','danger');
+ const replacement = directoryElement('div');
+ const replacementNote = directoryElement('p',
+  'NFC Tools PROで「URL/URI」→「https://」を選び、下の内容を貼り付けて新品のカードに書き込んでください。','hint');
+ const urlLabel = directoryElement('label','NFC Tools PRO用（https://を除く）');
+ const url = directoryElement('input');
+ url.type = 'password';
+ url.readOnly = true;
+ url.autocomplete = 'off';
+ urlLabel.append(url);
+ const copy = directoryElement('button','NFC Tools PRO用をコピー','secondary');
+ const confirmLabel = directoryElement('label','新品カードへの書き込みを確認しました','replacementConfirmLabel');
+ const written = directoryElement('input');
+ written.type = 'checkbox';
+ confirmLabel.prepend(written);
+ const finish = directoryElement('button','再発行を確定');
+ const cancel = directoryElement('button','再発行の準備を閉じる','secondary');
+ const status = directoryElement('p','','hint');
+ status.setAttribute('role','status');
+ for(const button of [suspend,reissue,copy,finish,cancel,deleteCard]) button.type = 'button';
+ replacement.append(replacementNote,urlLabel,copy,confirmLabel,finish,cancel);
+ panel.append(form,suspend,reissue,replacement,status);
+ if(encounterStaffProfile?.role === 'super_admin') panel.append(deleteCard);
+ replacement.hidden = true;
+ suspend.hidden = Boolean(card.revoked_at);
+ finish.disabled = true;
+ const session = staffSessionVersion;
+ const ready = () => requestId === cardDirectoryRequest && session === staffSessionVersion &&
+  Boolean(token && validBusinessDay() && managementView === 'members' && canOpenManagement(managementPages.members));
+ let pendingToken = null;
+ let busy = false;
+ const cardLabel = card.card_number ? 'No.' + card.card_number : '番号未割当のカード';
+
+ function sync(){
+  for(const control of [input,rename,suspend,reissue,written,cancel,copy,deleteCard]) control.disabled = busy;
+  finish.disabled = busy || !written.checked || !pendingToken;
+ }
+ function closeReplacement(){
+  replacement.hidden = true;
+  written.checked = false;
+  pendingToken = null;
+  url.value = '';
+  url.type = 'password';
+  sync();
+ }
+ async function submit(action,value,expected){
+  if(!ready() || busy) return;
+  busy = true;
+  sync();
+  status.textContent = '処理中…';
+  try{
+   const result = action==='reissue'
+    ? await request('/rest/v1/rpc/reissue_card_with_qr_v1',{p_card_id:card.id,p_card_token:value},token)
+    : await request('/rest/v1/rpc/manage_registered_card_v1',{p_card_id:card.id,p_action:action,p_value:value},token);
+   if(!ready()) return;
+   if(result?.status !== expected) throw Error('処理結果を確認できません。');
+   if(action === 'rename'){
+    if(typeof result.display_name !== 'string') throw Error('保存結果を確認できません。');
+    card.display_name = input.value = nameField.textContent = result.display_name;
+    status.textContent = 'お客様のお名前を変更しました。';
+    if(selectedMember){
+     resetSelectedMember();
+     byId('lookupResult').classList.add('hidden');
+    }
+    return;
+   }
+   if(action === 'delete' && getSavedPending()?.member_id === result.member_id) clearPending();
+   closeReplacement();
+   resetSelectedMember();
+   byId('lookupResult').classList.add('hidden');
+   let message;
+   if(action === 'delete'){
+    cardDirectoryForm.reset();
+    window.scrollTo({top:0,behavior:'instant'});
+    byId('managementTitle').focus({preventScroll:true});
+    message = cardLabel + ' のカードと会員データを完全に削除しました。';
+   }else{
+    if(card.card_number) byId('registeredCardQuery').value = card.card_number;
+    if(action === 'reissue'){
+     byId('registeredCardState').value = 'active';
+     message = cardLabel + ' を再発行しました。新しいカードで会員情報と残高を照会してください。';
+    }else{
+     message = cardLabel + ' を一時停止しました。「一時停止中」から再発行できます。';
+    }
+   }
+   await loadRegisteredCards(false,message);
+  }catch(error){
+   if(ready()){
+    if(action === 'delete'){
+     status.textContent = '削除の結果を確認できません。' + error.message +
+      ' 一覧を更新して対象カードが残っているか確認してください。';
+    }else if(action === 'reissue'){
+     status.textContent = '再発行の結果を確認できません。' + error.message +
+      ' 通信が途切れた場合は同じURLで再度確定してください。';
+    }else{
+     status.textContent = '変更を確認できません。' + error.message;
+    }
+   }
+  }finally{
+   busy = false;
+   sync();
+  }
+ }
+ form.addEventListener('submit',event=>{
+  event.preventDefault();
+  const next = input.value.trim();
+  if(!next || [...next].length > 8){
+   status.textContent = 'お客様のお名前を1〜8文字で入力してください。';return;
+  }
+  if(next === card.display_name){status.textContent = 'お名前は変更されていません。';return;}
+  void submit('rename',next,'renamed');
+ });
+ suspend.addEventListener('click',()=>{
+  if(ready() && !busy && confirm(cardLabel+'（'+card.display_name+' 様）を一時停止しますか？\n旧カードでは照会やポイント操作ができなくなります。会員情報・残高・履歴は保持されます。')){
+   void submit('revoke',null,'revoked');
+  }
+ });
+ deleteCard.addEventListener('click',()=>{
+  if(!ready() || busy || encounterStaffProfile?.role !== 'super_admin') return;
+  const message = '本当に削除してもよろしいですか？\n\n対象：'+cardLabel+'（'+card.display_name+' 様）\n'+
+   '会員情報、カード番号・専用URL、ポイント残高・履歴、会計記録、お客様メモがすべて削除されます。\n'+
+   '削除後は復元や再発行ができません。';
+  if(confirm(message)) void submit('delete','confirm_permanent_deletion','deleted');
+ });
+ reissue.addEventListener('click',()=>{
+  if(!ready() || busy || pendingToken) return;
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  pendingToken = btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
+  url.value = CARD_SITE_HOST+'/#card='+pendingToken;
+  replacement.hidden = false;
+  status.textContent = '新品カードへの書き込み後に再発行を確定してください。';
+ });
+ copy.addEventListener('click',async()=>{
+  if(!ready() || !pendingToken) return;
+  try{
+   await navigator.clipboard.writeText(url.value);
+   status.textContent = 'NFC Tools PRO用のURLをコピーしました。';
+  }catch(_){
+   url.type = 'text';
+   url.focus();
+   url.select();
+   status.textContent = 'URL欄を長押ししてコピーしてください。';
+  }
+ });
+ url.addEventListener('click',()=>{
+  if(ready() && pendingToken){
+   url.type = 'text';
+   url.select();
+  }
+ });
+ written.addEventListener('change',sync);
+ cancel.addEventListener('click',()=>{
+  closeReplacement();
+  status.textContent = '再発行の準備を閉じました。確定するまでカードは切り替わりません。';
+ });
+ finish.addEventListener('click',()=>{
+  if(!ready() || busy || !pendingToken || !written.checked) return;
+  if(confirm(cardLabel+'（'+card.display_name+' 様）を再発行しますか？\n旧URLは使えなくなり、会員情報・番号・残高・履歴を新しいカードに引き継ぎます。')){
+   void submit('reissue',pendingToken,'reissued');
+  }
+ });
+ return panel;
+}
+
+function directoryPointsRequest(cardId, action, input={}){
+ return request('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:cardId,p_action:action,...input},token);
+}
+let directoryOpenRequest=0;
+function makeDirectoryPointsButton(card,requestId,balanceField,onBalanceRefresh){
+ const button=directoryElement('button','ポイント操作','secondary directoryPointsButton');
+ button.type='button';
+ const status=directoryElement('p',undefined,'hint');
+ status.setAttribute('role','status');
+ status.hidden=true;
+ button.addEventListener('click',async()=>{
+  if(operationBusy||!token||managementView!=='members'||cardDirectoryRequest!==requestId||!validBusinessDay())return;
+  const selectionRequest=++directoryOpenRequest,session=staffSessionVersion;
+  const current=()=>selectionRequest===directoryOpenRequest&&session===staffSessionVersion&&
+   requestId===cardDirectoryRequest&&managementView==='members'&&validBusinessDay();
+  if(directorySelection)resetSelectedMember();
+  status.hidden=false;status.textContent='会員情報を確認しています…';button.disabled=true;
+  try{
+   const result=await directoryPointsRequest(card.id,'select');
+   if(!current())return;
+   if(!result?.member_id||typeof result.display_name!=='string'||!Number.isFinite(Number(result.balance)))throw Error('会員情報を取得できません');
+   const requiredStore=result.operation_store_id||null;
+   if(requiredStore&&!operationStoreIds.includes(requiredStore))await loadStockStores();
+   if(!current()||operationBusy){status.hidden=true;return;}
+   if(requiredStore&&!operationStoreIds.includes(requiredStore))throw Error('担当店舗を確認できません');
+   byId('lookupResult').classList.add('hidden');
+   byId('lookupStatus').textContent='';
+   selectMember(result,null,{id:card.id,storeId:requiredStore,balanceField,button,onBalanceRefresh,
+    previousStore:byId('operationStore').value,previousHint:byId('operationStoreHint').textContent});
+   placePointOperations();
+   status.hidden=true;
+   const title=byId('pointOperationsTitle');
+   title.focus({preventScroll:true});
+   title.scrollIntoView({block:'start'});
+  }catch(error){
+   if(current())status.textContent='ポイント操作を開けません。'+error.message;
+  }finally{status.hidden=status.hidden||!current();button.disabled=false}
+ });
+ const row=directoryElement('div');
+ row.append(button,status);
+ return row;
+}
+
+function renderRegisteredCard(card, requestId, pointsAllowed){
+ const item = directoryElement('section', undefined, 'registeredCard');
+ const heading = 'カード' + (card.card_number ? ' No.' + card.card_number : '（番号未割当）');
+ const kind = card.card_number ? (Number(card.card_number) <= 100 ? '関係者用' : '一般用') : '旧カード';
+ const fields = directoryElement('dl');
+ directoryField(fields, '登録名', card.display_name);
+ directoryField(fields, '共通残高', cardDirectoryNumber.format(card.balance) + ' pt');
+ directoryField(fields, '発行店舗', card.store_name || '記録なし');
+ directoryField(fields, '登録スタッフ', card.staff_name || '記録なし');
+ directoryField(fields, '登録日時', directoryDate(card.issued_at));
+ const details = directoryElement('details');
+ details.append(directoryElement('summary','来店回数・ポイント履歴'));
+ const activity = directoryElement('div', undefined, 'registeredCardActivity');
+ details.append(activity);
+ let requested = false;
+ details.addEventListener('toggle', async()=>{
+  if(!details.open || requested || requestId !== cardDirectoryRequest ||
+     !token || !validBusinessDay() || !canOpenManagement(managementPages.members)) return;
+  requested = true;
+  activity.textContent = '履歴を取得中…';
+  try{
+   const data = await request('/rest/v1/rpc/registered_card_activity_v2',{p_card_id:card.id},token);
+   if(requestId !== cardDirectoryRequest) return;
+   activity.replaceChildren(directoryElement('h4','店舗別の来店記録'));
+   const visits = directoryElement('ul');
+   for(const visit of data.visits){
+    visits.append(directoryElement('li',(visit.store_name || '店舗不明') + ' · ' +
+     cardDirectoryNumber.format(visit.count) + '回 · 最終 ' + directoryDate(visit.last_at)));
+   }
+   activity.append(data.visits.length ? visits : directoryElement('p','来店ポイントの記録はありません。'));
+   if(data.encounter_count !== null){
+    activity.append(directoryElement('p','スタッフ遭遇 ' + cardDirectoryNumber.format(data.encounter_count) + '回'));
+   }
+   activity.append(directoryElement('h4','最近のポイント履歴（最大20件）'));
+   const historyList = directoryElement('ul');
+   for(const entry of data.history){
+    const kindLabel = cardDirectoryKinds[entry.kind] || 'ポイント操作';
+    const place = entry.kind === 'encounter' ? entry.encounter_staff_name : entry.store_name;
+    const delta = (entry.delta > 0 ? '+' : '') + cardDirectoryNumber.format(entry.delta) + ' pt';
+    historyList.append(directoryElement('li',[directoryDate(entry.created_at),kindLabel,place,delta].filter(Boolean).join(' · ')));
+   }
+   activity.append(data.history.length ? historyList : directoryElement('p','表示できるポイント履歴はありません。'));
+  }catch(error){
+   if(requestId !== cardDirectoryRequest) return;
+   requested = false;
+   activity.textContent = '履歴を取得できません。閉じてから開き直してください。 ' + error.message;
+  }
+ });
+ const title=directoryElement('h3',card.revoked_at?heading:undefined);
+ if(!card.revoked_at){
+  const show=directoryElement('button',heading,'cardQrOpen');
+  show.type='button';
+  show.setAttribute('aria-label',heading+' のQRコードを表示');
+  show.setAttribute('aria-haspopup','dialog');
+  show.addEventListener('click',()=>openDirectoryQr(card,requestId));
+  title.append(show);
+ }
+ item.append(title,
+  directoryElement('p',kind+(card.revoked_at ? ' · 一時停止中' : ''),card.revoked_at?'cardRevoked':'hint'), fields);
+ if(!card.revoked_at){
+  if(pointsAllowed)item.append(makeDirectoryPointsButton(card,requestId,fields.children[3],()=>{
+   requested=false;
+   details.open=false;
+  }));
+  item.append(renderCustomerNote(card,requestId));
+ }
+ item.append(renderCardManagement(card,requestId,fields.children[1]),details);
+ return item;
+}
+
+async function loadRegisteredCards(append = false, message = ''){
+ if(!token || !validBusinessDay() || !canOpenManagement(managementPages.members)) return;
+ if(append && cardDirectoryNext.disabled) return;
+ if(!append){
+  if(operationBusy&&directorySelection)return;
+  if(directorySelection)resetSelectedMember();
+  cardDirectoryRequest++;
+  closeDirectoryQr();
+  cardDirectoryOffset = 0;
+  cardDirectoryFilter = {
+   p_query:byId('registeredCardQuery').value.normalize('NFKC').trim(),
+   p_kind:byId('registeredCardKind').value,
+   p_status:byId('registeredCardState').value
+  };
+  cardDirectoryResults.replaceChildren();
+  cardDirectoryNext.hidden = true;
+ }
+ const requestId = cardDirectoryRequest;
+ const offset = cardDirectoryOffset;
+ cardDirectoryNext.disabled = true;
+ cardDirectoryStatus.textContent = '登録済みカードを取得中…';
+ try{
+  const [data,pointsAllowed] = await Promise.all([
+   request('/rest/v1/rpc/list_registered_cards_v2',{...cardDirectoryFilter,p_offset:offset},token),
+   encounterStaffProfile?.role==='super_admin' ? true :
+    request('/rest/v1/rpc/staff_directory_points_access_v1',{},token).catch(()=>false)
+  ]);
+  if(requestId !== cardDirectoryRequest) return;
+  if(!Array.isArray(data?.cards)) throw Error('一覧を取得できませんでした。');
+  cardDirectoryResults.append(...data.cards.map(card=>renderRegisteredCard(card,requestId,pointsAllowed===true)));
+  cardDirectoryOffset += data.cards.length;
+  cardDirectoryNext.hidden = !data.has_more;
+  const scope = data.scope_store_name ? '発行店舗 ' + data.scope_store_name : '全店舗';
+  cardDirectoryStatus.textContent = (message ? message+' ' : '') + scope + ' · ' +
+   (cardDirectoryOffset ? cardDirectoryOffset + '件を表示中' : '該当するカードはありません。');
+ }catch(error){
+  if(requestId === cardDirectoryRequest) cardDirectoryStatus.textContent =
+   (message ? message+' ' : '') + '一覧の取得に失敗しました。 ' + error.message;
+ }finally{
+  if(requestId === cardDirectoryRequest) cardDirectoryNext.disabled = false;
+ }
+}
+cardDirectoryForm.addEventListener('submit',event=>{event.preventDefault();void loadRegisteredCards();});
+cardDirectoryNext.addEventListener('click',()=>loadRegisteredCards(true));
+
+// Self-service password recovery is public by design, but confirmation requires control of the mailbox.
+// The server-side Supabase Auth /recover endpoint enforces delivery rate limits.
+let selfRecoveryLastSent=0;
+byId('selfRecoveryDetails').addEventListener('toggle',()=>{
+ if(byId('selfRecoveryDetails').open&&!byId('recoveryEmail').value)byId('recoveryEmail').value=byId('email').value.trim();
+});
+byId('selfRecoverySend').addEventListener('click',async()=>{
+ const email=byId('recoveryEmail').value.trim();
+ const message=byId('selfRecoveryStatus');
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||email.length>254){message.textContent='メールアドレスを確認してください。';return}
+ if(Date.now()-selfRecoveryLastSent<60000){message.textContent='連続送信を避けるため、しばらく経ってからお試しください。';return}
+ const button=byId('selfRecoverySend');button.disabled=true;
+ // Generic responses avoid disclosing whether a particular email has a staff account.
+ const generic='登録されているアドレスの場合、再設定メールを送信します。受信箱をご確認ください。';
+ try{
+  const redirect=new URL('reset.html',location.href).toString();
+  const response=await fetch(BASE+'/auth/v1/recover?redirect_to='+encodeURIComponent(redirect),{
+   method:'POST',headers:{'apikey':KEY,'Content-Type':'application/json'},
+   body:JSON.stringify({email}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+  });
+  if(response.status===429){message.textContent='送信回数の上限に達しました。しばらく経ってからお試しください。';return}
+  selfRecoveryLastSent=Date.now();
+  message.textContent=generic;
+ }catch(_){message.textContent='送信状況を確認できません。ネットワークを確認し、しばらく経ってからお試しください。'}
+ finally{button.disabled=false}
+});
+
+byId('togglePassword').addEventListener('click',()=>{
+ const input=byId('password'),toggle=byId('togglePassword');
+ const visible=input.type==='password';
+ input.type=visible?'text':'password';
+ toggle.textContent=visible?'🙈 非表示':'👁 表示';
+ toggle.setAttribute('aria-pressed',visible?'true':'false');
+ toggle.setAttribute('aria-label',visible?'パスワードを隠す':'パスワードを表示');
+});
+async function request(path,body,authorization){
+ // The current staff JWT is always read from state, so a refreshed token is used.
+ const staffRequest=!!authorization;
+ if(staffRequest){
+  if(!validBusinessDay())throw Error('営業日が切り替わりました。再ログインしてください');
+  if(Date.now()/1000 >= tokenExpiresAt-90)await refreshSession();
+ }
+ async function send(bearer){
+  const res=await fetch(BASE+path,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+bearer,'Content-Type':'application/json'},
+   body:JSON.stringify(body),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+  const obj=await res.json().catch(()=>null);
+  return {res,obj};
+ }
+ let {res,obj}=await send(staffRequest?token:KEY);
+ if(staffRequest&&res.status===401&&validBusinessDay()){
+  await refreshSession();({res,obj}=await send(token));
+ }
+ if(!res.ok)throw Object.assign(Error((obj&&obj.message)||(obj&&obj.msg)||'通信エラー'),{code:obj?.code});
+ return obj;
+}
+function setBusy(on){for(const x of ['signIn','scanCard','lookupButton'])byId(x).disabled=on||(x!=='signIn'&&!token);
+}
+byId('signIn').addEventListener('click',async()=>{
+ authStatus.textContent='ログイン中…';byId('signIn').disabled=true;
+ try{
+  const x=await request('/auth/v1/token?grant_type=password',{
+   email:byId('email').value.trim(),password:byId('password').value
+  },null);
+  receiveSession(x,true);
+  // Verify new session has privileges in this Japanese business day.
+  await request('/rest/v1/rpc/staff_card_stock_stores',{},token);
+  byId('password').value='';byId('password').type='password';
+  byId('togglePassword').textContent='👁 表示';
+  byId('togglePassword').setAttribute('aria-pressed','false');
+  byId('togglePassword').setAttribute('aria-label','パスワードを表示');
+  byId('email').value='';
+  showAuthenticated('ログイン成功。翌朝8時までログイン状態を保持します。');
+  await Promise.all([loadStockStores(),loadEncounterAccess()]);
+ }catch(e){
+  const awaiting=token && await request('/rest/v1/rpc/staff_invitation_pending_v1',{},token).catch(()=>false);
+  clearAuth(awaiting===true?'管理者の承認をお待ちください。承認後にインストール案内が届きます。':'ログイン失敗：'+e.message);
+ }
+ finally{byId('signIn').disabled=false}
+});
+byId('signOut').addEventListener('click',async()=>{
+ const access=token;
+ clearAuth('ログアウトしました。');
+ window.scrollTo({top:0,behavior:'instant'});
+ if(access){try{await fetch(BASE+'/auth/v1/logout?scope=local',{
+   method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+access},
+   cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+  })}catch(_){}}
+});
+
+// Accept existing production-card URLs while testing the app on the preview hostname.
+// Only these exact customer-site hosts are trusted; arbitrary links remain rejected.
+// NFC Tools PRO may copy the URL without its separate https:// scheme selector.
+// Current preview and previously-issued card URLs are all accepted.
+// Keep newly prepared NFC card links on a stable site, never on temporary preview URLs.
+// The current stable host is TEST ONLY; update after the final production domain is decided.
+const CARD_SITE_HOST = 'shop-point-nfc-customer-test-1107.pages.dev';
+const CARD_SITE_ORIGIN = 'https://' + CARD_SITE_HOST;
+// Older NFC cards may point to historical Cloudflare branch previews of this same project.
+// Accept those exact-project subdomains, but reject unrelated hosts and look-alike domains.
+function isTrustedCardHost(hostname){
+ return hostname === CARD_SITE_HOST || hostname.endsWith('.' + CARD_SITE_HOST);
+}
+function getCardToken(value){
+ try{
+  const raw=String(value??'').trim();
+  if(!raw)return null;
+  const input=/^https:\/\//i.test(raw)?raw:'https://'+raw;
+  const u=new URL(input);
+  if(u.protocol!=='https:' || !isTrustedCardHost(u.hostname) ||
+     u.port || u.username || u.password || u.search ||
+     !(u.pathname==='/' || u.pathname==='/index.html'))return null;
+  const match=u.hash.match(/^#card=([a-zA-Z0-9_-]{43})$/);
+  return match?match[1]:null;
+ }catch(_){return null}
+}
+let activeScan=null,lookingUp=false;
+async function lookupCard(raw){
+ if(operationBusy||managementView!=='home')return;
+ const session=staffSessionVersion;
+ if(!token){byId('lookupStatus').textContent='先にスタッフログインしてください。';return}
+ // Never leave a previously selected member actionable while checking another card.
+ resetSelectedMember();
+ const cardToken=getCardToken(raw);byId('lookupUrl').value='';byId('lookupResult').classList.add('hidden');pendingActivationToken=null;byId('activationBox').classList.add('hidden');
+ if(!cardToken){byId('lookupStatus').textContent='カードURLの形式または発行元を確認してください。既存の本番用カードURLはプレビューでも利用できます。';return}
+ if(lookingUp)return;lookingUp=true;byId('lookupButton').disabled=true;
+ byId('lookupStatus').textContent='会員を確認しています…';
+ try{const cardStatus=await request('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:cardToken},token);
+ if(cardStatus==='prepared'){
+   pendingActivationToken=cardToken;
+   const preparedInfo=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
+   byId('preparedCardNumber').textContent='事前準備カード：No.'+(preparedInfo?.card_number||'未割当');
+   await loadActivationStores();
+   byId('activationBox').classList.remove('hidden');
+   byId('activateCard').disabled=!byId('activationStore').value;
+   byId('newMemberName').value='';
+   byId('activateStatus').textContent='お客様の名前を確認後、登録してカードを有効化してください。';
+   byId('lookupStatus').textContent='未登録の準備済みカードです。会員一覧にはまだ表示されません。';
+   return;
+ }
+ if(cardStatus==='revoked')throw Error('このカードは現在使えません。再発行済みの場合は新しいカードを読み取ってください。');
+ if(cardStatus!=='active')throw Error('このカードは準備済み・有効カードのいずれでもありません。URLを確認してください。');
+ const result=await request('/rest/v1/rpc/staff_card_details_v3',{p_card_token:cardToken},token);
+ if(!result||result.status!=='active'||!result.member_id)throw Error('有効なカードを確認できません');
+ if(typeof result.display_name!=='string'||!Number.isFinite(Number(result.balance)))throw Error('応答形式が正しくありません');
+ if(session!==staffSessionVersion||managementView!=='home')return;
+ selectMember(result,cardToken);
+ byId('lookupResult').textContent='会員照会成功：'+result.display_name+' 様 ／ 共通残高 '+Number(result.balance).toLocaleString('ja-JP')+'pt';
+ byId('lookupResult').classList.remove('hidden');byId('lookupStatus').textContent='会員を選択しました。下の②で来店ポイント・会計操作を確認できます。';
+ }catch(e){byId('lookupStatus').textContent='会員照会できません：'+e.message}
+ finally{lookingUp=false;byId('lookupButton').disabled=!token}
+}
+byId('lookupButton').addEventListener('click',()=>lookupCard(byId('lookupUrl').value));
+function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('stopScan').disabled=true;byId('scanCard').disabled=!token}
+byId('stopScan').addEventListener('click',()=>{stopNfcScan();byId('scanStatus').textContent='読み取りを停止しました。'});
+byId('scanCard').addEventListener('click',async()=>{
+ if(!token){byId('scanStatus').textContent='スタッフログインが必要です。';return}
+ if(!('NDEFReader' in window)){byId('scanStatus').textContent='このブラウザはWeb NFCに非対応です。Android版Chromeで開くか、下のURL貼り付けを使ってください。';return}
+ stopNfcScan();const controller=new AbortController();activeScan=controller;byId('scanCard').disabled=true;byId('stopScan').disabled=false;
+ byId('scanStatus').textContent='NFC読み取りを起動中… 許可を求められたら許可してください。';
+ try{const reader=new NDEFReader();reader.onreadingerror=()=>{byId('scanStatus').textContent='NFC読み取りエラー。カードを動かして再度かざしてください。'};
+ reader.onreading=event=>{
+  for(const record of event.message.records){if(record.recordType!=='url'&&record.recordType!=='absolute-url')continue;
+   const value=record.recordType==='absolute-url'&&record.mediaType?record.mediaType:new TextDecoder().decode(record.data);
+   if(getCardToken(value)){stopNfcScan();byId('scanStatus').textContent='カードを読み取りました。';void lookupCard(value);return}
+  }
+  byId('scanStatus').textContent='BEES POINT NFCのカードURLを確認できません。別のカードをかざしてください。';
+ };
+ await reader.scan({signal:controller.signal});if(!controller.signal.aborted)byId('scanStatus').textContent='読み取り待機中。NTAG215カードをスマホ背面へ近づけてください。';
+ }catch(e){if(e.name!=='AbortError')byId('scanStatus').textContent='NFCを開始できません：'+e.message+'。Android版ChromeかURL貼り付けを試してください。';stopNfcScan()}
+});
+
+async function fetchActivationStores(){
+ const stores=await request('/rest/v1/rpc/staff_authorized_activation_stores',{},token);
+ if(!Array.isArray(stores)||stores.some(store=>!store?.id||typeof store.name!=='string')){
+  throw Error('店舗の一覧を取得できません');
+ }
+ return stores;
+}
+async function loadActivationStores(){
+ const select=byId('activationStore');select.replaceChildren(new Option('登録可能な店舗なし',''));
+ byId('activationStoreHint').textContent='発行店舗と権限を確認しています…';
+ try{const stores=await fetchActivationStores();
+  for(const store of stores){if(store?.id&&store?.name)select.add(new Option(store.name,store.id))}
+  if(stores.length)select.remove(0);
+  byId('activationStoreHint').textContent=stores.length?'ニックネームを登録すると、この店舗が発行店舗として記録されます。':'このアカウントには有効化権限がありません。店舗責任者へご相談ください。';
+ }catch(e){byId('activationStoreHint').textContent='有効化権限を確認できません：'+e.message}
+}
+// New stock workflow: prepared cards have no member_id until staff activation.
+let preparedCards=[], preparedIndex=0, preparedStoreName='', pendingActivationToken=null;
+async function loadStockStores(){
+ const session=staffSessionVersion;
+ byId('stockStatus').textContent='店舗を読み込み中…';
+ try{
+  const stores=await request('/rest/v1/rpc/staff_card_stock_stores',{},token);
+  if(session!==staffSessionVersion||!validBusinessDay())return;
+  if(!Array.isArray(stores))throw Error('店舗の応答が不正です');
+  operationStores=stores;
+  renderStaffAccess();
+  byId('stockStore').replaceChildren();
+  for(const s of stores){const opt=document.createElement('option');opt.value=s.id;opt.textContent=s.name;byId('stockStore').append(opt)}
+  byId('prepareCards').disabled=!stores.length||encounterStaffProfile?.role!=='super_admin';
+  await setupOperationStores(stores);
+  byId('stockStatus').textContent=stores.length?'カード区分と枚数を指定してください。全店舗共通です。':'現在、有効な店舗がありません。';
+ }catch(e){
+  if(session!==staffSessionVersion||!token)return;
+  operationStores=null;
+  renderStaffAccess();
+  byId('prepareCards').disabled=true;byId('stockStatus').textContent='店舗一覧を取得できません：'+e.message;
+ }
+}
+function currentPreparedUrl(){const card=preparedCards[preparedIndex];return card?CARD_SITE_ORIGIN+'/#card='+card.card_token:''}
+function cardQrFilename(number){return 'BEES-POINT-NFC-'+(number?'No.'+number:'CARD')+'-QR.png'}
+function renderPreparedQr(url,cardNumber){
+ const panel=byId('preparedQr');
+ const preview=byId('preparedQrImage');
+ const download=byId('preparedQrDownload');
+ const status=byId('preparedQrStatus');
+ panel.hidden=true;
+ status.hidden=true;
+ status.textContent='';
+ preview.removeAttribute('src');
+ download.removeAttribute('href');
+ download.removeAttribute('download');
+ if(!url)return;
+ try{
+  const png=cardQrPng(url);
+  preview.src=png;
+  download.href=png;
+  download.download=cardQrFilename(cardNumber);
+  panel.hidden=false;
+ }catch(_){
+  status.textContent='QRコードを作成できませんでした。表示中のカードURLは引き続きコピーできます。';
+  status.hidden=false;
+ }
+}
+function renderPrepared(){
+ const n=preparedCards.length;
+ const card=preparedCards[preparedIndex];
+ const url=currentPreparedUrl();
+ byId('preparedPanel').classList.toggle('hidden',!n);
+ byId('preparedUrl').type='password';
+ byId('preparedUrl').value=url;
+ renderPreparedQr(url,card?.card_number);
+ if(!n)return;
+ byId('preparedCounter').textContent=(preparedIndex+1)+' / '+n+'枚｜全店舗共通';
+ byId('preparedPublicNumber').textContent='カード通し番号：No.'+card.card_number;
+ byId('preparedPrev').disabled=preparedIndex===0;
+ byId('preparedNext').disabled=preparedIndex===n-1;
+}
+byId('stockKind').addEventListener('change',()=>{byId('reservedCardNumberLabel').classList.toggle('hidden',byId('stockKind').value!=='reserved');byId('stockCount').disabled=byId('stockKind').value==='reserved';if(byId('stockKind').value==='reserved')byId('stockCount').value='1';});
+byId('prepareCards').addEventListener('click',async()=>{
+ if(!validBusinessDay()||encounterStaffProfile?.role!=='super_admin')return;
+ const session=staffSessionVersion;
+ if(preparedCards.length && !confirm('前回の発行URL一覧は画面から消えます。全カードの書き込み、またはCSV保存が済んでいますか？'))return;
+ const reserved=byId('stockKind').value==='reserved';const count=reserved?1:Number(byId('stockCount').value);const reservedNumber=reserved?Number(byId('stockReservedNumber').value):null;
+ if(reserved&&(!Number.isInteger(reservedNumber)||reservedNumber<1||reservedNumber>100)){byId('stockStatus').textContent='関係者用は1〜100の番号を指定してください。';return}
+ if(!confirm('全店舗共通の未登録カード'+count+'枚を準備しますか？\nこの操作では会員登録・ポイント付与はしません。'))return;
+ byId('prepareCards').disabled=true;byId('stockStatus').textContent='カード用URLを発行中…';
+ try{
+  const response=await request('/rest/v1/rpc/prepare_member_cards_v3',{p_count:count,p_reserved_number:reservedNumber},token);
+  if(session!==staffSessionVersion||!validBusinessDay()||encounterStaffProfile?.role!=='super_admin')return;
+  if(!response||!Array.isArray(response.cards)||response.cards.length!==count)throw Error('発行結果を確認できません');
+  if(!response.cards.every(x=>/^[a-zA-Z0-9_-]{43}$/.test(x.card_token)&&/^\d{6}$/.test(x.card_number)))throw Error('カードURLまたは通し番号が不正です');
+  preparedCards=response.cards;preparedIndex=0;preparedStoreName='全系列店舗共通';
+  renderPrepared();
+  byId('stockStatus').textContent=count+'枚の未登録カードを準備しました。下の「コピー」から1枚ずつNFCカードに書き込んでください。';
+ }catch(e){if(session===staffSessionVersion)byId('stockStatus').textContent='発行できません：'+e.message}
+ finally{if(session===staffSessionVersion)byId('prepareCards').disabled=!token||encounterStaffProfile?.role!=='super_admin'}
+});
+byId('preparedPrev').addEventListener('click',()=>{if(preparedIndex>0){preparedIndex--;renderPrepared()}});
+byId('preparedNext').addEventListener('click',()=>{if(preparedIndex<preparedCards.length-1){preparedIndex++;renderPrepared()}});
+byId('preparedQrDownload').addEventListener('click',event=>{
+ if(!validBusinessDay()||encounterStaffProfile?.role!=='super_admin'||!currentPreparedUrl())event.preventDefault();
+});
+byId('preparedCopy').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText(currentPreparedUrl().replace(/^https:\/\//,''));byId('stockStatus').textContent='カード '+(preparedIndex+1)+' のNFC Tools PRO用URLをコピーしました。左側で「https://」を選び、右側にそのまま貼り付けてください。'}
+ catch(_){byId('stockStatus').textContent='自動コピーできませんでした。URL欄を長押ししてコピーしてください。';byId('preparedUrl').type='text';byId('preparedUrl').focus();byId('preparedUrl').select()}
+});
+byId('preparedSave').addEventListener('click',()=>{
+ if(!preparedCards.length)return;
+ if(!confirm('カードURLの一覧は秘密情報です。端末の保存先や共有先にご注意ください。CSVを保存しますか？'))return;
+ const lines=['card_number,card_url,allocation'];
+ const escapeCsv=x=>'"'+String(x).replace(/"/g,'""')+'"';
+ for(let i=0;i<preparedCards.length;i++)lines.push(['No.'+preparedCards[i].card_number,escapeCsv(CARD_SITE_ORIGIN+'/#card='+preparedCards[i].card_token),escapeCsv('全店舗共通')].join(','));
+ const blob=new Blob(['\ufeff'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const objectUrl=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=objectUrl;a.download='bees-point-nfc-card-urls-'+Date.now()+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),30000);
+ byId('stockStatus').textContent='CSVファイルを保存しました。URLは他人に送らず、書き込み後は不要なコピーを削除してください。';
+});
+byId('activateCard').addEventListener('click',async()=>{
+ if(!token||!pendingActivationToken){byId('activateStatus').textContent='先に未登録カードを読み取ってください。';return}
+ const name=byId('newMemberName').value.trim();
+ if(!name||[...name].length>8){byId('activateStatus').textContent='お名前を1～8文字で入力してください。';return}
+ const issuingStore=byId('activationStore').value;if(!issuingStore){byId('activateStatus').textContent='発行店舗の選択・許可を確認してください。';return}
+ if(!confirm('「'+name+' 様」でカードを有効化しますか？\n発行店舗：'+byId('activationStore').selectedOptions[0]?.textContent))return;
+ byId('activateCard').disabled=true;byId('activateStatus').textContent='会員を登録してカードを有効にしています…';
+ try{
+  const cardToken=pendingActivationToken;
+  const r=await request('/rest/v1/rpc/activate_card_with_qr_v1',{p_card_token:cardToken,p_display_name:name,p_store_id:issuingStore},token);
+  if(!r||!r.member_id||r.status!=='active')throw Error('登録結果が正しくありません');
+  pendingActivationToken=null;byId('newMemberName').value='';byId('activationBox').classList.add('hidden');
+  selectMember({member_id:r.member_id,display_name:r.display_name,balance:0,card_number:r.card_number,issued_store_name:r.issued_store_name},cardToken);
+  byId('lookupResult').textContent='新規会員登録・カード有効化 成功：'+r.display_name+' 様 ／ 初期残高 0pt';
+  byId('lookupResult').classList.remove('hidden');
+  byId('lookupStatus').textContent='このカードは有効です。次回からカードタッチでお客様のポイント画面が開きます。';
+ }catch(e){byId('activateStatus').textContent='有効化できません：'+e.message}
+ finally{byId('activateCard').disabled=!token||!pendingActivationToken}
+});
+
+// Points UI is deliberately separate from card issuance. Only authenticated staff RPCs write transactions.
+let selectedMember=null,selectedCardToken=null,operationStoreIds=[],operationStores=null,operationBusy=false;
+let pendingCheckout=null,directorySelection=null;
+function placePointOperations(){
+ const directory=managementView==='members'&&!!directorySelection;
+ const panel=byId('pointOperations');
+ const host=byId(directory?'directoryPointsHost':'pointOperationsHome');
+ if(panel.parentElement!==host)host.append(panel);
+ panel.classList.toggle('hidden',!token||loginBusinessDay!==businessDayJst()||(!directory&&managementView!=='home'));
+ byId('pointOperationsTitle').textContent=directory?'登録済みカードのポイント操作':'② ポイント付与・利用';
+ byId('directoryPointNotice').classList.toggle('hidden',!directory);
+ byId('closeDirectoryPoints').classList.toggle('hidden',!directory);
+ byId('nfcPointNotice').classList.toggle('hidden',directory);
+}
+function lockDirectoryStore(){
+ const storeId=directorySelection?.storeId;
+ const store=byId('operationStore');
+ store.disabled=!!storeId;
+ if(storeId){
+  store.value=storeId;
+  byId('operationStoreHint').textContent='担当店舗で操作します。';
+ }
+}
+byId('closeDirectoryPoints').addEventListener('click',()=>{
+ if(operationBusy||!directorySelection)return;
+ const button=directorySelection.button;
+ resetSelectedMember();
+ button.focus({preventScroll:true});
+ button.scrollIntoView({block:'nearest'});
+});
+function resetSelectedMember(){
+ if(directorySelection){
+  const store=byId('operationStore');
+  if(operationStoreIds.includes(directorySelection.previousStore))store.value=directorySelection.previousStore;
+  byId('operationStoreHint').textContent=directorySelection.previousHint;
+  directorySelection=null;
+  lockDirectoryStore();
+  placePointOperations();
+ }
+ selectedMember=null;selectedCardToken=null;
+ byId('selectedMemberPanel').classList.add('hidden');byId('noSelectedMember').classList.remove('hidden');byId('staffCardDetails').classList.add('hidden');
+ byId('awardVisit').disabled=true;byId('checkoutConfirm').disabled=true;
+ byId('visitStatus').textContent='';byId('checkoutStatus').textContent='';
+ byId('totalYen').value='';byId('redeemPoints').value='0';
+ byId('checkoutPreview').textContent='金額を入力すると計算結果を表示します。';
+ byId('checkoutPending').classList.add('hidden');
+ byId('encounterStatus').textContent='';
+ updateEncounterControls();
+}
+function selectedBalance(){return selectedMember?Number(selectedMember.balance):0}
+function yen(n){return Number(n).toLocaleString('ja-JP')}
+function showMemberSummary(){
+ if(!selectedMember)return;
+ byId('selectedMemberInfo').replaceChildren();
+ byId('selectedMemberInfo').append(document.createTextNode(selectedMember.display_name+' 様 ／ 現在の共通残高 '));
+ const strong=document.createElement('strong');strong.textContent=yen(selectedBalance())+'pt';
+ byId('selectedMemberInfo').append(strong);
+ renderStaffCardDetails();
+}
+function renderStaffCardDetails(){
+ const root=byId('staffCardDetails');root.replaceChildren();
+ if(!selectedMember){root.classList.add('hidden');return}
+ root.classList.remove('hidden');
+ const addLine=text=>{const row=document.createElement('div');row.textContent=text;root.append(row)};
+ addLine('通し番号：'+(selectedMember.card_number?'No.'+selectedMember.card_number:'旧テストカード（未割当）'));
+ addLine('発行店舗：'+(selectedMember.issued_store_name||'旧テストカード（記録なし）'));
+ if(selectedMember.issued_staff_name)addLine('登録担当者：'+selectedMember.issued_staff_name);
+ if(selectedMember.issued_at)addLine('登録日時：'+new Date(selectedMember.issued_at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}));
+ const header=document.createElement('strong');header.textContent='スタッフ用：直近の利用履歴';root.append(header);
+ const history=selectedMember.history;
+ if(!history.length){addLine('履歴がありません。');return}
+ for(const tx of history){const item=document.createElement('div');item.style.borderTop='1px solid #e0e7e1';item.style.padding='6px 0';
+ const when=tx.created_at?new Date(tx.created_at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'';
+ item.textContent=(tx.store||tx.encounter_staff_name||'ポイント操作')+'／'+String(tx.kind||'')+'／'+(Number(tx.delta)>0?'+':'')+String(tx.delta)+'pt '+when;root.append(item)}
+}
+function getSavedPending(){
+ try{const obj=JSON.parse(localStorage.getItem(CHECKOUT_PENDING_KEY)||'null');
+  if(!obj||!(/^[0-9a-f-]{36}$/i.test(obj.request_id)))return null;
+  if(!['member_id','store_id'].every(k=>typeof obj[k]==='string'))return null;
+  if(!Number.isSafeInteger(obj.total_yen)||!Number.isSafeInteger(obj.redeem_points))return null;
+  return obj;
+ }catch(_){return null}
+}
+function storePending(p){try{localStorage.setItem(CHECKOUT_PENDING_KEY,JSON.stringify(p));pendingCheckout=p;return true}catch(_){return false}}
+function clearPending(){pendingCheckout=null;try{localStorage.removeItem(CHECKOUT_PENDING_KEY)}catch(_){}}
+function renderPending(){
+ const saved=getSavedPending();pendingCheckout=saved;
+ if(!selectedMember){byId('checkoutPending').classList.add('hidden');return}
+ if(saved){
+  byId('checkoutPending').classList.remove('hidden');
+  byId('checkoutStatus').textContent='未確認の会計があります。二重処理を防ぐため、同じ受付IDで結果を確認してください。';
+  if(saved.member_id===selectedMember.member_id){
+   byId('totalYen').value=String(saved.total_yen);byId('redeemPoints').value=String(saved.redeem_points);
+   if(!directorySelection?.storeId&&operationStoreIds.includes(saved.store_id))byId('operationStore').value=saved.store_id;
+  }
+ }else{byId('checkoutPending').classList.add('hidden')}
+ validateCheckout();
+}
+function selectMember(r,cardToken,directory=null){
+ directorySelection=directory;
+ if(directory)lockDirectoryStore();
+ selectedMember={member_id:String(r.member_id),display_name:String(r.display_name),balance:Number(r.balance),card_number:r.card_number||null,issued_store_name:r.issued_store_name||null,issued_staff_name:r.issued_staff_name||null,issued_at:r.issued_at||null,history:Array.isArray(r.history)?r.history:[]};
+ selectedCardToken=cardToken;
+ byId('selectedMemberPanel').classList.remove('hidden');byId('noSelectedMember').classList.add('hidden');
+ showMemberSummary();byId('visitStatus').textContent='';byId('checkoutStatus').textContent='';
+ byId('totalYen').value='';byId('redeemPoints').value='0';
+ renderPending();
+ if(!pendingCheckout)validateCheckout();
+ byId('awardVisit').disabled=!token||!byId('operationStore').value;
+ byId('encounterStatus').textContent='';
+ updateEncounterControls();
+}
+async function setupOperationStores(stores){
+ const select=byId('operationStore'),old=select.value;
+ operationStoreIds=stores.map(s=>String(s.id));select.replaceChildren();
+ for(const s of stores){const o=document.createElement('option');o.value=s.id;o.textContent=s.name;select.append(o)}
+ let defaultStore=old&&operationStoreIds.includes(old)?old:null;
+ // Staff can read only their own default_store_id via the existing RLS policy.
+ if(!defaultStore){
+  try{
+   if(Date.now()/1000 >= tokenExpiresAt-90)await refreshSession();
+   const res=await fetch(BASE+'/rest/v1/staff_profiles?select=default_store_id&limit=1',{
+    method:'GET',headers:{'apikey':KEY,'Authorization':'Bearer '+token},
+    cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+   if(res.ok){const rows=await res.json();const value=rows?.[0]?.default_store_id;if(operationStoreIds.includes(value))defaultStore=value}
+  }catch(_){}
+ }
+ select.value=defaultStore||operationStoreIds[0]||'';
+ byId('operationStoreHint').textContent=defaultStore?'スタッフの既定店舗を自動選択しました。必要なときだけ変更してください。':'先頭の有効店舗を選択しています。会計前に店舗を確認してください。';
+ lockDirectoryStore();
+ if(selectedMember)byId('awardVisit').disabled=operationBusy||!select.value;
+ validateCheckout();
+}
+byId('operationStore').addEventListener('change',()=>{
+ byId('operationStoreHint').textContent='操作店舗を手動で選択中です。会計前に店舗名をご確認ください。';
+ validateCheckout();
+});
+async function refreshMemberBalance(){
+ const member=selectedMember,directory=directorySelection;
+ if(!member||(!directory&&!selectedCardToken))return;
+ const fresh=directory ? await directoryPointsRequest(directory.id,'select') :
+  await request('/rest/v1/rpc/staff_member_by_card',{p_card_token:selectedCardToken},token);
+ if(member!==selectedMember)return;
+ if(!fresh||fresh.member_id!==member.member_id)throw Error('カードの会員を再確認できません');
+ member.balance=Number(fresh.balance);
+ if(directory){
+  member.history=Array.isArray(fresh.history)?fresh.history:[];
+  directory.balanceField.textContent=cardDirectoryNumber.format(member.balance)+' pt';
+  directory.onBalanceRefresh();
+ }
+ showMemberSummary();validateCheckout();
+}
+byId('awardVisit').addEventListener('click',async()=>{
+ if(!token||!selectedMember||operationBusy||!validBusinessDay())return;
+ const store=byId('operationStore'),storeId=store.value;
+ if(!operationStoreIds.includes(storeId))return;
+ if(!confirm(selectedMember.display_name+' 様に「'+store.selectedOptions[0].textContent+'」の来店ポイントを付与しますか？\n同じ店舗・同じ営業日は1回限りです。'))return;
+ const member=selectedMember,directory=directorySelection;
+ operationBusy=true;updateEncounterControls();byId('awardVisit').disabled=true;byId('checkoutConfirm').disabled=true;
+ byId('visitStatus').textContent='来店ポイントを付与中…';
+ try{
+  const id=directory ? await directoryPointsRequest(directory.id,'visit',{p_store_id:storeId}) :
+   await request('/rest/v1/rpc/award_visit_point_for_card_v1',{
+    p_member_id:member.member_id,p_store_id:storeId,p_card_token:selectedCardToken
+   },token);
+  if(member!==selectedMember)return;
+  if(typeof id!=='string'||!(/^[0-9a-f-]{36}$/i.test(id)))throw Error('付与結果を確認できません');
+  byId('visitStatus').textContent='来店ポイント付与に成功しました。残高を更新します…';
+  try{
+   await refreshMemberBalance();
+   if(member===selectedMember)byId('visitStatus').textContent='来店ポイント付与成功。共通残高：'+yen(selectedBalance())+'pt';
+  }catch(_){
+   if(member===selectedMember)byId('visitStatus').textContent='来店ポイントを付与しました。最新残高は会員を選び直してご確認ください。';
+  }
+ }catch(e){
+  if(member!==selectedMember)return;
+  if(!directory&&e.code==='BC001'){
+   resetSelectedMember();
+   byId('lookupResult').classList.add('hidden');
+   byId('lookupStatus').textContent='このカードには付与できませんでした。有効なカードを読み取ってください。';
+  }else{
+   byId('visitStatus').textContent='確認が必要です：'+e.message+'。通信エラーの場合は再付与する前に会員残高と履歴を確認してください。';
+  }
+ }
+ finally{finishPointOperation()}
+});
+function integerField(id){
+ const el=byId(id),raw=el.value.trim();
+ if(raw===''||!/^(0|[1-9][0-9]*)$/.test(raw))return null;
+ const n=Number(raw);return Number.isSafeInteger(n)&&n<=2147483647?n:null;
+}
+function checkoutNumbers(){
+ const total=integerField('totalYen'),redeem=integerField('redeemPoints');
+ if(total===null||redeem===null)return {valid:false,reason:'税込会計総額と利用ポイントを0以上の整数で入力してください。'};
+ if(total===0&&redeem===0)return {valid:false,reason:'会計金額または利用ポイントを入力してください。'};
+ if(redeem%10!==0)return {valid:false,reason:'利用ポイントは10pt単位で入力してください。'};
+ if(redeem>total)return {valid:false,reason:'利用ポイントが税込会計総額を超えています。'};
+ if(redeem>selectedBalance())return {valid:false,reason:'ポイント残高が不足しています。'};
+ const paid=total-redeem,earned=Math.floor(paid/100)*5;
+ return {valid:true,total,redeem,paid,earned};
+}
+function validateCheckout(){
+ const preview=byId('checkoutPreview'),btn=byId('checkoutConfirm');
+ if(!selectedMember){btn.disabled=true;return}
+ const v=checkoutNumbers();
+ preview.textContent=v.valid?('実際の税込支払額：'+yen(v.paid)+'円 ／ ポイント利用：'+yen(v.redeem)+'pt ／ 新たに付与：'+yen(v.earned)+'pt ／ 処理後の予想残高：'+yen(selectedBalance()-v.redeem+v.earned)+'pt'):v.reason;
+ btn.disabled=!v.valid||!token||!byId('operationStore').value||!!getSavedPending()||operationBusy;
+}
+byId('totalYen').addEventListener('input',validateCheckout);
+byId('redeemPoints').addEventListener('input',validateCheckout);
+function finishPointOperation(){
+ operationBusy=false;
+ byId('checkoutRetry').disabled=false;
+ byId('awardVisit').disabled=!token||!selectedMember||!byId('operationStore').value;
+ updateEncounterControls();
+ validateCheckout();
+}
+function checkoutInput(p){
+ return {p_request_id:p.request_id,p_store_id:p.store_id,p_total_yen:p.total_yen,p_redeem_points:p.redeem_points};
+}
+function nfcCheckoutRequest(p,cardToken){
+ return request('/rest/v1/rpc/process_checkout_once_for_card_v1',{
+  ...checkoutInput(p),p_member_id:p.member_id,p_card_token:cardToken
+ },token);
+}
+async function directoryCheckoutRequest(p,directory){
+ // An empty token reads a prior receipt, even if the directory permission/card has since been revoked.
+ if(directory.storeId&&directory.storeId!==p.store_id)return nfcCheckoutRequest(p,'');
+ try{return await directoryPointsRequest(directory.id,'checkout',checkoutInput(p))}
+ catch(error){
+  if(!['BC001','BC003'].includes(error.code))throw error;
+  return nfcCheckoutRequest(p,'');
+ }
+}
+async function submitCheckout(p){
+ if(operationBusy||!token||!validBusinessDay())return;
+ if(!selectedMember||selectedMember.member_id!==p.member_id){byId('checkoutStatus').textContent='同じ会員カードを照会してから再確認してください。';return}
+ if(!operationStoreIds.includes(p.store_id)){byId('checkoutStatus').textContent='会計の店舗が無効です。管理者に確認してください。';return}
+ const member=selectedMember,directory=directorySelection;
+ operationBusy=true;updateEncounterControls();byId('checkoutRetry').disabled=true;byId('awardVisit').disabled=true;byId('checkoutConfirm').disabled=true;
+ byId('checkoutStatus').textContent='会計を確定しています。通信中は画面を閉じないでください…';
+ try{
+  const result=directory ? await directoryCheckoutRequest(p,directory) : await nfcCheckoutRequest(p,selectedCardToken);
+  if(!result||!Number.isFinite(Number(result.balance_after))||!Number.isFinite(Number(result.earned_points))||!Number.isFinite(Number(result.redeemed_points)))throw Error('会計結果を確認できません');
+  if(getSavedPending()?.request_id===p.request_id)clearPending();
+  if(member!==selectedMember)return;
+  byId('checkoutPending').classList.add('hidden');
+  member.balance=Number(result.balance_after);showMemberSummary();
+  if(directory&&!result.replayed)directory.balanceField.textContent=cardDirectoryNumber.format(member.balance)+' pt';
+  byId('checkoutStatus').textContent=(result.replayed?'同じ受付IDの処理済み結果を確認しました。':'お会計の処理が完了しました。')+' 利用 '+yen(result.redeemed_points)+'pt ／ 付与 '+yen(result.earned_points)+'pt ／ 残高 '+yen(result.balance_after)+'pt';
+  byId('totalYen').value='';byId('redeemPoints').value='0';
+  try{await refreshMemberBalance()}catch(_){
+   if(member===selectedMember)byId('checkoutStatus').textContent+='（最新残高は会員を選び直してご確認ください）';
+  }
+ }catch(e){
+  if(e.code==='BC001' || e.code==='BC002'){
+   if(getSavedPending()?.request_id===p.request_id)clearPending();
+   if(member!==selectedMember)return;
+   if(directory){
+    byId('checkoutPending').classList.add('hidden');
+    byId('checkoutStatus').textContent='前回の会計は確定していません。一覧を更新し、カードと操作権限をご確認ください。';
+   }else{
+    resetSelectedMember();
+    byId('lookupResult').classList.add('hidden');
+    byId('lookupStatus').textContent='このカードで会計は確定しませんでした。有効なカードを読み取ってください。';
+    byId('checkoutStatus').textContent=byId('lookupStatus').textContent;
+   }
+  }else if(member===selectedMember){
+   byId('checkoutPending').classList.remove('hidden');
+   byId('checkoutStatus').textContent='処理結果が未確認です：'+e.message+'。二重会計を避けるため、同じ受付IDで再確認してください。';
+  }
+ }finally{finishPointOperation()}
+}
+byId('checkoutConfirm').addEventListener('click',async()=>{
+ if(operationBusy||!token||!selectedMember||getSavedPending())return;
+ const v=checkoutNumbers();if(!v.valid){validateCheckout();return}
+ const store=byId('operationStore');if(!operationStoreIds.includes(store.value))return;
+ if(!confirm('会計内容を最終確認してください。\n会員：'+selectedMember.display_name+' 様\n店舗：'+store.selectedOptions[0].textContent+'\n税込会計：'+yen(v.total)+'円\n利用：'+yen(v.redeem)+'pt\n実際の支払：'+yen(v.paid)+'円\n付与：'+yen(v.earned)+'pt\n\nこの内容で確定しますか？'))return;
+ const p={request_id:crypto.randomUUID(),member_id:selectedMember.member_id,store_id:store.value,total_yen:v.total,redeem_points:v.redeem,created_at:Date.now()};
+ if(!storePending(p)){byId('checkoutStatus').textContent='このブラウザでは受付IDを安全に保存できません。会計は実行していません。ブラウザの保存設定を確認してください。';return}
+ renderPending();await submitCheckout(p);
+});
+byId('checkoutRetry').addEventListener('click',async()=>{
+ const p=getSavedPending();if(!p){renderPending();return}
+ if(!selectedMember||p.member_id!==selectedMember.member_id){
+  if(operationBusy||!token||!validBusinessDay())return;
+  const status=byId('checkoutStatus'), retry=byId('checkoutRetry');
+  operationBusy=true;retry.disabled=true;
+  try{
+   // An empty token can check an existing receipt but cannot start a new checkout.
+   const result=await nfcCheckoutRequest(p,'');
+   if(result?.replayed===true && getSavedPending()?.request_id===p.request_id){
+    clearPending();renderPending();
+    status.textContent='前回の会計は処理済みです。';
+   }
+  }catch(e){
+   if(e.code==='BC002' && getSavedPending()?.request_id===p.request_id){
+    clearPending();renderPending();
+    status.textContent='対象会員のデータが削除されたため、前回の会計の確認を終了しました。';
+   }else{
+    status.textContent='前回の会計と同じ会員を選んでから再確認してください。';
+   }
+  }finally{finishPointOperation()}
+  return;
+ }
+ if(!confirm('前回と同じ受付ID・同じ金額で処理結果を再確認します。\n※ すでに処理されていれば二重計上はしません。'))return;
+ await submitCheckout(p);
+});
+
+// Encounter permissions are fail-closed in the UI. The award RPC independently verifies them.
+let encounterStaffProfile=null,encounterPermissionEnabled=false,encounterListLoading=false;
+let staffActivationStores=null;
+const liveStaffRoles={staff:'一般スタッフ',store_admin:'店舗管理者',super_admin:'最高管理責任者'};
+async function readEncounterProfile(){
+  if(!token||!validBusinessDay())throw Error('ログインを確認してください');
+  if(Date.now()/1000>=tokenExpiresAt-90)await refreshSession();
+  async function send(){
+    const res=await fetch(BASE+'/rest/v1/staff_profiles?select=id,display_name,role,default_store_id,encounter_points_enabled,encounter_public_name&limit=2',{
+      method:'GET',headers:{'apikey':KEY,'Authorization':'Bearer '+token,'Accept':'application/json'},
+      cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+    const rows=await res.json().catch(()=>null);return {res,rows};
+  }
+  let {res,rows}=await send();
+  if(res.status===401&&validBusinessDay()){await refreshSession();({res,rows}=await send())}
+  if(!res.ok)throw Error(rows?.message||'スタッフ権限を確認できません');
+  if(!Array.isArray(rows)||rows.length!==1||!rows[0]?.id||!Object.hasOwn(liveStaffRoles,rows[0].role))throw Error('スタッフの権限設定が見つかりません');
+  return rows[0];
+}
+function renderStaffAccess(){
+  const profile=encounterStaffProfile;
+  byId('staffAccessDetails').hidden=!profile;
+  byId('signedInStaffName').textContent=profile?.display_name||'';
+  byId('signedInStaffRole').textContent=profile?liveStaffRoles[profile.role]:'';
+  byId('signedInStaffStore').textContent='';
+  const list=byId('signedInStaffPermissions');
+  list.replaceChildren();
+  if(!profile)return;
+  const isSuper=profile.role==='super_admin';
+  const assignedStore=operationStores?.find(store=>store.id===profile.default_store_id);
+  const storeName=assignedStore?.name||'';
+  byId('signedInStaffStore').textContent=isSuper?'管理範囲：全店舗':
+    '担当店舗：'+(storeName||(profile.default_store_id
+      ? (operationStores?'有効な店舗一覧にありません':'店舗情報を確認できません')
+      : '未設定'));
+  const permissions=['NFCカードの読み取り・会員照会'];
+  if(operationStores?.length)permissions.push('来店ポイント付与・会計ポイント付与・ポイント利用');
+  if(staffActivationStores?.length){
+    const scope=isSuper?'全有効店舗':staffActivationStores.map(store=>store.name).join('、');
+    permissions.push('未登録カードの登録（'+scope+'）');
+  }
+  if(encounterPermissionEnabled)permissions.push('スタッフ遭遇ポイントの付与');
+  if(isSuper||profile.role==='store_admin'&&assignedStore){
+    const scope=isSuper?'全店舗':storeName;
+    permissions.push('お客様名・メモの変更、カードの一時停止・再発行（'+scope+'）',
+      isSuper?'スタッフのカード登録・遭遇ポイントの許可設定（全店舗）':'担当店舗の一般スタッフのカード登録・遭遇ポイントの許可設定');
+  }
+  if(isSuper){
+    if(operationStores?.length)permissions.push('未登録NFCカードの事前準備');
+    permissions.push('カードと会員データの完全削除（全店舗）','スタッフの招待・管理','スタッフ遭遇ポイントの公開名の設定',
+      '店舗の追加・店舗情報とイベントの公開設定','来店ポイントの設定（全店舗）');
+  }else if(profile.role==='store_admin'&&assignedStore){
+    permissions.push('来店ポイントの設定（'+storeName+'）');
+  }
+  for(const label of permissions){
+    const item=document.createElement('li');
+    item.textContent=label;
+    list.append(item);
+  }
+}
+async function refreshStaffAccess(){
+  const refresh=byId('refreshStaffAccess'),status=byId('staffAccessStatus');
+  if(refresh.disabled||!token||!validBusinessDay())return false;
+  const session=staffSessionVersion;
+  refresh.disabled=true;
+  status.textContent='スタッフ名と権限を確認しています…';
+  const [profile,activation]=await Promise.allSettled([readEncounterProfile(),fetchActivationStores()]);
+  if(session!==staffSessionVersion||!validBusinessDay())return false;
+  refresh.disabled=false;
+  encounterStaffProfile=profile.status==='fulfilled'?profile.value:null;
+  encounterPermissionEnabled=encounterStaffProfile?.encounter_points_enabled===true;
+  staffActivationStores=activation.status==='fulfilled'?activation.value:null;
+  renderStaffAccess();
+  renderManagementView();
+  displayEncounterPermission();
+  byId('prepareCards').disabled=encounterStaffProfile?.role!=='super_admin'||!operationStores?.length;
+  if(profile.status==='rejected'){
+    status.textContent='スタッフ情報を確認できませんでした。「権限を再確認」を押してください。';
+  }else{
+    status.textContent=activation.status==='rejected'?'カード登録の許可を確認できませんでした。':'';
+  }
+  return profile.status==='fulfilled';
+}
+byId('refreshStaffAccess').addEventListener('click',async()=>{
+  if(!token||!validBusinessDay())return;
+  await Promise.all([refreshStaffAccess(),loadStockStores()]);
+});
+function updateEncounterControls(){
+  const enabled=!!token&&!!encounterPermissionEnabled;
+  byId('encounterAwardArea').classList.toggle('hidden',!enabled);
+  byId('awardEncounter').disabled=!enabled||!selectedMember||(!selectedCardToken&&!directorySelection)||operationBusy;
+}
+function displayEncounterPermission(){
+  byId('encounterPermissionStatus').textContent=encounterStaffProfile
+    ? (encounterPermissionEnabled?'スタッフ遭遇ポイント：付与権限あり（カード照会後に付与できます）':'スタッフ遭遇ポイント：付与権限なし（店舗の管理者にご確認ください）')
+    : 'スタッフ遭遇ポイント：権限確認が必要です';
+  updateEncounterControls();
+}
+async function loadEncounterAccess(){
+  if(!await refreshStaffAccess())return;
+  if(encounterStaffProfile?.role==='super_admin'||encounterStaffProfile?.role==='store_admin'){
+    await loadStoreSettings();
+    await loadCardActivationPermissions();
+  }
+  if(encounterStaffProfile?.role==='super_admin'){
+    await loadEncounterStaffList();
+    await loadStaffDirectory();
+  }
+}
+async function loadEncounterStaffList(){
+  if(!token||encounterStaffProfile?.role!=='super_admin'||encounterListLoading)return;
+  encounterListLoading=true;
+  const area=byId('encounterStaffList'),status=byId('encounterAdminStatus');
+  status.textContent='スタッフの公開名と権限を読み込み中…';
+  byId('reloadEncounterStaff').disabled=true;
+  try{
+    const staff=await request('/rest/v1/rpc/list_staff_encounter_permissions',{},token);
+    if(!Array.isArray(staff))throw Error('スタッフ一覧の形式が正しくありません');
+    area.replaceChildren();
+    for(const person of staff){
+      if(!person?.id||typeof person.display_name!=='string'||typeof person.public_name!=='string'||typeof person.encounter_points_enabled!=='boolean')throw Error('スタッフ情報が不正です');
+      const row=document.createElement('div');row.className='encounterStaffRow';
+      const top=document.createElement('div');top.className='encounterTop';
+      const name=document.createElement('strong');name.textContent='スタッフ表示名：'+person.display_name;
+      const permission=createPermissionControl(person.display_name,person.encounter_points_enabled,'遭遇ポイント付与','ポイント付与を許可');
+      permission.action.addEventListener('click',async()=>{
+        const wanted=!person.encounter_points_enabled;
+        if(!confirm(person.display_name+' の遭遇ポイント付与権限を'+(wanted?'許可':'取り消し')+'ますか？'))return;
+        permission.action.disabled=true;
+        status.textContent=person.display_name+' の付与権限を更新中…';
+        try{
+          const ok=await request('/rest/v1/rpc/set_staff_encounter_permission',{p_staff_id:person.id,p_enabled:wanted},token);
+          if(ok!==true)throw Error('サーバーでの更新結果を確認できません');
+          person.encounter_points_enabled=wanted;
+          permission.update(wanted);
+          if(encounterStaffProfile?.id===person.id){
+            encounterStaffProfile.encounter_points_enabled=wanted;
+            encounterPermissionEnabled=wanted;displayEncounterPermission();renderStaffAccess();
+          }
+          status.textContent=person.display_name+' の付与権限を'+(wanted?'許可':'取り消し')+'ました。';
+        }catch(e){status.textContent='権限を変更できません：'+e.message;}
+        finally{permission.action.disabled=false;}
+      });
+      top.append(name,permission.state,permission.action);
+
+      const edit=document.createElement('div');edit.className='encounterEdit';
+      const inputLabel=document.createElement('label');
+      const labelTitle=document.createElement('small');labelTitle.textContent='お客様に表示する公開名（最大24文字）';
+      const input=document.createElement('input');input.type='text';input.maxLength=24;
+      input.autocomplete='off';input.spellcheck=false;
+      input.value=person.public_name_customized===true?person.public_name:person.display_name;
+      input.setAttribute('aria-label',person.display_name+'のお客様向け公開名');
+      inputLabel.append(labelTitle,input);
+      const save=document.createElement('button');save.type='button';save.textContent='名前を保存';
+      const reset=document.createElement('button');reset.type='button';reset.className='secondary';reset.textContent='元の名前に戻す';
+      save.addEventListener('click',async()=>{
+        const next=input.value.trim();
+        if(!next||[...next].length>24){status.textContent='公開名は1〜24文字で入力してください。';return;}
+        if(next===person.public_name && person.public_name_customized===true){status.textContent='公開名は変更されていません。';return;}
+        if(!confirm(person.display_name+' のお客様向け公開名を「'+next+'」に変更しますか？'))return;
+        save.disabled=true;reset.disabled=true;input.disabled=true;
+        status.textContent=person.display_name+' の公開名を保存中…';
+        try{
+          const ok=await request('/rest/v1/rpc/set_staff_encounter_public_name',{p_staff_id:person.id,p_public_name:next},token);
+          if(ok!==true)throw Error('サーバーの保存結果を確認できません');
+          person.public_name=next;person.public_name_customized=true;
+          if(encounterStaffProfile?.id===person.id)encounterStaffProfile.encounter_public_name=next;
+          status.textContent='公開名を「'+next+'」に保存しました。お客様の画面では再取得すると反映されます。';
+        }catch(e){status.textContent='公開名を変更できません：'+e.message;}
+        finally{save.disabled=false;reset.disabled=false;input.disabled=false;}
+      });
+      reset.addEventListener('click',async()=>{
+        if(!confirm(person.display_name+' の公開名を元の「'+person.display_name+'」に戻しますか？'))return;
+        save.disabled=true;reset.disabled=true;input.disabled=true;
+        try{
+          const ok=await request('/rest/v1/rpc/set_staff_encounter_public_name',{p_staff_id:person.id,p_public_name:null},token);
+          if(ok!==true)throw Error('サーバーの保存結果を確認できません');
+          person.public_name=person.display_name;person.public_name_customized=false;
+          input.value=person.display_name;
+          if(encounterStaffProfile?.id===person.id)encounterStaffProfile.encounter_public_name=null;
+          status.textContent='公開名を元の「'+person.display_name+'」に戻しました。';
+        }catch(e){status.textContent='公開名を戻せません：'+e.message;}
+        finally{save.disabled=false;reset.disabled=false;input.disabled=false;}
+      });
+      edit.append(inputLabel,save,reset);
+      row.append(top,edit);area.append(row);
+    }
+    status.textContent=staff.length+'名の公開名と付与権限を読み込みました。';
+  }catch(e){area.replaceChildren();status.textContent='スタッフ一覧を確認できません：'+e.message;}
+  finally{encounterListLoading=false;byId('reloadEncounterStaff').disabled=false;}
+}
+
+function createPermissionControl(owner,allowed,scope,allowLabel){
+ const state=document.createElement('span');state.className='permissionState';
+ const action=document.createElement('button');action.type='button';action.className='permissionAction';
+ function update(enabled){
+   state.dataset.allowed=String(enabled);
+   state.textContent=enabled?'許可済み':'未許可';
+   action.textContent=enabled?'許可を取り消す':allowLabel;
+   action.classList.toggle('secondary',enabled);
+   action.setAttribute('aria-label',owner+'の'+scope+'を'+(enabled?'取り消す':'許可する'));
+ }
+ update(allowed);
+ return {state,action,update};
+}
+
+let cardPermissionBusy=false;
+async function loadCardActivationPermissions(){
+ const status=byId('cardActivationPermissionStatus'),root=byId('cardActivationPermissionList');
+ const reload=byId('reloadCardActivationPermissions');
+ if(!token||!canOpenManagement(managementPages.card)||cardPermissionBusy)return;
+ cardPermissionBusy=true;
+ reload.disabled=true;
+ status.textContent='カード登録の許可を確認中…';
+ root.replaceChildren();
+ try{
+   const people=await request('/rest/v1/rpc/list_card_activation_permissions_v3',{},token);
+   if(!Array.isArray(people))throw Error('権限情報の形式を確認できません');
+   for(const person of people){
+     const line=document.createElement('section');line.className='cardPermissionRow';
+     const name=document.createElement('h3');name.textContent=person.staff_name;
+     const store=document.createElement('p');store.className='cardPermissionStore';
+     store.textContent='担当店舗 '+person.store_name;
+     let allowed=person.allowed===true;
+     const permission=createPermissionControl(person.staff_name+'（'+person.store_name+'）',allowed,'カード登録','カード登録を許可');
+     permission.action.addEventListener('click',async()=>{
+       if(cardPermissionBusy||!token||!validBusinessDay()||!canOpenManagement(managementPages.card))return;
+       const wanted=!allowed;
+       if(!confirm(person.staff_name+' のカード登録の許可を'+(wanted?'追加':'取り消し')+'ますか？\n担当店舗 '+person.store_name))return;
+       cardPermissionBusy=true;
+       reload.disabled=true;
+       permission.action.disabled=true;
+       status.textContent=person.staff_name+' の許可を更新中…';
+       try{
+         const saved=await request('/rest/v1/rpc/set_card_activation_permission_v3',{
+           p_staff_id:person.staff_id,p_store_id:person.store_id,p_enabled:wanted
+         },token);
+         if(saved!==true)throw Error('サーバーの保存結果を確認できません');
+         allowed=wanted;
+         permission.update(allowed);
+         status.textContent=person.staff_name+(allowed?' のカード登録を許可しました。':' のカード登録の許可を取り消しました。');
+       }catch(e){status.textContent='権限変更に失敗しました：'+e.message;}
+       finally{cardPermissionBusy=false;permission.action.disabled=false;reload.disabled=false;}
+     });
+     line.append(name,store,permission.state,permission.action);
+     root.append(line);
+   }
+   status.textContent=people.length?people.length+'名の一般スタッフを表示しています。':'対象の一般スタッフがいません。';
+ }catch(e){root.replaceChildren();status.textContent='権限を確認できません：'+e.message;}
+ finally{cardPermissionBusy=false;reload.disabled=false;}
+}
+byId('reloadCardActivationPermissions').addEventListener('click',loadCardActivationPermissions);
+
+// Staff account provisioning uses an authenticated Edge Function. No admin secret exists in this page.
+let staffDirectoryBusy=false;
+const staffInviteStatus=byId('staffInviteStatus');
+const staffDirectoryStatus=byId('staffDirectoryStatus');
+function makeOwnStaffNameForm(person,heading,feedback,session){
+ const form=document.createElement('form');form.className='staff-display-name-form';
+ const label=document.createElement('label');label.textContent='スタッフ表示名（1〜24文字）';
+ const input=document.createElement('input');input.type='text';input.required=true;
+ input.autocomplete='off';input.spellcheck=false;input.value=person.display_name;
+ label.append(input);
+ const save=document.createElement('button');save.type='submit';save.textContent='表示名を保存';
+ form.append(label,save,feedback);
+ form.addEventListener('submit',async(event)=>{
+  event.preventDefault();
+  if(save.disabled||session!==staffSessionVersion||!token||!validBusinessDay()||
+     encounterStaffProfile?.role!=='super_admin'||encounterStaffProfile.id!==person.id)return;
+  const next=input.value.trim();
+  feedback.hidden=false;
+  if(!next||[...next].length>24||/[\u0000-\u001f\u007f-\u009f]/.test(next)){
+   feedback.textContent='スタッフ表示名は1〜24文字で入力してください。';return;
+  }
+  if(next===person.display_name){feedback.textContent='表示名は変更されていません。';return;}
+  save.disabled=true;input.disabled=true;feedback.textContent='表示名を保存しています…';
+  try{
+   const saved=await request('/rest/v1/rpc/rename_own_super_admin_v1',{p_display_name:next},token);
+   if(typeof saved!=='string'||!saved)throw Error('保存結果を確認できません');
+   if(session!==staffSessionVersion||!validBusinessDay())return;
+   person.display_name=saved;
+   input.value=saved;heading.textContent=saved;
+   if(encounterStaffProfile?.id===person.id){
+    encounterStaffProfile.display_name=saved;
+    renderStaffAccess();
+   }
+   feedback.textContent='表示名を「'+saved+'」に保存しました。';
+  }catch(e){feedback.textContent='表示名を変更できません：'+e.message}
+  finally{save.disabled=false;input.disabled=false}
+ });
+ return form;
+}
+function makeStaffRetirementButton(person,entry,feedback,session){
+ const button=document.createElement('button');
+ button.type='button';
+ button.className='danger';
+ button.textContent='退職者の登録を削除';
+ button.setAttribute('aria-label',person.display_name+'のスタッフ登録を削除');
+ const current=()=>session===staffSessionVersion&&token&&validBusinessDay()&&encounterStaffProfile?.role==='super_admin';
+ button.addEventListener('click',async()=>{
+  if(button.disabled||!current())return;
+  const target=person.display_name+'（'+liveStaffRoles[person.role]+'・'+(person.default_store_name||'店舗未設定')+'）';
+  if(!confirm('本当にスタッフ登録を削除しますか？\n\n対象：'+target+'\nスタッフ一覧から外れ、このアプリを利用できなくなります。過去のポイント・会計履歴には担当者名が残ります。'))return;
+  button.disabled=true;
+  feedback.hidden=false;
+  feedback.textContent='スタッフ登録を削除しています…';
+  try{
+   const removed=await request('/rest/v1/rpc/retire_staff_v1',{p_staff_id:person.id,p_confirm:true},token);
+   if(!current())return;
+   if(removed!==true)throw Error('削除結果を確認できません');
+   entry.remove();
+   staffDirectoryStatus.textContent=person.display_name+' のスタッフ登録を削除しました。';
+  }catch(e){
+   if(current())feedback.textContent='削除結果を確認できません：'+e.message+'。スタッフ一覧を更新して確認してください。';
+  }finally{
+   button.disabled=false;
+  }
+ });
+ return button;
+}
+function makeStaffWorkPermissions(person,session){
+ const root=document.createElement('div');root.className='staff-work-permissions';
+ const status=document.createElement('p');status.className='hint';status.setAttribute('role','status');status.hidden=true;
+ const choices=[
+  {key:'card_registration',label:'未登録カードの登録',field:'card_registration_allowed',changeable:person.card_registration_changeable},
+  {key:'encounter_points',label:'遭遇ポイントの付与',field:'encounter_points_enabled',changeable:true}
+ ];
+ for(const {key,label,field,changeable} of choices){
+  const row=document.createElement('div');row.className='staff-work-permission';
+  const info=document.createElement('div');
+  const title=document.createElement('strong');title.textContent=label;
+  info.append(title,document.createElement('br'));
+  if(!changeable){
+   const hint=document.createElement('small');hint.textContent='有効な担当店舗の設定が必要です。';
+   info.append(hint);row.append(info);root.append(row);continue;
+  }
+  const permission=createPermissionControl(person.display_name,person[field]===true,label,'許可する');
+  info.append(permission.state);row.append(info,permission.action);root.append(row);
+  permission.action.addEventListener('click',async()=>{
+   const current=()=>session===staffSessionVersion&&token&&validBusinessDay()&&canOpenManagement(managementPages.staff);
+   if(permission.action.disabled||staffDirectoryBusy||!current())return;
+   const wanted=person[field]!==true;
+   if(!confirm(person.display_name+' の「'+label+'」を'+(wanted?'許可しますか？':'取り消しますか？')))return;
+   permission.action.disabled=true;
+   status.hidden=false;status.textContent='許可を変更しています…';
+   try{
+    const ok=await request('/rest/v1/rpc/set_staff_work_permission_v1',{
+     p_staff_id:person.id,p_permission:key,p_enabled:wanted
+    },token);
+    if(ok!==true)throw Error('保存結果を確認できません');
+    if(!current())return;
+    person[field]=wanted;
+    permission.update(wanted);
+    if(encounterStaffProfile?.id===person.id)await refreshStaffAccess();
+    if(current())status.textContent=label+'の許可を'+(wanted?'追加しました。':'取り消しました。');
+   }catch(error){
+    if(current())status.textContent='許可を変更できません：'+error.message;
+   }finally{permission.action.disabled=false}
+  });
+ }
+ root.append(status);
+ return root;
+}
+function showStaffOnboarding(person,onboarding,session){
+ const row=document.createElement('div');row.className='staff-onboarding';
+ const status=document.createElement('p');status.setAttribute('role','status');
+ const labels={
+  pending_registration:'本人の初回パスワード設定を待っています。',
+  pending_approval:'本人のパスワード設定が完了しました。',
+  mail_sending:'案内メールを処理しています。少し待って一覧を更新してください。',
+  mail_pending:'承認済み · 案内メールの送信を確認できていません。',
+  mail_review:'承認済み · 案内メールが届いたか、スタッフ本人に確認してください。',
+  mail_sent:'承認済み · インストール案内メール送信受付済み'
+ };
+ status.textContent=labels[onboarding];row.append(status);
+ const canApprove=onboarding==='pending_approval';
+ const canRetry=onboarding==='mail_pending'&&person.active===true;
+ if(!canApprove&&!canRetry)return row;
+
+ const action=document.createElement('button');action.type='button';
+ action.textContent=canApprove?'承認して案内メールを送る':'案内メールを再送';
+ action.addEventListener('click',async()=>{
+  const current=()=>session===staffSessionVersion&&token&&validBusinessDay()&&encounterStaffProfile?.role==='super_admin';
+  if(action.disabled||!current())return;
+  const verb=canApprove?'の登録を承認して、登録メールにインストール案内を送りますか？':'の登録メールにインストール案内を再送しますか？';
+  if(!confirm(person.display_name+verb))return;
+  action.disabled=true;status.textContent='インストール案内を処理しています…';
+  try{
+   if(Date.now()/1000>=tokenExpiresAt-90)await refreshSession();
+   const res=await fetch(BASE+'/functions/v1/staff-invite',{
+    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'apikey':KEY},
+    body:JSON.stringify({action:'approve_install',staffId:person.id}),
+    cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+   });
+   const data=await res.json().catch(()=>null);
+   if(!current())return;
+   if(!res.ok||data?.ok!==true||data.status!=='mail_sent')throw Error(data?.error||'処理結果を確認できません');
+   await loadStaffDirectory(person.id,'スタッフを承認し、インストール案内メールの送信が受け付けられました。');
+  }catch(error){
+   if(current())await loadStaffDirectory(person.id,error.message);
+  }finally{action.disabled=false}
+ });
+ row.append(action);return row;
+}
+
+async function loadStaffDirectory(highlightId=null,highlightMessage=''){
+ if(!token||!canOpenManagement(managementPages.staff)||staffDirectoryBusy)return;
+ const isSuper=encounterStaffProfile.role==='super_admin';
+ const session=staffSessionVersion;
+ staffDirectoryBusy=true;
+ byId('reloadStaffDirectory').disabled=true;
+ byId('sendStaffInvite').disabled=true;
+ staffDirectoryStatus.textContent='スタッフ情報を取得しています…';
+ try{
+  const [people,stores,onboarding] = await Promise.all([
+    request('/rest/v1/rpc/list_staff_work_permissions_v1',{},token),
+    isSuper?request('/rest/v1/rpc/staff_card_stock_stores',{},token):[],
+    isSuper?request('/rest/v1/rpc/admin_staff_onboarding_v1',{},token).catch(()=>null):{}
+  ]);
+  if(session!==staffSessionVersion||!validBusinessDay()||!canOpenManagement(managementPages.staff))return;
+  if(!Array.isArray(people)||!Array.isArray(stores))throw Error('管理情報を取得できません');
+  if(isSuper){
+   const storeInput=byId('inviteStore');storeInput.replaceChildren(new Option('担当店舗を選択してください',''));
+   for(const store of stores){if(store?.id&&store?.name)storeInput.add(new Option(store.name,store.id))}
+  }
+  const list=byId('staffDirectory');list.replaceChildren();
+  for(const person of people){
+   const entry=document.createElement('section');entry.className='staffAdminEntry';
+   const name=document.createElement('h4');name.className='staff-person-heading';name.textContent=person.display_name;
+   name.id='staff-name-'+person.id;entry.setAttribute('aria-labelledby',name.id);
+   const body=document.createElement('div');body.className='staff-directory-edit';
+   const meta=document.createElement('p');meta.className='staff-directory-meta';
+   const title=document.createElement('span');title.textContent=liveStaffRoles[person.role]||'役職未設定';
+   const state=document.createElement('span');state.className='staff-directory-state';
+   const stage=onboarding?.[person.id];
+   const awaiting=stage==='pending_registration'||stage==='pending_approval';
+   state.dataset.inactive=String(person.active!==true);
+   state.textContent=awaiting?(stage==='pending_registration'?'本人登録待ち':'承認待ち'):(person.active?'有効':'停止中');
+   meta.append(title,state);
+   const assigned=document.createElement('p');assigned.className='staff-current-store';
+   assigned.textContent=person.role==='super_admin'?'管理範囲：全店舗':'担当店舗：'+(person.default_store_name||'未設定');
+   body.append(meta,assigned);
+   if(person.active===true)body.append(makeStaffWorkPermissions(person,session));
+   const feedback=document.createElement('p');feedback.className='hint';feedback.setAttribute('role','status');
+   feedback.hidden=person.id!==highlightId;
+   if(!feedback.hidden)feedback.textContent=highlightMessage||person.display_name+' の設定を保存しました。';
+   entry.append(name,body);
+   if(isSuper&&person.role!=='super_admin'){
+    if(stage)body.append(showStaffOnboarding(person,stage,session));
+    const controls=document.createElement('div');controls.className='staffAdminControls';
+    const roleLabel=document.createElement('label');roleLabel.textContent='役職';
+    const role=document.createElement('select');role.add(new Option('一般スタッフ','staff'));role.add(new Option('店舗管理者','store_admin'));role.value=person.role;roleLabel.append(role);
+    const storeLabel=document.createElement('label');storeLabel.textContent='担当店舗';
+    const store=document.createElement('select');store.add(new Option('未設定',''));
+    for(const st of stores){if(st?.id&&st?.name)store.add(new Option(st.name,st.id))}
+    if(person.default_store_id&&!stores.some(st=>st?.id===person.default_store_id)){
+      store.add(new Option((person.default_store_name||'担当店舗')+'（無効）',person.default_store_id));
+    }
+    store.value=person.default_store_id||'';storeLabel.append(store);
+    const activeLabel=document.createElement('label');activeLabel.textContent='アカウントを有効にする';
+    const active=document.createElement('input');active.type='checkbox';active.checked=person.active===true;active.disabled=awaiting;activeLabel.append(active);
+    const grantLabel=document.createElement('label');grantLabel.className='directoryPointsGrant';
+    grantLabel.textContent='登録済みカード一覧からのポイント操作を許可';
+    const grant=document.createElement('input');grant.type='checkbox';grant.checked=person.directory_points_allowed===true;
+    grantLabel.append(grant);
+    const updateGrantControl=()=>{
+     grantLabel.hidden=role.value!=='store_admin';
+     grant.disabled=grantLabel.hidden||!active.checked||!stores.some(st=>st.id===store.value);
+     if(grant.disabled||store.value!==person.default_store_id)grant.checked=false;
+    };
+    for(const field of [role,store,active])field.addEventListener('change',updateGrantControl);
+    updateGrantControl();
+    const save=document.createElement('button');save.type='button';save.textContent='このスタッフの設定を保存';
+    save.addEventListener('click',async()=>{
+      if(session!==staffSessionVersion||!token||!validBusinessDay()||encounterStaffProfile?.role!=='super_admin')return;
+      const wantedRole=role.value,wantedActive=active.checked,wantedStore=store.value||null;
+      const allowDirectoryPoints=!grant.disabled&&grant.checked;
+      feedback.hidden=false;
+      if(!stores.some(st=>st?.id===wantedStore)){feedback.textContent='有効な担当店舗を選択してください。';return}
+      if(!confirm(person.display_name+' の設定を保存しますか？\n役職：'+liveStaffRoles[wantedRole]+'\n担当店舗：'+store.selectedOptions[0].textContent+'\n利用：'+(wantedActive?'有効':'停止')+
+       (wantedRole==='store_admin'?'\nカード一覧のポイント操作：'+(allowDirectoryPoints?'許可':'不許可'):'')))return;
+      save.disabled=true;feedback.textContent='設定を保存しています…';
+      try{
+       const res=await request('/rest/v1/rpc/admin_update_staff_access_v2',{
+         p_staff_id:person.id,p_active:wantedActive,p_role:wantedRole,p_store_id:wantedStore,p_directory_points_allowed:allowDirectoryPoints
+       },token);
+       if(res!==true)throw Error('更新結果を確認できません');
+       if(session!==staffSessionVersion||!validBusinessDay())return;
+       feedback.textContent=person.display_name+' の設定を保存しました。';
+       staffDirectoryStatus.textContent=feedback.textContent;
+       await loadStaffDirectory(person.id);
+      }catch(e){feedback.textContent='変更できません：'+e.message}
+      finally{save.disabled=false;}
+    });
+    controls.append(roleLabel,storeLabel,activeLabel,grantLabel,save);body.append(controls);
+    const resetBtn=document.createElement('button');resetBtn.type='button';resetBtn.className='secondary';
+    resetBtn.textContent='パスワード再設定メールを個別送信';
+    resetBtn.hidden=awaiting;
+    resetBtn.addEventListener('click',async()=>{
+      if(session!==staffSessionVersion||!token||encounterStaffProfile?.role!=='super_admin'||!validBusinessDay())return;
+      if(!confirm(person.display_name+' にパスワード再設定メールを送信しますか？\n本人の登録済みメールアドレスに送信します。'))return;
+      resetBtn.disabled=true;feedback.hidden=false;feedback.textContent='再設定メールを送信しています…';
+      try{
+        if(Date.now()/1000>=tokenExpiresAt-90)await refreshSession();
+        const res=await fetch(BASE+'/functions/v1/staff-password-reset',{
+          method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'apikey':KEY},
+          body:JSON.stringify({staffId:person.id,redirectTo:new URL('reset.html',location.href).toString()}),
+          cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'
+        });
+        const data=await res.json().catch(()=>null);
+        if(!res.ok||data?.ok!==true)throw Error(res.status===429?'送信回数の上限に達しました。':data?.error||'送信できませんでした。管理者用の送信機能の設置状況を確認してください。');
+        feedback.textContent=person.display_name+' に再設定メールを送信しました。本人に受信を確認してください。';
+      }catch(e){feedback.textContent='再設定メールの送信に失敗しました：'+e.message}
+      finally{resetBtn.disabled=false}
+    });
+    body.append(resetBtn,makeStaffRetirementButton(person,entry,feedback,session),feedback);
+   }else if(isSuper&&person.id===encounterStaffProfile.id&&person.active===true){
+    body.append(makeOwnStaffNameForm(person,name,feedback,session));
+   }
+   list.append(entry);
+  }
+  byId('sendStaffInvite').disabled=!isSuper||stores.length===0;
+  staffDirectoryStatus.textContent=onboarding===null?'承認とメール送信の状態を取得できません。一覧を更新してください。':
+   people.length?'スタッフ '+people.length+'名を表示中':(isSuper?'登録済みスタッフはいません。':'担当店舗に一般スタッフはいません。');
+ }catch(e){if(session===staffSessionVersion){byId('staffDirectory').replaceChildren();staffDirectoryStatus.textContent='スタッフ一覧を確認できません：'+e.message;byId('sendStaffInvite').disabled=true}}
+ finally{staffDirectoryBusy=false;byId('reloadStaffDirectory').disabled=false}
+}
+byId('reloadStaffDirectory').addEventListener('click',()=>loadStaffDirectory());
+byId('sendStaffInvite').addEventListener('click',async()=>{
+ if(!token||encounterStaffProfile?.role!=='super_admin'||!validBusinessDay())return;
+ const email=byId('inviteEmail').value.trim().toLowerCase(),
+       displayName=byId('inviteName').value.trim(),
+       role=byId('inviteRole').value,storeId=byId('inviteStore').value;
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!displayName||[...displayName].length>24||!storeId){
+  staffInviteStatus.textContent='名前（1〜24文字）・正しいメール・担当店舗を入力してください。';return;
+ }
+ if(!confirm(displayName+' に招待メールを送りますか？\n宛先：'+email+'\n※実際に新しいログインアカウントを作成します。'))return;
+ const button=byId('sendStaffInvite');button.disabled=true;staffInviteStatus.textContent='招待処理を確認しています…';
+ try{
+   if(Date.now()/1000>=tokenExpiresAt-90)await refreshSession();
+   const res=await fetch(BASE+'/functions/v1/staff-invite',{method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'apikey':KEY},
+      body:JSON.stringify({email,displayName,role,storeId}),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});
+   const data=await res.json().catch(()=>null);
+   if(!res.ok)throw Error(data?.error||'招待を送信できません');
+   if(data?.ok!==true)throw Error('招待結果を確認できません');
+   staffInviteStatus.textContent='招待メールを送信しました。本人のパスワード設定後に、スタッフ一覧を更新して承認してください。';
+   byId('inviteName').value='';byId('inviteEmail').value='';
+   await loadStaffDirectory();await loadEncounterStaffList();
+ }catch(e){staffInviteStatus.textContent='招待に失敗しました：'+e.message+'。重複を避けるためスタッフ一覧も確認してください。'}
+ finally{button.disabled=false;}
+});
+
+byId('reloadEncounterStaff').addEventListener('click',loadEncounterStaffList);
+byId('awardEncounter').addEventListener('click',async()=>{
+  if(!token||!selectedMember||(!selectedCardToken&&!directorySelection)||operationBusy||!encounterPermissionEnabled||!validBusinessDay())return;
+  const selection=selectedMember,directory=directorySelection;
+  const member=selectedMember.display_name,staff=encounterStaffProfile?.encounter_public_name||encounterStaffProfile?.display_name||'担当スタッフ';
+  if(!confirm(member+' 様に、'+staff+'からの「スタッフ遭遇ポイント +1pt」を付与しますか？\n同じスタッフからは1営業日1回限りです。実際の共通残高が増えます。'))return;
+  operationBusy=true;updateEncounterControls();byId('awardVisit').disabled=true;byId('checkoutConfirm').disabled=true;
+  byId('encounterStatus').textContent='遭遇ポイントの付与を確認中…';
+  try{
+    const result=directory ? await directoryPointsRequest(directory.id,'encounter') :
+     await request('/rest/v1/rpc/award_encounter_point',{p_card_token:selectedCardToken},token);
+    if(selection!==selectedMember)return;
+    if(typeof result!=='string'||!/^[0-9a-f-]{36}$/i.test(result))throw Error('付与結果を確認できません');
+    byId('encounterStatus').textContent='+1ptを付与しました。最新残高を照会します…';
+    try{
+     await refreshMemberBalance();
+     if(selection===selectedMember)byId('encounterStatus').textContent='スタッフ遭遇ポイント +1pt 付与完了。共通残高：'+yen(selectedBalance())+'pt';
+    }catch(_){
+     if(selection===selectedMember)byId('encounterStatus').textContent='付与は完了しました。最新残高は会員を選び直してご確認ください。';
+    }
+  }catch(e){
+    if(selection===selectedMember)byId('encounterStatus').textContent='付与を確認できません：'+e.message+'。通信エラー時は二重付与を避け、履歴を確認してから再操作してください。';
+  }finally{finishPointOperation()}
+});
+
+
+// Settings are an admin-only UI. Both RPCs enforce role, business-day session,
+// and per-store boundaries independently of anything in the browser.
+const STORE_LINK_TYPES={website:'公式サイト',instagram:'Instagram',line:'LINE',x:'X',tiktok:'TikTok',youtube:'YouTube',reservation:'予約ページ',other:'その他'};
+function makeStoreLinkEditor(initial=[]){
+  const root=document.createElement('div');root.className='storeLinksEditor';
+  const rows=document.createElement('div');rows.className='storeLinkRows';root.append(rows);
+  const add=document.createElement('button');add.type='button';add.className='secondary';add.textContent='＋ リンクを追加';root.append(add);
+  const appendLink=(l={})=>{
+    if(rows.children.length>=5)return;
+    const row=document.createElement('div');row.className='storeLinkRow';
+    const type=document.createElement('select');type.setAttribute('aria-label','リンクの種類');
+    for(const [value,label] of Object.entries(STORE_LINK_TYPES))type.add(new Option(label,value));
+    type.value=STORE_LINK_TYPES[l.kind]?l.kind:'website';
+    const label=document.createElement('input');label.placeholder='表示名（例：公式サイト）';label.maxLength=24;label.value=l.label||STORE_LINK_TYPES[type.value];
+    type.addEventListener('change',()=>{if(!label.value.trim()||Object.values(STORE_LINK_TYPES).includes(label.value.trim()))label.value=STORE_LINK_TYPES[type.value]});
+    const url=document.createElement('input');url.type='url';url.inputMode='url';url.placeholder='https://...';url.value=l.url||'';url.autocomplete='off';
+    const remove=document.createElement('button');remove.type='button';remove.className='secondary';remove.textContent='削除';remove.addEventListener('click',()=>{row.remove();add.disabled=false});
+    row.append(type,label,url,remove);rows.append(row);
+    add.disabled=rows.children.length>=5;
+  };
+  add.addEventListener('click',()=>appendLink());
+  for(const item of initial.slice(0,5))appendLink(item);
+  root.addLink=appendLink;
+  root.clearLinks=()=>{rows.replaceChildren();add.disabled=false};
+  return root;
+}
+function readStoreLinks(editor){
+  const rows=[...editor.querySelectorAll('.storeLinkRow')];
+  if(rows.length>5)throw Error('リンクは5件までです');
+  return rows.map(row=>{
+    const [kindInput,labelInput,urlInput]=row.querySelectorAll('select,input');
+    const kind=kindInput.value,label=labelInput.value.trim(),url=urlInput.value.trim();
+    if(!STORE_LINK_TYPES[kind]||!label||[...label].length>24||url.length>2048||/\s/.test(url))throw Error('リンクの種類・名前・URLを確認してください');
+    let parsed;try{parsed=new URL(url)}catch(_){throw Error('正しいhttps://リンクを入力してください')}
+    if(parsed.protocol!=='https:'||!parsed.hostname||parsed.username||parsed.password||url.includes('\\'))throw Error('https://から始まる安全なURLを入力してください');
+    return {kind,label,url:parsed.href};
+  });
+}
+let storeCreateEditor=null;
+function initCreateStoreEditor(){
+  if(storeCreateEditor)return;
+  storeCreateEditor=makeStoreLinkEditor();
+  byId('newStoreLinks').append(storeCreateEditor);
+  // The reusable editor already includes its own add-link button.
+  byId('newStoreAddLink').classList.add('hidden');
+}
+byId('createNewStore').addEventListener('click',async()=>{
+  if(!token||encounterStaffProfile?.role!=='super_admin'||!validBusinessDay())return;
+  const name=byId('newStoreName').value.trim();
+  const raw=byId('newStorePoints').value.trim(),points=Number(raw);
+  const active=byId('newStoreActive').checked,status=byId('newStoreStatus');
+  let links;
+  if(!name||[...name].length>80||!/^[1-9][0-9]*$/.test(raw)||!Number.isSafeInteger(points)||points>100000){status.textContent='店舗名（1〜80文字）と来店ポイント（1〜100000）を確認してください。';return}
+  try{links=readStoreLinks(storeCreateEditor)}catch(e){status.textContent=e.message;return}
+  if(!confirm('新しい系列店舗を登録しますか？\n店舗：'+name+'\n来店ポイント：'+points+'pt\n初期状態：'+(active?'有効':'無効')+'\nリンク：'+links.length+'件\n\n会員残高・履歴は変更されません。'))return;
+  const button=byId('createNewStore');button.disabled=true;status.textContent='新店舗を登録中…';
+  try{
+    const result=await request('/rest/v1/rpc/admin_store_create_v540',
+      {p_name:name,p_visit_points:points,p_active:active,p_links:links},token);
+    if(typeof result!=='string'||!result)throw Error('登録結果を確認できません');
+    byId('newStoreName').value='';byId('newStorePoints').value='5';byId('newStoreActive').checked=true;
+    storeCreateEditor.clearLinks();
+    const savedMessage='新店舗を追加しました。お客様画面は再取得すると反映されます。';
+    status.textContent=savedMessage;
+    // 追加処理は確定済みなので、画面一覧の再取得が失敗しても保存失敗とは表示しない。
+    try{await loadStockStores();await loadStoreSettings();}
+    catch(_){status.textContent=savedMessage+'（一覧の再読み込みはお試しください）';}
+    byId('storeSettingsStatus').textContent=savedMessage;
+    window.alert(savedMessage);
+  }catch(e){status.textContent='登録できません：'+e.message}
+  finally{button.disabled=false}
+});
+
+const storeProfileFields = [
+  ['address', '住所', 500], ['phone', '電話番号', 80, 'tel'],
+  ['business_hours', '営業時間', 300], ['closed_days', '定休日', 240],
+  ['description', '店舗紹介', 1000, 'textarea']
+];
+const storeEventFields = [
+  ['event_name', '次回イベント名', 180], ['event_date', '開催日', 0, 'date'],
+  ['event_hours', '開催時間', 100], ['venue_name', '会場名', 180],
+  ['venue_address', '会場住所', 500], ['event_description', 'イベント詳細', 1500, 'textarea']
+];
+const storePosterTypes = {'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp'};
+
+function makeStoreDirectoryEditor(store) {
+  const details = document.createElement('details');
+  const summary = document.createElement('summary');
+  summary.textContent = '店舗詳細・Googleマップ・次回イベントを編集';
+  const content = document.createElement('div');
+  content.className = 'directoryFields';
+  details.append(summary, content);
+  let loaded = false;
+  details.addEventListener('toggle', async () => {
+    if (!details.open || loaded) return;
+    loaded = true;
+    content.textContent = '店舗情報を読み込み中…';
+    try {
+      const data = await request('/rest/v1/rpc/admin_store_directory_details', {p_store_id: store.id}, token);
+      if (!data) throw Error('店舗情報が見つかりません。');
+      content.replaceChildren(
+        makeStoreDirectoryForm(store, data.profile ?? {}, false),
+        makeStoreDirectoryForm(store, data.event ?? {}, true)
+      );
+    } catch (error) {
+      loaded = false;
+      content.textContent = '店舗情報を取得できません。閉じて開き直してください。 ' + error.message;
+    }
+  });
+  return details;
+}
+
+function makeStoreDirectoryForm(store, current, isEvent) {
+  const form = document.createElement('form');
+  const heading = document.createElement('h3');
+  heading.textContent = isEvent ? '次回イベント・ポスター' : '店舗詳細・地図';
+  form.append(heading);
+  const inputs = new Map();
+  for (const [key, text, limit, type = 'text'] of isEvent ? storeEventFields : storeProfileFields) {
+    const label = document.createElement('label');
+    label.textContent = text;
+    const field = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+    if (type !== 'textarea') field.type = type;
+    if (limit) field.maxLength = limit;
+    field.value = current[key] || '';
+    label.append(field);
+    form.append(label);
+    inputs.set(key, field);
+  }
+
+  let posterPath = current.poster_path || '';
+  let posterFile;
+  let posterNote;
+  let removePoster;
+  if (isEvent) {
+    const label = document.createElement('label');
+    label.textContent = 'ポスター画像（JPG・PNG・WebP、5MB以下）';
+    posterFile = document.createElement('input');
+    posterFile.type = 'file';
+    posterFile.accept = Object.keys(storePosterTypes).join(',');
+    label.append(posterFile);
+    posterNote = document.createElement('p');
+    posterNote.className = 'hint';
+    removePoster = document.createElement('button');
+    removePoster.type = 'button';
+    removePoster.className = 'secondary';
+    removePoster.textContent = 'ポスター画像を解除';
+    removePoster.addEventListener('click', () => {
+      posterPath = '';
+      posterFile.value = '';
+      updatePosterNote();
+    });
+    posterFile.addEventListener('change', updatePosterNote);
+    form.append(label, posterNote, removePoster);
+    updatePosterNote();
+  }
+
+  function updatePosterNote() {
+    const chosen = posterFile.files[0];
+    posterNote.textContent = chosen ? chosen.name + '（保存時にアップロード）' :
+      (posterPath ? 'ポスター画像あり' : 'ポスター画像なし');
+    removePoster.hidden = !(chosen || posterPath);
+  }
+
+  const toggleKey = isEvent ? 'published' : 'map_enabled';
+  const toggleLabel = document.createElement('label');
+  const toggle = document.createElement('input');
+  toggle.type = 'checkbox';
+  toggle.checked = current[toggleKey] === true;
+  toggleLabel.append(toggle, document.createTextNode(isEvent ? ' お客様画面に公開する' : ' 住所からGoogleマップの経路案内を表示する'));
+  const submit = document.createElement('button');
+  submit.type = 'submit';
+  submit.textContent = isEvent ? '次回イベントを保存' : '店舗詳細を保存';
+  const status = document.createElement('p');
+  status.className = 'hint';
+  status.setAttribute('role', 'status');
+  form.append(toggleLabel, submit, status);
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!token || !validBusinessDay() || submit.disabled) return;
+    const values = Object.fromEntries([...inputs].map(([key, field]) => [key, field.value.trim()]));
+    values[toggleKey] = toggle.checked;
+    if (isEvent && toggle.checked && ['event_name','event_date','venue_name','venue_address'].some(key => !values[key])) {
+      status.textContent = '公開にはイベント名・開催日・会場名・会場住所が必要です。';
+      return;
+    }
+    if (isEvent && toggle.checked && values.event_date < new Intl.DateTimeFormat('sv-SE', {timeZone: 'Asia/Tokyo'}).format(new Date())) {
+      status.textContent = '開催日が過去です。開催日を確認してください。';
+      return;
+    }
+    const file = posterFile?.files[0];
+    const confirmation = isEvent ? (toggle.checked ? '次回イベントを公開・保存しますか？' : '次回イベントを下書き保存しますか？') : '店舗詳細を保存しますか？';
+    if (!confirm(store.name + '｜' + confirmation + (file ? '\n選んだ画像は公開用の保管先にアップロードされます。' : ''))) return;
+    const controls = [...form.querySelectorAll('input, textarea, button')];
+    for (const control of controls) control.disabled = true;
+    status.textContent = '保存中…';
+    try {
+      if (isEvent) {
+        if (file) {
+          status.textContent = 'ポスターをアップロード中…';
+          posterPath = await uploadStoreEventPoster(store.id, file);
+          posterFile.value = '';
+          updatePosterNote();
+        }
+        values.poster_path = posterPath || null;
+        await request('/rest/v1/rpc/admin_save_store_upcoming_event', {p_store_id: store.id, p_event: values}, token);
+      } else {
+        await request('/rest/v1/rpc/admin_save_store_profile', {p_store_id: store.id, p_profile: values}, token);
+      }
+      status.textContent = isEvent && !toggle.checked ? '下書きとして保存しました。' : '保存しました。お客様画面で「残高を再取得」を押すと反映されます。';
+    } catch (error) {
+      status.textContent = '保存できません：' + error.message;
+    } finally {
+      for (const control of controls) control.disabled = false;
+    }
+  });
+  return form;
+}
+
+async function uploadStoreEventPoster(storeId, file) {
+  const ext = storePosterTypes[file.type];
+  if (!ext || file.size < 1 || file.size > 5 * 1024 * 1024) throw Error('JPG・PNG・WebPの5MB以下の画像を選んでください。');
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const isJpg = header[0] === 255 && header[1] === 216 && header[2] === 255;
+  const isPng = [137,80,78,71,13,10,26,10].every((byte, i) => header[i] === byte);
+  const isWebp = header.length >= 12 && String.fromCharCode(...header.slice(0,4)) === 'RIFF' &&
+    String.fromCharCode(...header.slice(8,12)) === 'WEBP';
+  if (!({jpg: isJpg, png: isPng, webp: isWebp})[ext]) throw Error('画像ファイルの形式を確認してください。');
+  const path = storeId + '/' + crypto.randomUUID() + '.' + ext;
+  if (Date.now()/1000 >= tokenExpiresAt - 90) await refreshSession();
+  const send = () => fetch(BASE + '/storage/v1/object/store-event-posters/' + path, {
+    method: 'POST', headers: {apikey: KEY, Authorization: 'Bearer ' + token, 'Content-Type': file.type, 'x-upsert': 'false'},
+    body: file, credentials: 'omit', referrerPolicy: 'no-referrer'
+  });
+  let response = await send();
+  if (response.status === 401 && validBusinessDay()) {
+    await refreshSession();
+    response = await send();
+  }
+  if (!response.ok) throw Error('画像をアップロードできませんでした（' + response.status + '）。');
+  return path;
+}
+
+let storeSettingsBusy=false;
+async function loadStoreSettings(){
+  if(!token||!validBusinessDay()||
+     !['super_admin','store_admin'].includes(encounterStaffProfile?.role)||storeSettingsBusy)return;
+  storeSettingsBusy=true;
+  const list=byId('storeSettingsList'),status=byId('storeSettingsStatus'),reload=byId('reloadStoreSettings');
+  reload.disabled=true;
+  status.textContent='店舗設定を読み込み中…';
+  try{
+    const stores=await request('/rest/v1/rpc/manage_store_list_v2',{},token);
+    if(!Array.isArray(stores))throw Error('店舗設定の応答が正しくありません');
+    list.replaceChildren();
+    const isSuper=encounterStaffProfile.role==='super_admin';
+    byId('storeDirectoryAdmin').classList.toggle('hidden',!isSuper);
+    if(isSuper)initCreateStoreEditor();
+    for(const store of stores){
+      if(!store?.id||typeof store.name!=='string'||
+         !Number.isInteger(store.visit_points)||typeof store.active!=='boolean')throw Error('店舗データが不正です');
+      const section=document.createElement('section');section.className='staffAdminEntry storeAdminCard';
+      const title=document.createElement('h3');title.className='storeAdminTitle';title.textContent=store.name;
+      title.id='store-admin-heading-'+store.id;
+      section.setAttribute('aria-labelledby',title.id);
+      const body=document.createElement('div');body.className='storeAdminBody';
+      const controls=document.createElement('div');controls.className='staffAdminControls';
+      const pointsLabel=document.createElement('label');pointsLabel.textContent='来店ポイント（1〜100000pt）';
+      const points=document.createElement('input');points.type='number';points.min='1';points.max='100000';points.step='1';points.inputMode='numeric';
+      points.value=String(store.visit_points);pointsLabel.append(points);
+      const activeLabel=document.createElement('label');activeLabel.textContent=isSuper?'顧客画面に店舗を表示・有効化':'店舗の公開状態（最高管理責任者のみ変更可）';
+      activeLabel.className='storeActiveLabel';
+      const active=document.createElement('input');active.type='checkbox';active.checked=store.active;
+      active.disabled=!isSuper;activeLabel.prepend(active);
+      const save=document.createElement('button');save.type='button';save.textContent='この店舗の設定を保存';
+      save.addEventListener('click',async()=>{
+        const raw=points.value.trim();const amount=Number(raw);
+        if(!/^[1-9][0-9]*$/.test(raw)||!Number.isSafeInteger(amount)||amount>100000){
+          status.textContent='来店ポイントは1〜100000の整数で入力してください。';return;
+        }
+        const nextActive=active.checked;
+        if(amount===store.visit_points&&nextActive===store.active){status.textContent='変更はありません。';return}
+        const impact=nextActive!==store.active?(nextActive?'店舗を再び有効化します。':'店舗を非表示・無効化します。新しいポイント操作も利用できなくなります。'):'';
+        if(!confirm(store.name+' の設定を保存しますか？\n来店ポイント：'+amount+'pt\n店舗の状態：'+(nextActive?'有効':'無効')+'\n'+impact+'\n過去の会員残高と履歴は変更されません。'))return;
+        save.disabled=true;points.disabled=true;active.disabled=true;
+        status.textContent=store.name+' の設定を保存中…';
+        try{
+          const ok=await request('/rest/v1/rpc/manage_store_settings',{
+            p_store_id:store.id,p_visit_points:amount,p_active:nextActive
+          },token);
+          if(ok!==true)throw Error('保存結果を確認できません');
+          store.visit_points=amount;store.active=nextActive;
+          status.textContent=store.name+' の設定を保存しました。次回の来店ポイント付与から反映されます。';
+          await loadStockStores();
+        }catch(e){points.value=String(store.visit_points);active.checked=store.active;status.textContent='変更できません：'+e.message}
+        finally{save.disabled=false;points.disabled=false;active.disabled=!isSuper}
+      });
+      controls.append(pointsLabel,activeLabel,save);
+      body.append(controls);
+      if(isSuper){
+        const details=document.createElement('details');
+        const summary=document.createElement('summary');summary.textContent='店舗名・外部リンクを編集';details.append(summary);
+        const nameLabel=document.createElement('label');nameLabel.textContent='店舗名';
+        const nameInput=document.createElement('input');nameInput.maxLength=80;nameInput.value=store.name;nameLabel.append(nameInput);
+        const editor=makeStoreLinkEditor(Array.isArray(store.links)?store.links:[]);
+        const detailSave=document.createElement('button');detailSave.type='button';detailSave.textContent='店舗名・リンクを保存';
+        const detailStatus=document.createElement('p');detailStatus.className='hint';detailStatus.setAttribute('role','status');
+        detailSave.addEventListener('click',async()=>{
+          const name=nameInput.value.trim();let links;
+          try{links=readStoreLinks(editor)}catch(e){detailStatus.textContent=e.message;return}
+          if(!name||[...name].length>80){detailStatus.textContent='店舗名は1〜80文字で入力してください。';return}
+          if(!confirm(store.name+' の店舗名・リンクを更新しますか？\n新しい店舗名：'+name+'\n登録リンク：'+links.length+'件\n既存ポイント・取引履歴は変更されません。'))return;
+          detailSave.disabled=true;detailStatus.textContent='保存中…';
+          try{
+            const ok=await request('/rest/v1/rpc/admin_store_update_details_v540',
+              {p_store_id:store.id,p_name:name,p_links:links},token);
+            if(ok!==true)throw Error('保存結果を確認できません');
+            const savedMessage=store.name+' の店舗名・リンクを保存しました。お客様画面は再取得すると反映されます。';
+            detailStatus.textContent=savedMessage;
+            // 店舗一覧を再描画するとこの詳細欄が消えるため、一覧側にも結果を残して通知する。
+            try{await loadStockStores();await loadStoreSettings();}
+            catch(_){/* 保存そのものは確定済み。再取得の失敗とは区別する。 */}
+            byId('storeSettingsStatus').textContent=savedMessage;
+            window.alert(savedMessage);
+          }catch(e){detailStatus.textContent='保存できません：'+e.message}
+          finally{detailSave.disabled=false}
+        });
+        details.append(nameLabel,editor,detailSave,detailStatus);body.append(details, makeStoreDirectoryEditor(store));
+      }
+      section.append(title,body);
+      list.append(section);
+    }
+    status.textContent=stores.length+'店舗の設定を読み込みました。';
+  }catch(e){list.replaceChildren();status.textContent='店舗設定を読み込めません：'+e.message}
+  finally{storeSettingsBusy=false;reload.disabled=false}
+}
+byId('reloadStoreSettings').addEventListener('click',loadStoreSettings);
+
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&token)validBusinessDay()});
+window.addEventListener('pageshow',()=>{if(token)validBusinessDay()});
+setInterval(()=>{if(token)validBusinessDay()},30000);
+void restoreSession();
+</script><script src="./common/store_status_staff_v5640.js"></script>
+</body></html>
