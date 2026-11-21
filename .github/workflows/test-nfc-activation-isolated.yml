@@ -1,0 +1,21 @@
+name: Isolated NFC activation verification tests
+on:
+  push:
+    branches: [nfc-dedicated-v5-isolated-preview]
+    paths:
+      - 'v8-offline-staging/staff.html'
+      - 'v8-offline-staging/tests/activation-verification.test.cjs'
+      - '.github/workflows/test-nfc-activation-isolated.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify activation result handling
+        run: node v8-offline-staging/tests/activation-verification.test.cjs
