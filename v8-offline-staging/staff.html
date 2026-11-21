@@ -174,40 +174,26 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
  .directoryFields button{margin:8px 6px 0 0}
  .operatingLampStaffRow{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #cbd8cf}.operatingLampStaffRow strong{flex:1 1 160px}.operatingLampStaffRow select{flex:1 1 190px;min-height:42px}.operatingLampStaffRow button{min-height:42px}
 
-/* Dedicated reader view reuses the existing authenticated NFC scanner and lookup logic. */
-body.reader-only main > :not(h1):not(.sub):not(#staffLoginPanel):not(#scanReaderPanel):not(#readerNavigation){display:none!important}
-body.reader-only #scanReaderPanel{display:block!important}
-body.reader-only #readerNavigation{display:block!important}
-body.reader-only #staffLoginPanel.hidden,body.reader-only #scanReaderPanel.hidden{display:none!important}
-/* Read-only authenticated result is nested in the regular point-operation panel. */
+/* Authenticated NFC-only view: retain the original lookup logic, hide all mutations. */
+body.reader-only main > :not(h1):not(.sub):not(#staffLoginPanel):not(#scanReaderPanel):not(#readerNavigation):not(#pointOperationsHome){display:none!important}
+body.reader-only #scanReaderPanel:not(.hidden),
+body.reader-only #readerNavigation,
 body.reader-only #pointOperationsHome{display:block!important}
-body.reader-only #pointOperations:not(.hidden){display:block!important}
-body.reader-only #pointOperations #selectedMemberPanel:not(.hidden){display:block!important}
-body.reader-only #pointOperations #selectedMemberInfo{display:block!important}
-body.reader-only #pointOperations #staffCardDetails:not(.hidden){display:block!important}
+body.reader-only #staffLoginPanel.hidden,
+body.reader-only #scanReaderPanel.hidden,
+body.reader-only #pointOperations.hidden,
+body.reader-only #selectedMemberPanel.hidden,
+body.reader-only #staffCardDetails.hidden{display:none!important}
+body.reader-only #pointOperations:not(.hidden),
+body.reader-only #selectedMemberPanel:not(.hidden),
+body.reader-only #staffCardDetails:not(.hidden){display:block!important}
 body.reader-only #pointOperations button,
 body.reader-only #pointOperations .pointArea,
-body.reader-only #pointOperations #pointOperationsTitle,
-body.reader-only #pointOperations #nfcPointNotice,
-body.reader-only #pointOperations #directoryPointNotice{display:none!important}
+body.reader-only #pointOperationsTitle,
+body.reader-only #nfcPointNotice,
+body.reader-only #directoryPointNotice,
 body.reader-only #scanReaderPanel #activationBox{display:none!important}
-body.reader-only #scanReaderPanel #lookupResult{overflow-wrap:anywhere}
-body.reader-only #readerNavigation a{display:block}
-body.reader-only main > #pointOperationsHome{display:block!important}
-body.reader-only #pointOperationsHome > #pointOperations{display:block!important}
-body.reader-only #pointOperationsHome > #pointOperations.hidden{display:none!important}
-body.reader-only #pointOperationsHome #noSelectedMember{display:block}
-body.reader-only #pointOperationsHome #noSelectedMember.hidden{display:none}
-body.reader-only #pointOperationsHome #selectedMemberPanel.hidden{display:none!important}
-body.reader-only #pointOperationsHome #selectedMemberPanel:not(.hidden){display:block!important}
-body.reader-only #pointOperationsHome #staffCardDetails.hidden{display:none!important}
-body.reader-only #pointOperationsHome #staffCardDetails:not(.hidden){display:block!important}
-body.reader-only #pointOperationsHome #selectedMemberInfo{display:block!important}
-body.reader-only #pointOperationsHome .pointArea,
-body.reader-only #pointOperationsHome button{display:none!important}
-body.reader-only #scanReaderPanel #activationBox{display:none!important}
-
-
+body.reader-only #lookupResult{overflow-wrap:anywhere}
 </style><link rel="stylesheet" href="./common/staff_theme.css"></head><body><main><h1>BEES POINT NFC</h1><p class="sub">NFCカード事前準備・会員登録・ポイント操作 · スタッフ用 v5.6.41</p>
 <section class="card" id="staffLoginPanel"><h2>スタッフログイン</h2><label>メールアドレス<input id="email" type="email" autocomplete="username" placeholder="メールアドレス"></label><label>パスワード<input id="password" type="password" autocomplete="current-password" placeholder="パスワード"></label><button id="togglePassword" type="button" class="secondary" aria-controls="password" aria-pressed="false" aria-label="パスワードを表示">👁 表示</button><br><button id="signIn" type="button">ログイン</button>
 <details id="selfRecoveryDetails" style="margin-top:18px"><summary style="color:#154a3b;cursor:pointer;font-weight:700">パスワードを忘れた方はこちら</summary>
