@@ -39,3 +39,9 @@ test('logout clears the previous member result and scanning cannot overlap looku
  assert.match(clear,/lookupResult'\)\.classList\.add\('hidden'\)/);
  assert.match(scan,/if\(lookingUp\)/);
 });
+
+test('reader-only result panel hides operational inputs while retaining member summary and history',()=>{
+ assert.match(css,/#selectedMemberPanel > :not\(#selectedMemberInfo\):not\(#staffCardDetails\)/);
+ assert.match(css,/#selectedMemberPanel:not\(\.hidden\)/);
+ assert.match(css,/#staffCardDetails:not\(\.hidden\)/);
+});
