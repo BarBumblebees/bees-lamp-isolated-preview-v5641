@@ -31,3 +31,11 @@ test('isolated standalone reader cannot connect to database or expose a token in
  assert.match(standalone,/href="\.\/staff\.html\?view=reader"/);
  assert.doesNotMatch(standalone,/href="[^"]*#card=/);
 });
+
+test('logout clears the previous member result and scanning cannot overlap lookup',()=>{
+ const clear=staff.slice(staff.indexOf("function clearAuth("),staff.indexOf("function validBusinessDay()"));
+ const scan=staff.slice(staff.indexOf("byId('scanCard').addEventListener"),staff.indexOf("async function fetchActivationStores()"));
+ assert.match(clear,/lookupResult'\)\.textContent=''/);
+ assert.match(clear,/lookupResult'\)\.classList\.add\('hidden'\)/);
+ assert.match(scan,/if\(lookingUp\)/);
+});
