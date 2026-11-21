@@ -5,7 +5,7 @@ const STORAGE='shop-point-nfc.staff-session.v4';
 const $=id=>document.getElementById(id);
 let access=null,day=null,epoch=0,scanner=null,busy=false;
 const isolated=(()=>{const meta=document.querySelector('meta[http-equiv="Content-Security-Policy"]');return !!meta&&/connect-src\s+'none'/.test(meta.content)})();
-const jstDay=()=>{const d=new Date(Date.now()-8*3600000);return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(d)};
+const jstDay=()=>new Date(Date.now()+3600000).toISOString().slice(0,10);
 function clearMember(){ $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
 function stop(){if(scanner){scanner.stop();scanner=null}$('stop').disabled=true}
 function reset(message){epoch++;stop();busy=false;access=null;day=null;clearMember();$('cardUrl').value='';$('start').disabled=true;$('lookup').disabled=true;$('authStatus').textContent=message;$('status').textContent='スタッフ認証が必要です。'}
@@ -13,7 +13,7 @@ function validCard(value){try{const raw=String(value||'').trim();const u=new URL
 async function api(path,body,bearer){const res=await fetch(BASE+path,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+bearer,'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer'});if(!res.ok)throw Error('スタッフ認証または会員照会に失敗しました ('+res.status+')');return res.json()}
 async function authenticate(){
  reset('ログイン状態を確認しています…');
- if(isolated){$('authStatus').textContent='隔離環境ではDB通信を遮断しています。認証・実会員照会は利用できません。';return}
+ if(isolated){$('authStatus').textContent='隔離環境では認証・実会員照会は利用できません。NFCカードURLの形式確認だけ可能です。';$('start').disabled=false;$('lookup').disabled=false;$('status').textContent='カードURLの形式確認ができます（会員照会はできません）。';return}
  let stored;try{stored=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(_){}
  if(!stored||!stored.refresh_token||stored.business_day!==jstDay()){reset('通常のスタッフ画面でログインしてください。');return}
  const mine=epoch;
@@ -40,8 +40,9 @@ function render(r){
 async function lookup(raw){
  if(busy)return;
  clearMember();$('cardUrl').value='';
- if(!access||day!==jstDay()){reset('営業日または認証が無効です。再ログインしてください。');return}
+ if(!isolated&&(!access||day!==jstDay())){reset('営業日または認証が無効です。再ログインしてください。');return}
  const card=validCard(raw);if(!card){$('status').textContent='カードURLの形式を確認してください。';return}
+ if(isolated){$('status').textContent='NFCカードURLの形式を確認しました。会員情報は照会していません。';return}
  const mine=++epoch;busy=true;$('lookup').disabled=true;$('start').disabled=true;$('status').textContent='会員照会中…';stop();
  try{
   const state=await api('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:card},access);
@@ -53,18 +54,18 @@ async function lookup(raw){
   if(day!==jstDay()){reset('営業日が切り替わりました。');return}
   render(r);$('status').textContent='会員照会が完了しました。ポイント操作はできません。';
  }catch(_){if(mine===epoch)$('status').textContent='会員照会できませんでした。スタッフ認証と接続を確認してください。'}
- finally{if(mine===epoch){busy=false;$('lookup').disabled=!access;$('start').disabled=!access}}
+ finally{if(mine===epoch){busy=false;$('lookup').disabled=!access&&!isolated;$('start').disabled=!access}}
 }
 $('checkLogin').addEventListener('click',authenticate);
 $('lookup').addEventListener('click',()=>lookup($('cardUrl').value));
 $('start').addEventListener('click',async()=>{
- if(busy||!access||day!==jstDay()){reset('スタッフ認証を確認してください。');return}
+ if(busy||(!isolated&&(!access||day!==jstDay()))){reset('スタッフ認証を確認してください。');return}
  epoch++;stop();clearMember();const mine=epoch;$('start').disabled=true;$('status').textContent='NFC読み取りを開始しています…';
  try{const instance=BeesNfcReader.start({validate:v=>!!validCard(v),onCard:v=>{if(mine===epoch)lookup(v)},onError:msg=>{if(mine===epoch)$('status').textContent=msg}});
  scanner=instance;$('stop').disabled=false;await instance.ready;if(mine===epoch)$('status').textContent='カードをスマホ背面へかざしてください。';
  }catch(_){if(mine===epoch){stop();$('start').disabled=false;$('status').textContent='NFCを開始できません。Android版Chromeを確認してください。'}}
 });
-$('stop').addEventListener('click',()=>{epoch++;stop();$('start').disabled=!access;$('status').textContent='読み取りを停止しました。'});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();clearMember();$('cardUrl').value='';$('start').disabled=!access;$('lookup').disabled=!access}});
+$('stop').addEventListener('click',()=>{epoch++;stop();$('start').disabled=!access&&!isolated;$('status').textContent='読み取りを停止しました。'});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access}});
 authenticate();
 })();
