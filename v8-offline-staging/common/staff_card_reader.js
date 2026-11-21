@@ -20,7 +20,7 @@ async function authenticate(){
  try{
   // Reuse the verified staff access token without rotating the shared refresh token.
   // The original staff page remains the sole owner of session renewal.
-  if(!stored.access_token||Number(stored.expires_at)<=Date.now()/1000+30)throw Error('スタッフ画面でログインし直してください');
+  if(!stored.access_token||Number(stored.expires_at)<=Date.now()/1000+90)throw Error('スタッフ画面でログインし直してください');
   await api('/rest/v1/rpc/staff_card_stock_stores',{},stored.access_token);
   if(mine!==epoch)return;
   if(stored.business_day!==jstDay())throw Error('営業日が切り替わりました');
@@ -44,6 +44,9 @@ async function lookup(raw){
  const card=validCard(raw);if(!card){$('status').textContent='カードURLの形式を確認してください。';return}
  if(isolated){epoch++;stop();$('start').disabled=false;$('status').textContent='NFCカードURLの形式を確認しました。会員情報は照会していません。次のカードを読むには「カードを読み取る」を押してください。';return}
  const mine=++epoch;busy=true;$('lookup').disabled=true;$('start').disabled=true;$('status').textContent='会員照会中…';stop();
+ // Session renewal belongs to the normal staff screen; never refresh or rotate its token here.
+ let current;try{current=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(_){}
+ if(!current||current.business_day!==day||current.access_token!==access||Number(current.expires_at)<=Date.now()/1000+90){reset('ログイン状態が更新または失効しました。スタッフ画面でログインし直し、ここで認証を再確認してください。');return}
  try{
   const state=await api('/rest/v1/rpc/staff_prepared_card_status',{p_card_token:card},access);
   if(mine!==epoch)return;
