@@ -1,0 +1,27 @@
+/* BEES POINT NFC v5.6.7 — STAFF LIGHT MODE
+ * Customer and staff views intentionally have opposite background colors.
+ * Staff remains light, with clear edit affordances and a visible STAFF label.
+ */
+:root { color-scheme:light; }
+body{background:linear-gradient(175deg,#f0f6f2 0%,#f8faf7 48%,#f2f6f2 100%) fixed!important;color:#203a2e!important}
+body .panel,body .card{background:#fff;border-color:#d8e5da;color:#1c372b;box-shadow:0 8px 21px rgba(26,65,45,.08)}
+body .sub,body p.sub,body .hint,body .mini,body footer,body .footer{color:#586e60}
+body input,body textarea,body select{background:#fff;color:#1b3829;border-color:#a5bcac}
+body input:focus,body select:focus,body textarea:focus,body button:focus-visible,body a:focus-visible{outline:3px solid #a7d4b7;outline-offset:2px}
+body .hero{box-shadow:0 13px 27px rgba(27,77,57,.23)}
+body .staffDisabled{color:#a7462d}
+body .staffAdminEntry small,body .encounterStaffRow .encounterEdit small{color:#5d7266}
+body main>h1::before{content:'STAFF  ';font-size:.61em;letter-spacing:.12em;vertical-align:middle;color:#237454}
+body #staffAccessPanel{border-color:#9dbdae;background:#f5faf7}
+#staffAccessPanel h2{margin-bottom:10px}
+.staff-current-name{font-size:22px;font-weight:800;line-height:1.3;margin:0 0 7px;overflow-wrap:anywhere}
+.staff-role{display:inline-block;color:#1b513e;background:#e1efe7;border-radius:6px;padding:3px 8px;margin:0;font-size:12px;font-weight:750}
+.staff-current-store{margin:8px 0 0;font-size:13px;color:#3f6050;overflow-wrap:anywhere}
+.staff-access-details h3{font-size:14px;margin:14px 0 3px;padding-top:11px;border-top:1px solid #cfdfd4}
+.staff-access-list{display:grid;gap:5px;font-size:13px;line-height:1.55;padding-left:1.4em;margin:5px 0 0;overflow-wrap:anywhere}
+.staff-access-list li::marker{color:#237454}
+#staffAccessStatus:empty{display:none}
+button.staff-compact-action{min-height:44px;margin-top:12px}
+.staff-person-heading{background:#184b3d;color:#fff;padding:11px 14px;margin:0;font-size:16px;line-height:1.4;overflow-wrap:anywhere}
+/* Staff theme is light even when the OS prefers dark mode. */
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
