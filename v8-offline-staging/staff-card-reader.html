@@ -4,5 +4,5 @@
 <body><header><h1>カード読取専用</h1><small>BEES POINT NFC · スタッフ認証付き会員照会</small></header><main><p class="notice">隔離プレビューでは安全のためDB通信を遮断しています。実会員の照会はできません。ポイントの付与・利用・カード登録機能はありません。</p>
 <section><h2>スタッフ認証</h2><p id="authStatus" role="status">ログイン状態を確認してください。</p><button id="checkLogin">ログイン状態を確認</button><p>認証が必要な場合は<a href="./staff.html">通常のスタッフ画面でログイン</a>してください。</p></section>
 <section><h2>NFCカード照会</h2><button id="start" disabled>カードを読み取る</button><button id="stop" disabled>読み取り停止</button><details><summary>カードURLを入力して照会</summary><label>カードURL<input id="cardUrl" type="password" autocomplete="off" spellcheck="false"></label><button id="lookup" disabled>照会する</button></details><p id="status" role="status" aria-live="polite">スタッフ認証後に利用できます。</p></section>
-<section id="member" class="hidden" aria-live="polite"><h2 id="name"></h2><p id="balance"></p><p id="metadata"></p><h3>直近の利用履歴</h3><ul id="history"></ul></section><p><a href="./staff.html">通常のスタッフ画面へ戻る</a></p></main>
+<section id="member" class="hidden" aria-live="polite"><h2 id="name"></h2><p id="balance"></p><p id="metadata"></p><h3>直近の利用履歴</h3><ul id="history"></ul></section><p><a href="./nfc-reader.html">既存のNFCカード読取ページを開く</a></p><p><a href="./staff.html">通常のスタッフ画面へ戻る</a></p></main>
 <script src="./common/bees_nfc_reader.js"></script><script src="./common/staff_card_reader.js"></script></body></html>
