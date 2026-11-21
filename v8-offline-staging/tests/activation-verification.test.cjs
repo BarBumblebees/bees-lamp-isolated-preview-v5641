@@ -15,7 +15,7 @@ const run=async ({response,read,sessionChanged=false,cardChanged=false})=>{
  let token='isolated-demo-auth',managementView='home';
  const activationSession=1,activationAuthToken='isolated-demo-auth',cardToken='original-card',r=response;
  let calls=0;
- const request=async()=>{calls++;if(read instanceof Error)throw read;return read};
+ const request=async()=>{calls++;if(typeof read==='function')return read(()=>{staffSessionVersion=2},()=>{pendingActivationToken='new-card'});if(read instanceof Error)throw read;return read};
  const fn=new Function('r','request','activationSession','staffSessionVersion','token','activationAuthToken','pendingActivationToken','cardToken','managementView',`return (async()=>{${validation}return {verified,calls:0};})()`);
  try{const value=await fn(r,request,activationSession,staffSessionVersion,token,activationAuthToken,pendingActivationToken,cardToken,managementView);return {ok:true,value,calls};}
  catch(e){return {ok:false,error:e.message,calls}}
@@ -30,5 +30,7 @@ const run=async ({response,read,sessionChanged=false,cardChanged=false})=>{
  x=await run({response:{status:'active',member_id:'',display_name:'x'},read:valid});assert(!x.ok&&x.calls===0,'malformed activation result must not re-read');
  x=await run({response,read:valid,sessionChanged:true});assert(x.ok&&x.value===undefined,'changed session must ignore response');
  x=await run({response,read:valid,cardChanged:true});assert(x.ok&&x.value===undefined,'switched card must ignore response');
- console.log('PASS: 7 isolated post-activation verification cases');
+ x=await run({response,read:(changeSession)=>{changeSession();return valid}});assert(x.ok&&x.value===undefined,'session changed during re-read must be ignored');
+ x=await run({response,read:(_,changeCard)=>{changeCard();return valid}});assert(x.ok&&x.value===undefined,'card changed during re-read must be ignored');
+ console.log('PASS: 9 isolated post-activation verification cases');
 })().catch(e=>{console.error(e);process.exitCode=1});
