@@ -53,3 +53,7 @@ test('old lookup cannot lock or overwrite a newly authenticated session',()=>{
  assert.match(lookup,/if\(epoch===lookupEpoch\)\{lookingUp=false/);
  assert.match(lookup,/if\(!stillCurrent\(\)\|\|!validBusinessDay\(\)\)return;/);
 });
+
+test('reader-only lookup does not retain card token for point mutation',()=>{
+ assert.match(lookup,/selectMember\(result,document\.body\.classList\.contains\('reader-only'\)\?null:cardToken\)/);
+});
