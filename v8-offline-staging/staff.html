@@ -428,6 +428,7 @@ function setAuthControls(isLoggedIn){
 function clearAuth(message='ログアウトしました。'){
  staffSessionVersion++;
  if(typeof lookupEpoch!=='undefined')lookupEpoch++;
+ if(typeof lookingUp!=='undefined')lookingUp=false;
  token=null;refreshToken=null;tokenExpiresAt=0;loginBusinessDay=null;refreshPromise=null;
  clearStoredSession();
  encounterStaffProfile=null;encounterPermissionEnabled=false;
@@ -1302,12 +1303,12 @@ async function lookupCard(raw){
  if(!stillCurrent())return;
  if(!result||result.status!=='active'||!result.member_id)throw Error('有効なカードを確認できません');
  if(typeof result.display_name!=='string'||!Number.isFinite(Number(result.balance)))throw Error('応答形式が正しくありません');
- if(!stillCurrent())return;
+ if(!stillCurrent()||!validBusinessDay())return;
  selectMember(result,cardToken);
  byId('lookupResult').textContent='会員照会成功：'+result.display_name+' 様 ／ 共通残高 '+Number(result.balance).toLocaleString('ja-JP')+'pt';
  byId('lookupResult').classList.remove('hidden');byId('lookupStatus').textContent=document.body.classList.contains('reader-only')?'会員情報・残高・利用履歴を表示しています。ポイント操作はこの画面では行えません。':'会員を選択しました。下の②で来店ポイント・会計操作を確認できます。';
  }catch(e){if(stillCurrent())byId('lookupStatus').textContent='会員照会できません：'+e.message}
- finally{lookingUp=false;if(stillCurrent())byId('lookupButton').disabled=!token}
+ finally{if(epoch===lookupEpoch){lookingUp=false;byId('lookupButton').disabled=!token}}
 }
 byId('lookupButton').addEventListener('click',()=>lookupCard(byId('lookupUrl').value));
 function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('stopScan').disabled=true;byId('scanCard').disabled=!token}
