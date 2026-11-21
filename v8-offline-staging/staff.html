@@ -364,6 +364,7 @@ body.reader-only #staffLoginPanel.hidden,body.reader-only #scanReaderPanel.hidde
 <script src="./common/qrcode-generator-2.0.4.js"></script>
 <script src="./common/card_qr.js"></script>
 <script src="./common/jsqr-1.4.0.js"></script>
+<script src="./common/bees_nfc_reader.js"></script>
 <script>
 'use strict';if(new URLSearchParams(location.search).get('view')==='reader')document.body.classList.add('reader-only');const BASE='https://cuoruflxfyubjpboqprb.supabase.co',KEY='sb_publishable_EdoSdDxZAEeXDKzuN9gVDg_ThW89nz8';let token=null,refreshToken=null,tokenExpiresAt=0,loginBusinessDay=null,refreshPromise=null;
 let staffSessionVersion=0;
@@ -1282,19 +1283,18 @@ function stopNfcScan(){if(activeScan){activeScan.abort();activeScan=null}byId('s
 byId('stopScan').addEventListener('click',()=>{stopNfcScan();byId('scanStatus').textContent='読み取りを停止しました。'});
 byId('scanCard').addEventListener('click',async()=>{
  if(!token){byId('scanStatus').textContent='スタッフログインが必要です。';return}
- if(!('NDEFReader' in window)){byId('scanStatus').textContent='このブラウザはWeb NFCに非対応です。Android版Chromeで開くか、下のURL貼り付けを使ってください。';return}
- stopNfcScan();const controller=new AbortController();activeScan=controller;byId('scanCard').disabled=true;byId('stopScan').disabled=false;
+ stopNfcScan();byId('scanCard').disabled=true;byId('stopScan').disabled=false;
  byId('scanStatus').textContent='NFC読み取りを起動中… 許可を求められたら許可してください。';
- try{const reader=new NDEFReader();reader.onreadingerror=()=>{byId('scanStatus').textContent='NFC読み取りエラー。カードを動かして再度かざしてください。'};
- reader.onreading=event=>{
-  for(const record of event.message.records){if(record.recordType!=='url'&&record.recordType!=='absolute-url')continue;
-   const value=record.recordType==='absolute-url'&&record.mediaType?record.mediaType:new TextDecoder().decode(record.data);
-   if(getCardToken(value)){stopNfcScan();byId('scanStatus').textContent='カードを読み取りました。';void lookupCard(value);return}
-  }
-  byId('scanStatus').textContent='BEES POINT NFCのカードURLを確認できません。別のカードをかざしてください。';
- };
- await reader.scan({signal:controller.signal});if(!controller.signal.aborted)byId('scanStatus').textContent='読み取り待機中。NTAG215カードをスマホ背面へ近づけてください。';
- }catch(e){if(e.name!=='AbortError')byId('scanStatus').textContent='NFCを開始できません：'+e.message+'。Android版ChromeかURL貼り付けを試してください。';stopNfcScan()}
+ try{
+  const scanner=BeesNfcReader.start({
+   validate:value=>Boolean(getCardToken(value)),
+   onCard:value=>{stopNfcScan();byId('scanStatus').textContent='カードを読み取りました。';void lookupCard(value)},
+   onError:message=>{byId('scanStatus').textContent=message}
+  });
+  activeScan=scanner.controller;
+  await scanner.ready;
+  if(!scanner.controller.signal.aborted)byId('scanStatus').textContent='読み取り待機中。NTAG215カードをスマホ背面へ近づけてください。';
+ }catch(e){if(e.name!=='AbortError')byId('scanStatus').textContent='NFCを開始できません：'+e.message;stopNfcScan()}
 });
 
 async function fetchActivationStores(){
