@@ -184,8 +184,9 @@ body.nfc-dedicated.nfc-action-history #nfcDedicatedNav button[hidden] {display:n
 body.nfc-dedicated #nfcDedicatedNav button[hidden] {display:none!important}
 body.nfc-dedicated #pointOperationsHome {display:block}
 body.nfc-dedicated #pointOperations {display:block!important}
-body.nfc-dedicated #scanReaderPanel {display:block!important}
-body.nfc-dedicated.nfc-customer #scanReaderPanel {display:none!important}
+/* Keep the NFC reader exclusive to the scan screen; customer/action/history are separate screens. */
+body.nfc-dedicated #scanReaderPanel {display:none!important}
+body.nfc-dedicated.nfc-scan #scanReaderPanel {display:block!important}
 body.nfc-dedicated.nfc-scan #pointOperationsHome {display:none!important}
 body.nfc-dedicated #pointOperations .pointArea,
 body.nfc-dedicated #pointOperations #staffCardDetails,
