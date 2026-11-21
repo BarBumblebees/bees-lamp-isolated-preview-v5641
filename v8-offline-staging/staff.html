@@ -1622,6 +1622,7 @@ async function refreshMemberBalance(){
  showMemberSummary();validateCheckout();
 }
 byId('awardVisit').addEventListener('click',async()=>{
+ if(document.body.classList.contains('reader-only'))return;
  if(!token||!selectedMember||operationBusy||!validBusinessDay())return;
  const store=byId('operationStore'),storeId=store.value;
  if(!operationStoreIds.includes(storeId))return;
@@ -1743,6 +1744,7 @@ async function submitCheckout(p){
  }finally{finishPointOperation()}
 }
 byId('checkoutConfirm').addEventListener('click',async()=>{
+ if(document.body.classList.contains('reader-only'))return;
  if(operationBusy||!token||!selectedMember||getSavedPending())return;
  const v=checkoutNumbers();if(!v.valid){validateCheckout();return}
  const store=byId('operationStore');if(!operationStoreIds.includes(store.value))return;
@@ -1752,6 +1754,7 @@ byId('checkoutConfirm').addEventListener('click',async()=>{
  renderPending();await submitCheckout(p);
 });
 byId('checkoutRetry').addEventListener('click',async()=>{
+ if(document.body.classList.contains('reader-only'))return;
  const p=getSavedPending();if(!p){renderPending();return}
  if(!selectedMember||p.member_id!==selectedMember.member_id){
   if(operationBusy||!token||!validBusinessDay())return;
@@ -2333,6 +2336,7 @@ byId('sendStaffInvite').addEventListener('click',async()=>{
 
 byId('reloadEncounterStaff').addEventListener('click',loadEncounterStaffList);
 byId('awardEncounter').addEventListener('click',async()=>{
+  if(document.body.classList.contains('reader-only'))return;
   if(!token||!selectedMember||(!selectedCardToken&&!directorySelection)||operationBusy||!encounterPermissionEnabled||!validBusinessDay())return;
   const selection=selectedMember,directory=directorySelection;
   const member=selectedMember.display_name,staff=encounterStaffProfile?.encounter_public_name||encounterStaffProfile?.display_name||'担当スタッフ';
