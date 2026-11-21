@@ -1459,12 +1459,14 @@ byId('activateCard').addEventListener('click',async()=>{
  const issuingStore=byId('activationStore').value;if(!issuingStore){byId('activateStatus').textContent='発行店舗の選択・許可を確認してください。';return}
  if(!confirm('「'+name+' 様」でカードを有効化しますか？\n発行店舗：'+byId('activationStore').selectedOptions[0]?.textContent))return;
  activationInProgress=true;byId('activateCard').disabled=true;byId('activateStatus').textContent='会員を登録してカードを有効にしています…';
+ let activationWriteConfirmed=false;
  try{
   const cardToken=pendingActivationToken;
   const activationSession=staffSessionVersion;
   const activationAuthToken=token;
   const r=await request('/rest/v1/rpc/activate_card_with_qr_v1',{p_card_token:cardToken,p_display_name:name,p_store_id:issuingStore},token);
   if(activationSession!==staffSessionVersion||token!==activationAuthToken||pendingActivationToken!==cardToken||managementView!=='home')return;
+  activationWriteConfirmed=true;
   if(!r||r.status!=='active'||typeof r.member_id!=='string'||!r.member_id.trim()||
      typeof r.display_name!=='string'||!r.display_name.trim()||
      (r.balance!==undefined&&Number(r.balance)!==0))throw Error('登録結果が正しくありません');
@@ -1480,7 +1482,15 @@ byId('activateCard').addEventListener('click',async()=>{
   byId('lookupResult').textContent='新規会員登録・カード有効化 成功：'+verified.display_name+' 様 ／ 共通残高 '+Number(verified.balance).toLocaleString('ja-JP')+'pt';
   byId('lookupResult').classList.remove('hidden');
   byId('lookupStatus').textContent='このカードは有効です。次回からカードタッチでお客様のポイント画面が開きます。';
- }catch(e){byId('activateStatus').textContent='有効化できません：'+e.message}
+ }catch(e){
+  if(activationWriteConfirmed){
+   pendingActivationToken=null;
+   byId('activateCard').disabled=true;
+   byId('activationBox').classList.add('hidden');
+   byId('goToCardRegistration').classList.add('hidden');
+   byId('activateStatus').textContent='登録APIは応答しましたが、登録後の照会を確認できません。登録ボタンを再度押さず、カードを読み直してください：'+e.message;
+  }else byId('activateStatus').textContent='登録結果を確定できません。二重登録を避けるため、再度カードを照会してください：'+e.message;
+ }
  finally{activationInProgress=false;byId('activateCard').disabled=!token||!pendingActivationToken}
 });
 
