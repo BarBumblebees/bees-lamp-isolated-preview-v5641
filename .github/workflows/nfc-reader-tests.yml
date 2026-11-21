@@ -6,6 +6,8 @@ on:
       - 'v8-offline-staging/tests/*.test.cjs'
       - 'v8-offline-staging/staff.html'
       - 'v8-offline-staging/nfc-reader.html'
+      - 'v8-offline-staging/staff-card-reader.html'
+      - 'v8-offline-staging/common/staff_card_reader.js'
       - '.github/workflows/nfc-reader-tests.yml'
   pull_request:
     paths:
@@ -13,6 +15,8 @@ on:
       - 'v8-offline-staging/tests/*.test.cjs'
       - 'v8-offline-staging/staff.html'
       - 'v8-offline-staging/nfc-reader.html'
+      - 'v8-offline-staging/staff-card-reader.html'
+      - 'v8-offline-staging/common/staff_card_reader.js'
       - '.github/workflows/nfc-reader-tests.yml'
   workflow_dispatch:
 permissions:
