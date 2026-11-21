@@ -66,3 +66,16 @@ test('read-only mode blocks all point mutation click handlers before any network
   assert.match(first,/if\(document\.body\.classList\.contains\('reader-only'\)\)return;/,id+' must reject reader mode');
  }
 });
+
+test('separate reader has its own scanner, authorized lookup and no point mutation RPCs',()=>{
+ const page=fs.readFileSync(path.join(__dirname,'../staff-card-reader.html'),'utf8');
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(page,/common\/staff_card_reader\.js/);
+ assert.match(page,/connect-src 'none'/);
+ assert.match(code,/BeesNfcReader\.start/);
+ assert.match(code,/staff_card_stock_stores/);
+ assert.match(code,/staff_prepared_card_status/);
+ assert.match(code,/staff_card_details_v3/);
+ assert.doesNotMatch(code,/award_visit_point|award_encounter_point|process_checkout|activate_card|grant_points/);
+ assert.doesNotMatch(code,/grant_type=refresh_token/);
+});
