@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BEES POINT NFC｜カード登録フローデモ</title>
+<style>
+:root{font-family:system-ui,"Noto Sans JP",sans-serif;color:#183e32;background:#f0f6f2}*{box-sizing:border-box}body{margin:0;padding:22px 14px}main{max-width:540px;margin:auto}h1{font-size:24px;margin:14px 0 8px}.tag{display:inline-block;background:#fff0bf;border:1px solid #e6c96e;padding:6px 10px;border-radius:8px;font-weight:700}.panel{background:white;border:1px solid #d5e4d9;border-radius:20px;padding:20px;margin:18px 0;box-shadow:0 6px 20px #153b2910}button{border:0;border-radius:12px;background:#174f40;color:white;font-size:16px;font-weight:700;padding:15px;min-height:48px;cursor:pointer}button.secondary{background:#e4eee8;color:#174f40}button:disabled{opacity:.45}input{width:100%;border:1px solid #9ab5a5;border-radius:10px;font-size:17px;padding:13px;margin:8px 0 16px}label{font-weight:700}.actions{display:flex;gap:10px;flex-wrap:wrap}.muted{color:#587164;font-size:14px}.hidden{display:none!important}.balance{font-size:34px;font-weight:800}.error{color:#a32727}.notice{padding:10px 12px;background:#fff6df;border-radius:10px;font-size:14px;line-height:1.6}
+</style></head><body><main>
+<div class="tag">隔離デモ・架空データのみ</div>
+<h1>BEES POINT NFC</h1><p class="muted">未登録カード → 登録 → お客様情報の画面遷移デモ。実際のNFC読み取り・ログイン・DB通信・ポイント操作は行いません。</p>
+<section class="panel"><h2 id="heading">カード読み取り待ち</h2><p id="message" aria-live="polite">デモカードを選んでください。</p>
+<div id="scan" class="actions"><button id="unknown">未登録カードを読み取る（デモ）</button><button id="known" class="secondary">登録済みカードを読み取る（デモ）</button></div>
+<div id="unregistered" class="hidden"><p class="notice">このデモカードは未登録です。登録が完了するまでポイント操作はできません。</p><button id="goRegister">未登録カードを登録する</button></div>
+<form id="register" class="hidden"><label for="customerName">お客様のお名前（架空の名前）</label><input id="customerName" maxlength="40" autocomplete="off" required placeholder="例：テスト太郎"><div class="actions"><button id="submitRegister" type="submit">カードを登録する（デモ）</button><button type="button" id="cancel" class="secondary">戻る</button></div></form>
+<div id="customer" class="hidden"><p>お客様：<strong id="displayName"></strong></p><p>ポイント残高（デモ）</p><div class="balance" id="balance">0 pt</div><p class="muted">本物のポイントは変更されません。</p><div class="actions"><button id="points" class="secondary">ポイント操作画面（表示のみ）</button><button id="history" class="secondary">履歴（表示のみ）</button></div><p id="customerDetail" aria-live="polite"></p></div>
+<div class="actions" style="margin-top:18px"><button id="reset" class="secondary">次のカードを読み取る</button></div>
+</section><p class="muted">安全上、このページにはメールアドレス・パスワード・実カードの識別情報を入力しないでください。</p>
+</main><script>
+(()=>{'use strict';const $=id=>document.getElementById(id);let state='scan',selected=null,registered=false,busy=false;const views=['scan','unregistered','register','customer'];function show(next){state=next;for(const v of views)$(v).classList.toggle('hidden',v!==next);$('heading').textContent=({scan:'カード読み取り待ち',unregistered:'未登録カード',register:'カード登録',customer:'お客様情報'})[next];$('message').textContent=({scan:'デモカードを選んでください。',unregistered:'未登録のデモカードです。',register:'架空のお名前を入力してください。',customer:'デモカードの選択が完了しました。'})[next];}
+function reset(){if(busy)return;selected=null;registered=false;$('customerName').value='';$('customerDetail').textContent='';show('scan')}
+$('unknown').onclick=()=>{if(busy)return;selected='demo-unregistered';registered=false;show('unregistered')};
+$('known').onclick=()=>{if(busy)return;selected='demo-known';registered=true;$('displayName').textContent='テスト会員';$('balance').textContent='120 pt';show('customer')};
+$('goRegister').onclick=()=>{if(state==='unregistered'&&selected==='demo-unregistered')show('register')};
+$('cancel').onclick=()=>{if(!busy)show('unregistered')};
+$('register').onsubmit=e=>{e.preventDefault();if(busy||registered||state!=='register'||selected!=='demo-unregistered')return;const name=$('customerName').value.trim();if(!name){$('customerName').focus();return}busy=true;$('submitRegister').disabled=true;try{registered=true;$('displayName').textContent=name;$('balance').textContent='0 pt';show('customer')}finally{busy=false;$('submitRegister').disabled=false}};
+$('points').onclick=()=>{$('customerDetail').textContent='デモのためポイントの付与・利用はできません。'};
+$('history').onclick=()=>{$('customerDetail').textContent='このデモカードの取引履歴はありません。'};
+$('reset').onclick=reset;show('scan');
+})();
+</script></body></html>
