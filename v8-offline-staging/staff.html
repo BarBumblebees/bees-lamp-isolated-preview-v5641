@@ -179,6 +179,7 @@ body.nfc-dedicated main > :not(h1):not(.sub):not(#scanReaderPanel):not(#pointOpe
 /* Show member details on customer screen; keep a compact summary during point actions. */
 body.nfc-dedicated.nfc-customer #selectedMemberInfo {display:block!important}
 body.nfc-dedicated #pointOperationsTitle {display:none!important}
+body.nfc-dedicated #nfcDedicatedTitle {margin:12px 0}
 body.nfc-dedicated.nfc-customer:not(.nfc-action-history) #selectedMemberPanel {display:block!important}
 body.nfc-dedicated.nfc-action-history #nfcDedicatedNav button[hidden] {display:none!important}
 body.nfc-dedicated #nfcDedicatedNav button[hidden] {display:none!important}
@@ -2749,7 +2750,8 @@ for(const [mode,label] of items){
  b.dataset.nfcMode=mode;nav.append(b);
 }
 ops.insertBefore(nav,ops.children[1]);
-const historyBox=document.createElement('section');historyBox.id='nfcCustomerHistory';historyBox.setAttribute('aria-label','読み取ったお客様の履歴');nav.after(historyBox);
+const dedicatedTitle=document.createElement('h2');dedicatedTitle.id='nfcDedicatedTitle';dedicatedTitle.tabIndex=-1;nav.after(dedicatedTitle);
+const historyBox=document.createElement('section');historyBox.id='nfcCustomerHistory';historyBox.setAttribute('aria-label','読み取ったお客様の履歴');dedicatedTitle.after(historyBox);
 function renderCustomerHistory(){historyBox.replaceChildren();const h=document.createElement('h3');h.textContent='このお客様のポイント履歴';historyBox.append(h);if(!selected())return;const history=Array.isArray(selectedMember.history)?selectedMember.history:[];if(!history.length){const p=document.createElement('p');p.textContent='表示できる履歴はありません。';historyBox.append(p);return;}for(const tx of history){const item=document.createElement('p');item.style.borderTop='1px solid #ddd';item.style.padding='8px 0';const date=tx.created_at?new Date(tx.created_at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'日時不明';item.textContent=date+' ／ '+String(tx.store_name||tx.store||tx.encounter_staff_name||'ポイント操作')+' ／ '+String(tx.kind||'')+' ／ '+(Number(tx.delta)>0?'+':'')+String(tx.delta)+'pt';historyBox.append(item);}}
 function selected(){return !!(typeof selectedMember!=='undefined' && selectedMember && !el('selectedMemberPanel').classList.contains('hidden'))}
 function mode(next){
@@ -2760,12 +2762,16 @@ function mode(next){
  if(next==='home')return;
  document.body.classList.add('nfc-dedicated',next==='scan'?'nfc-scan':'nfc-customer');
  if(['visit','checkout','encounter','history'].includes(next))document.body.classList.add('nfc-action-'+next);
+ const titles={customer:'お客様情報・ポイント操作',visit:'来店ポイント付与',checkout:'会計・ポイント利用',encounter:'遭遇ポイント付与',history:'お客様のポイント履歴'};
+ dedicatedTitle.textContent=titles[next]||'';
+ dedicatedTitle.hidden=next==='scan';
  if(next==='history')renderCustomerHistory();
  for(const b of nav.querySelectorAll('button')){
   const k=b.dataset.nfcMode;
   b.hidden=(next==='customer'&&['customer'].includes(k))||(next!=='customer'&&['visit','checkout','encounter','history'].includes(k));
   if(k==='encounter')b.hidden=b.hidden||el('encounterAwardArea').classList.contains('hidden');
  }
+ if(next!=='scan')dedicatedTitle.focus({preventScroll:true});
  window.scrollTo({top:0,behavior:'instant'});
 }
 el('openNfcDedicated').addEventListener('click',()=>{if(!token||managementView!=='home'||operationBusy)return;resetSelectedMember();mode('scan')});
