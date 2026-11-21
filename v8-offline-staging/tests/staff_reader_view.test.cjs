@@ -28,7 +28,7 @@ test('reader lookup uses existing staff authorization and does not activate prep
 });
 test('isolated standalone reader cannot connect to database or expose a token in navigation',()=>{
  assert.match(standalone,/connect-src 'none'/);
- assert.match(standalone,/href="\.\/staff\.html\?view=reader"/);
+ assert.match(standalone,/href="\.\/staff-card-reader\.html"/);
  assert.doesNotMatch(standalone,/href="[^"]*#card=/);
 });
 
