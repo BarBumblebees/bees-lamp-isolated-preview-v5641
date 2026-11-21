@@ -1,8 +1,25 @@
 <!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'"><title>BEES POINT NFC｜カード読取専用ページ</title><style>*{box-sizing:border-box}body{margin:0;background:#eef5f1;color:#1b4333;font:16px/1.7 system-ui,-apple-system,sans-serif}header{background:#174b3a;color:white;padding:22px 18px}header h1{font-size:23px;margin:0}header p{margin:4px 0;font-size:13px}main{max-width:530px;margin:auto;padding:18px}section{background:white;border-radius:16px;padding:20px;margin:14px 0;box-shadow:0 2px 10px #183e3014}h2{font-size:20px;margin:0 0 12px}button,a.action{display:block;width:100%;padding:15px;border:0;border-radius:11px;margin:10px 0;background:#174b3a;color:white;font:700 16px system-ui;text-decoration:none;text-align:center}button.secondary,a.secondary{background:#e6f1e9;color:#174b3a}button:disabled{opacity:.5}button:focus-visible,a:focus-visible{outline:3px solid #d6a63b;outline-offset:3px}.note{font-size:13px;color:#53685e}.warning{background:#fff4d7;border-left:4px solid #b7861f;padding:12px;border-radius:8px;font-size:13px}#status{min-height:60px;background:#eef5f1;padding:14px;border-radius:10px;overflow-wrap:anywhere}</style></head><body><header><h1>BEES POINT NFC</h1><p>NFCカード読取専用ページ · v5.6.41 隔離版</p></header><main><p class="warning">この隔離ページはカードURLの形式確認だけを行います。会員情報・残高・ポイント操作・スタッフログインは行いません。DB通信は遮断されています。</p><section><h2>NFCカードを読み取る</h2><button id="start" type="button">NFC読み取りを開始</button><button id="stop" class="secondary" type="button" disabled>読み取りを停止</button><p id="status" role="status" aria-live="polite">開始ボタンを押してください。</p><div id="cardSession" role="status" aria-live="polite" hidden><h3>現在読み取ったカード</h3><p id="cardSessionMessage">未読取</p><p class="note">隔離版のため、会員情報・ポイント残高・利用履歴は表示しません。別のカードを読み取ると前の表示を消去します。</p></div><p class="note">Android版ChromeとWeb NFC対応端末が必要です。カードの秘密URLやトークンは画面に表示せず、保存・送信もしません。</p></section><section><h2>スタッフ画面</h2><a class="action secondary" href="./staff.html">← スタッフ画面に戻る</a></section></main><script src="./common/bees_nfc_reader.js"></script><script>
 (()=>{'use strict';const start=document.getElementById('start'),stop=document.getElementById('stop'),status=document.getElementById('status');let active=null;const session=document.getElementById('cardSession'),sessionMessage=document.getElementById('cardSessionMessage');function clearCardSession(){session.hidden=true;sessionMessage.textContent='未読取'}const host="shop-point-nfc-customer-test-1107.pages.dev";
 function valid(value){try{const raw=String(value||'').trim(),url=new URL(/^https:\/\//i.test(raw)?raw:'https://'+raw);return url.protocol==='https:'&&(url.hostname===host||url.hostname.endsWith('.'+host))&&!url.port&&!url.username&&!url.password&&!url.search&&(url.pathname==='/'||url.pathname==='/index.html')&&/^#card=[a-zA-Z0-9_-]{43}$/.test(url.hash)}catch(_){return false}}
+let generation=0;
 function finish(){if(active){active.stop();active=null}start.disabled=false;stop.disabled=true}
-start.addEventListener('click',async()=>{finish();clearCardSession();start.disabled=true;stop.disabled=false;status.textContent='NFC読み取りを起動しています…';try{const scanner=BeesNfcReader.start({validate:valid,onCard:()=>{finish();clearCardSession();sessionMessage.textContent='カードURLの形式を確認しました。会員照会・ポイント履歴取得は行っていません。';session.hidden=false;status.textContent='読取完了。次のカードを読む場合は読み取りを再開してください。'},onError:message=>{clearCardSession();status.textContent=message}});active=scanner;await scanner.ready;if(!scanner.controller.signal.aborted)status.textContent='読み取り待機中。カードをスマホ背面へかざしてください。'}catch(e){finish();if(e.name!=='AbortError')status.textContent='NFCを開始できません：'+e.message}});
-stop.addEventListener('click',()=>{finish();clearCardSession();status.textContent='読み取りを停止しました。'});document.addEventListener('visibilitychange',()=>{if(document.hidden){finish();clearCardSession();status.textContent='画面を離れたため読み取りを停止しました。'}});window.addEventListener('pagehide',()=>{finish();clearCardSession()});
+function invalidate(){generation++;finish();clearCardSession()}
+start.addEventListener('click',async()=>{
+ invalidate();const mine=generation;
+ start.disabled=true;stop.disabled=false;status.textContent='NFC読み取りを起動しています…';
+ try{
+  const scanner=BeesNfcReader.start({
+   validate:valid,
+   onCard:()=>{if(mine!==generation)return;invalidate();sessionMessage.textContent='カードURLの形式を確認しました。会員照会・ポイント履歴取得は行っていません。';session.hidden=false;status.textContent='読取完了。次のカードを読む場合は読み取りを再開してください。'},
+   onError:message=>{if(mine!==generation)return;clearCardSession();status.textContent=message}
+  });
+  if(mine!==generation){scanner.stop();return}
+  active=scanner;await scanner.ready;
+  if(mine===generation&&!scanner.controller.signal.aborted)status.textContent='読み取り待機中。カードをスマホ背面へかざしてください。';
+ }catch(e){if(mine!==generation)return;invalidate();if(e.name!=='AbortError')status.textContent='NFCを開始できません：'+e.message}
+});
+stop.addEventListener('click',()=>{invalidate();status.textContent='読み取りを停止しました。'});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){invalidate();status.textContent='画面を離れたため読み取りを停止しました。'}});
+window.addEventListener('pagehide',invalidate);
 })();
 </script></body></html>
