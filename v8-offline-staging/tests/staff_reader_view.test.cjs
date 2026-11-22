@@ -163,3 +163,9 @@ test('pending checkout validates UUID structure and nonempty identifiers',()=>{
  assert.match(code,/\[0-9a-f\]\{8\}-\[0-9a-f\]\{4\}/);
  assert.match(code,/p\.card_id\.length>0&&typeof p\.store_id==='string'&&p\.store_id\.length>0/);
 });
+
+test('starting scan during an active operation does not reset authentication',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/if\(busy\|\|actionBusy\)\{\$\('status'\)\.textContent='処理中です。完了後に読み取りを開始してください。';return\}/);
+ assert.doesNotMatch(code,/if\(busy\|\|actionBusy\|\|\(!isolated/);
+});
