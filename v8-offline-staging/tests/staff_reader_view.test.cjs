@@ -169,3 +169,9 @@ test('starting scan during an active operation does not reset authentication',()
  assert.match(code,/if\(busy\|\|actionBusy\)\{\$\('status'\)\.textContent='処理中です。完了後に読み取りを開始してください。';return\}/);
  assert.doesNotMatch(code,/if\(busy\|\|actionBusy\|\|\(!isolated/);
 });
+
+test('checkout store must be a listed authorized option',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/const validStore=Boolean\(store\?\.value&&Array\.from\(store\.options\)\.some\(o=>o\.value===store\.value\)\)/);
+ assert.match(code,/!Array\.from\(store\.options\)\.some\(o=>o\.value===store\.value\)\|\|actionBusy/);
+});
