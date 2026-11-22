@@ -181,7 +181,7 @@ $('awardVisitInline')?.addEventListener('click',async()=>{
  if(result&&card===selectedCard){try{const fresh=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'select'});if(card===selectedCard&&Number.isFinite(Number(fresh.balance))){card.balance=Number(fresh.balance);$('balance').textContent='共通残高 '+card.balance.toLocaleString('ja-JP')+'pt';syncCheckout()}}catch(_){}}
 });
 $('suspendInline')?.addEventListener('click',async()=>{
- const card=selectedCard;if(!card||card.revoked_at||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)||!confirm('カード No.'+card.card_number+' を一時停止しますか？旧カードではポイント操作ができなくなります。'))return;
+ const card=selectedCard;if(!card||card.revoked_at||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)||!confirm('カード No.'+card.card_number+' を一時停止しますか？旧カードではポイント操作ができなくなります。現状、停止後にページを閉じたり再読込すると、この専用ページから再発行を再開できない可能性があります。新品カードを準備してから進めてください。'))return;
  const result=await cardAction('/rest/v1/rpc/manage_registered_card_v1',{p_card_id:card.id,p_action:'revoke',p_value:null},'reissueStatus',v=>v?.status==='revoked');
  if(result&&card===selectedCard){card.revoked_at=true;syncCheckout();$('suspendInline').disabled=true;$('reissueStatus').textContent='一時停止しました。新カードURLを準備できます。'}
 });
