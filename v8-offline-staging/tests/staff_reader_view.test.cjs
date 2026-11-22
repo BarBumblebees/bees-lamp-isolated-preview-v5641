@@ -193,12 +193,12 @@ test('checkout replay requires all persisted receipt fields to match',()=>{
 
 test('successful checkout clears only the identical persisted receipt',()=>{
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
- const start=code.indexOf('const saved=pendingCheckout();if(saved&&!saved.invalid');
+ const start=code.indexOf('const saved=pendingCheckout();if(!saved||saved.invalid');
  assert.ok(start>=0);
  const end=code.indexOf('localStorage.removeItem(CHECKOUT_PENDING)',start);
  assert.ok(end>start);
  const guard=code.slice(start,end);
- for(const field of ['request_id','card_id','store_id','total_yen','redeem_points'])assert.ok(guard.includes('saved.'+field+'===p.'+field));
+ for(const field of ['request_id','card_id','store_id','total_yen','redeem_points'])assert.ok(guard.includes('saved.'+field+'!==p.'+field));
 });
 
 test('initial checkout submission verifies all saved receipt fields',()=>{
@@ -209,4 +209,9 @@ test('initial checkout submission verifies all saved receipt fields',()=>{
  const guard=code.slice(start,end);
  assert.ok(guard.includes('saved.invalid'));
  for(const field of ['request_id','card_id','store_id','total_yen','redeem_points'])assert.ok(guard.includes('saved.'+field+'!==p.'+field));
+});
+
+test('checkout reports changed pending receipt instead of success',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/throw Error\('処理中に端末の会計記録が変更されました。管理者に履歴照合を依頼してください。'\)/);
 });
