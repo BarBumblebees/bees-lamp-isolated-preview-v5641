@@ -114,7 +114,7 @@ async function lookup(raw){
   if(day!==jstDay()){reset('営業日が切り替わりました。');return}
   render(r);$('status').textContent='会員照会が完了しました。';try{await resolveDirectoryCard(r,mine)}catch(_){if(mine===epoch)$('status').textContent='会員照会完了。編集権限を確認できないため照会のみ表示しています。'}
  }catch(_){if(mine===epoch)$('status').textContent='会員照会できませんでした。スタッフ認証と接続を確認してください。'}
- finally{if(mine===epoch){busy=false;$('lookup').disabled=!access&&!isolated;$('start').disabled=!access}}
+ finally{busy=false;if(mine===epoch){$('lookup').disabled=!access&&!isolated;$('start').disabled=!access}}
 }
 $('saveName')?.addEventListener('click',()=>saveCardField('name'));
 $('saveNote')?.addEventListener('click',()=>saveCardField('note'));
@@ -209,7 +209,7 @@ $('start').addEventListener('click',async()=>{
  scanner=instance;$('stop').disabled=false;await instance.ready;if(mine===epoch)$('status').textContent='カードをスマホ背面へかざしてください。';
  }catch(_){if(mine===epoch){stop();$('start').disabled=false;$('status').textContent='NFCを開始できません。Android版Chromeを確認してください。'}}
 });
-$('stop').addEventListener('click',()=>{epoch++;stop();$('start').disabled=!access&&!isolated;$('status').textContent='読み取りを停止しました。'});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();if(!actionBusy)clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access&&!isolated}});
+$('stop').addEventListener('click',()=>{epoch++;stop();busy=false;if(!actionBusy)clearMember();$('lookup').disabled=!access&&!isolated;$('start').disabled=!access&&!isolated;$('status').textContent='読み取りを停止しました。'});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();busy=false;if(!actionBusy)clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access&&!isolated}});
 authenticate();
 })();
