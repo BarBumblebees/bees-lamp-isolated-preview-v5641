@@ -53,7 +53,10 @@ async function resolveDirectoryCard(r,mine){
  if(mine!==epoch||selectedCard!==selected)return;
  $('balance').textContent='共通残高 '+selected.balance.toLocaleString('ja-JP')+'pt';
  $('editName').value=selected.display_name||'';
- $('editNote').value=selected.customer_note||'';
+ const note=typeof selected.customer_note==='string'?selected.customer_note:typeof r.customer_note==='string'?r.customer_note:typeof r.memo==='string'?r.memo:null;
+ $('editNote').value=note||'';
+ $('saveNote').disabled=note===null;
+ if(note===null)$('manageStatus').textContent='既存メモを取得できないため、上書き防止のためメモ編集は停止しています。';
  $('inlineManage').classList.remove('hidden');
  syncCheckout();
 }
@@ -64,7 +67,7 @@ async function manageRequest(path,body){
  return api(path,body,access);
 }
 async function saveCardField(kind){
- const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;const status=$('manageStatus');const input=$(kind==='name'?'editName':'editNote');const value=input.value.trim();
+ const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)||(kind==='note'&&$('saveNote').disabled))return;const status=$('manageStatus');const input=$(kind==='name'?'editName':'editNote');const value=input.value.trim();
  if(kind==='name'&&(!value||[...value].length>8)){status.textContent='登録名は1〜8文字です。';return}
  if(kind==='note'&&[...value].length>60){status.textContent='メモは60文字以内です。';return}
  actionBusy=true;syncCheckout();const button=$(kind==='name'?'saveName':'saveNote');button.disabled=true;status.textContent='保存中…';
@@ -159,10 +162,10 @@ $('checkoutInline')?.addEventListener('click',async()=>{
 $('checkoutRetryInline')?.addEventListener('click',async()=>{const p=pendingCheckout();if(!p)return;if(!selectedCard||String(selectedCard.id)!==p.card_id){$('pointStatus').textContent='前回の対象カードを読み取ってください。';return}if(!confirm('前回と同じ受付IDで結果を再確認します。'))return;await executeCheckout(p)});
 
 async function cardAction(path,body,statusId,verify){
- const card=selectedCard;if(!card||actionBusy||pendingCheckout())return;actionBusy=true;const status=$(statusId);status.textContent='処理中…';
+ const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;actionBusy=true;syncCheckout();const status=$(statusId);status.textContent='処理中…';
  try{const result=await manageRequest(path,body);if(card!==selectedCard)return;if(!verify(result))throw Error('結果を確認できません。再操作せず履歴を確認してください。');status.textContent='操作が完了しました。';return result}
  catch(e){if(card===selectedCard)status.textContent='操作結果を確認できません。'+e.message}
- finally{actionBusy=false}
+ finally{actionBusy=false;syncCheckout()}
 }
 $('awardVisitInline')?.addEventListener('click',async()=>{
  const card=selectedCard,store=$('pointStore'),storeId=store?.value;if(!card||card.revoked_at||!storeId||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)||!Array.from(store.options).some(o=>o.value===storeId))return;
