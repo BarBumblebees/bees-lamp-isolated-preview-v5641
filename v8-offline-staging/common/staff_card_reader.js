@@ -149,7 +149,7 @@ $('checkoutTotal')?.addEventListener('input',syncCheckout);
 $('checkoutRedeem')?.addEventListener('input',syncCheckout);
 $('pointStore')?.addEventListener('change',syncCheckout);
 async function executeCheckout(p){
- const card=selectedCard;const status=$('pointStatus');if(!card||!card.pointAllowed||card.revoked_at||actionBusy||localStorage.getItem(STAFF_CHECKOUT_PENDING)||p.card_id!==String(card.id)||pendingCheckout()?.request_id!==p.request_id)return;
+ const card=selectedCard;const status=$('pointStatus');if(!card||!card.pointAllowed||card.revoked_at||actionBusy||localStorage.getItem(STAFF_CHECKOUT_PENDING)||p.card_id!==String(card.id))return;const savedBefore=pendingCheckout();if(!savedBefore||savedBefore.invalid||savedBefore.request_id!==p.request_id||savedBefore.card_id!==p.card_id||savedBefore.store_id!==p.store_id||savedBefore.total_yen!==p.total_yen||savedBefore.redeem_points!==p.redeem_points)return;
  actionBusy=true;syncCheckout();status.textContent='会計結果を確認中…';
  try{
   const result=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:p.card_id,p_action:'checkout',p_request_id:p.request_id,p_store_id:p.store_id,p_total_yen:p.total_yen,p_redeem_points:p.redeem_points});
