@@ -200,3 +200,13 @@ test('successful checkout clears only the identical persisted receipt',()=>{
  const guard=code.slice(start,end);
  for(const field of ['request_id','card_id','store_id','total_yen','redeem_points'])assert.ok(guard.includes('saved.'+field+'===p.'+field));
 });
+
+test('initial checkout submission verifies all saved receipt fields',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ const start=code.indexOf('localStorage.setItem(CHECKOUT_PENDING,JSON.stringify(p))');
+ const end=code.indexOf("throw Error('保存確認に失敗')",start);
+ assert.ok(start>=0&&end>start);
+ const guard=code.slice(start,end);
+ assert.ok(guard.includes('saved.invalid'));
+ for(const field of ['request_id','card_id','store_id','total_yen','redeem_points'])assert.ok(guard.includes('saved.'+field+'!==p.'+field));
+});
