@@ -131,3 +131,11 @@ test('reissue buttons become available only in correct suspended and written sta
  assert.match(code,/\$\('confirmReissueInline'\)\.disabled=!pendingReissue/);
  assert.match(code,/\$\('reissueWritten'\)\?\.addEventListener\('change',syncCheckout\)/);
 });
+
+test('card switch clears previous checkout and reissue confirmation without removing pending checkout',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/\$\('reissueWritten'\)\.checked=false/);
+ assert.match(code,/\$\('checkoutTotal'\)\.value=''/);
+ assert.match(code,/\$\('checkoutRedeem'\)\.value='0'/);
+ assert.match(code,/!pending\.card\.revoked_at/);
+});
