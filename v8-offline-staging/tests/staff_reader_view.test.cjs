@@ -182,3 +182,11 @@ test('pending checkout rejects out-of-range and non-ten-point redemptions',()=>{
  assert.match(code,/p\.redeem_points<=2147483647&&p\.redeem_points%10===0/);
  assert.match(code,/p\.total_yen>0\|\|p\.redeem_points>0/);
 });
+
+test('checkout replay requires all persisted receipt fields to match',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ for(const field of ['request_id','card_id','store_id','total_yen','redeem_points']){
+  assert.ok(code.includes('savedBefore.'+field+'!==p.'+field),'missing receipt match: '+field);
+ }
+ assert.match(code,/savedBefore\.invalid/);
+});
