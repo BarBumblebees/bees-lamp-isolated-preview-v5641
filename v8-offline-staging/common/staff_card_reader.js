@@ -35,7 +35,7 @@ async function resolveDirectoryCard(r,mine){
  if(mine!==epoch||!Array.isArray(data?.cards))return;
  const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number&&(!r.member_id||String(c.member_id||'')===String(r.member_id)));
  if(matches.length!==1)return;
- selectedCard=matches[0];try{const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});if(mine===epoch&&selectedCard===matches[0]){const select=$('pointStore');select.replaceChildren();const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:Array.isArray(stores?.stock_stores)?stores.stock_stores:[];for(const row of rows){const id=row.store_id||row.id,name=row.store_name||row.name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}}}catch(_){}if(mine!==epoch||selectedCard!==matches[0])return;$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
+ selectedCard=matches[0];try{const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});if(mine===epoch&&selectedCard===matches[0]){const select=$('pointStore');select.replaceChildren();const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:Array.isArray(stores?.stock_stores)?stores.stock_stores:[];for(const row of rows){const id=row.store_id||row.id,name=row.store_name||row.name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}}}catch(_){}if(mine!==epoch||selectedCard!==matches[0])return;syncCheckout();$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
 }
 async function manageRequest(path,body){
  if(!selectedCard||!access||day!==jstDay())throw Error('カードを再読み取りしてください');
@@ -91,6 +91,50 @@ $('saveName')?.addEventListener('click',()=>saveCardField('name'));
 $('saveNote')?.addEventListener('click',()=>saveCardField('note'));
 $('loadHistory')?.addEventListener('click',async()=>{const card=selectedCard;if(!card)return;const el=$('fullHistory');el.textContent='履歴を取得中…';try{const data=await manageRequest('/rest/v1/rpc/registered_card_activity_v2',{p_card_id:card.id});if(card!==selectedCard)return;el.replaceChildren();for(const item of data.history||[]){const p=document.createElement('p');p.textContent=[item.created_at?new Date(item.created_at).toLocaleString('ja-JP'):'',item.kind||'ポイント操作',item.store_name||'',String(item.delta)+'pt'].filter(Boolean).join(' · ');el.append(p)}if(!el.childNodes.length)el.textContent='履歴はありません。'}catch(e){if(card===selectedCard)el.textContent='履歴を取得できません。'+e.message}});
 
+
+const CHECKOUT_PENDING='bees-reader.checkout-pending.v1';
+function pendingCheckout(){try{const p=JSON.parse(localStorage.getItem(CHECKOUT_PENDING)||'null');return p&&typeof p.request_id==='string'&&typeof p.card_id==='string'?p:null}catch(_){return null}}
+function checkoutNumbers(){
+ const read=id=>{const raw=$(id).value.trim();if(!/^(0|[1-9][0-9]*)$/.test(raw))return null;const n=Number(raw);return Number.isSafeInteger(n)&&n<=2147483647?n:null};
+ const total=read('checkoutTotal'),redeem=read('checkoutRedeem');
+ if(total===null||redeem===null)return {reason:'会計金額と利用ポイントを0以上の整数で入力してください。'};
+ if(!total&&!redeem)return {reason:'会計金額または利用ポイントを入力してください。'};
+ if(redeem%10)return {reason:'利用ポイントは10pt単位です。'};
+ if(redeem>total)return {reason:'利用ポイントが会計金額を超えています。'};
+ if(!selectedCard||redeem>Number(selectedCard.balance))return {reason:'残高が不足しています。'};
+ const paid=total-redeem,earned=Math.floor(paid/100)*5;
+ return {total,redeem,paid,earned};
+}
+function syncCheckout(){
+ const p=pendingCheckout(),v=checkoutNumbers(),store=$('pointStore'),card=selectedCard;
+ const valid=Boolean(card&&store?.value&&!v.reason&&!actionBusy&&!p);
+ $('checkoutInline').disabled=!valid;
+ $('checkoutRetryInline').classList.toggle('hidden',!p);
+ $('checkoutPreview').textContent=p?'前回の会計結果が未確認です。二重処理を防ぐため新しい会計を停止しています。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
+}
+$('checkoutTotal')?.addEventListener('input',syncCheckout);
+$('checkoutRedeem')?.addEventListener('input',syncCheckout);
+$('pointStore')?.addEventListener('change',syncCheckout);
+async function executeCheckout(p){
+ const card=selectedCard;const status=$('pointStatus');if(!card||actionBusy||p.card_id!==String(card.id))return;
+ actionBusy=true;syncCheckout();status.textContent='会計結果を確認中…';
+ try{
+  const result=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:p.card_id,p_action:'checkout',p_request_id:p.request_id,p_store_id:p.store_id,p_total_yen:p.total_yen,p_redeem_points:p.redeem_points});
+  if(!result||!Number.isFinite(Number(result.balance_after))||!Number.isFinite(Number(result.earned_points))||!Number.isFinite(Number(result.redeemed_points)))throw Error('結果を確認できません');
+  const saved=pendingCheckout();if(saved?.request_id===p.request_id)localStorage.removeItem(CHECKOUT_PENDING);
+  if(card===selectedCard){card.balance=Number(result.balance_after);$('balance').textContent='共通残高 '+card.balance.toLocaleString('ja-JP')+'pt';status.textContent='会計確定：利用 '+result.redeemed_points+'pt ／ 付与 '+result.earned_points+'pt';$('checkoutTotal').value='';$('checkoutRedeem').value='0'}
+ }catch(e){if(card===selectedCard)status.textContent='会計結果が未確認です。新しい会計をせず、前回の受付IDで再確認してください。 '+e.message}
+ finally{actionBusy=false;syncCheckout()}
+}
+$('checkoutInline')?.addEventListener('click',async()=>{
+ const card=selectedCard,store=$('pointStore'),v=checkoutNumbers();if(!card||v.reason||!store.value||actionBusy||pendingCheckout())return;
+ if(!confirm('会員：'+card.display_name+' 様\\n店舗：'+store.selectedOptions[0].textContent+'\\n税込会計：'+v.total+'円\\n利用：'+v.redeem+'pt\\n実際の支払：'+v.paid+'円\\n付与：'+v.earned+'pt\\nこの内容で確定しますか？'))return;
+ const p={request_id:crypto.randomUUID(),card_id:String(card.id),store_id:store.value,total_yen:v.total,redeem_points:v.redeem};
+ try{localStorage.setItem(CHECKOUT_PENDING,JSON.stringify(p));if(pendingCheckout()?.request_id!==p.request_id)throw Error('保存確認に失敗')}catch(_){$('pointStatus').textContent='受付IDを保存できないため会計は実行していません。';return}
+ await executeCheckout(p);
+});
+$('checkoutRetryInline')?.addEventListener('click',async()=>{const p=pendingCheckout();if(!p)return;if(!selectedCard||String(selectedCard.id)!==p.card_id){$('pointStatus').textContent='前回の対象カードを読み取ってください。';return}if(!confirm('前回と同じ受付IDで結果を再確認します。'))return;await executeCheckout(p)});
+
 async function cardAction(path,body,statusId,verify){
  const card=selectedCard;if(!card||actionBusy)return;actionBusy=true;const status=$(statusId);status.textContent='処理中…';
  try{const result=await manageRequest(path,body);if(card!==selectedCard)return;if(!verify(result))throw Error('結果を確認できません。再操作せず履歴を確認してください。');status.textContent='操作が完了しました。';return result}
@@ -101,7 +145,7 @@ $('awardVisitInline')?.addEventListener('click',async()=>{
  const card=selectedCard,store=$('pointStore'),storeId=store?.value;if(!card||!storeId||actionBusy||!Array.from(store.options).some(o=>o.value===storeId))return;
  if(!confirm('カード No.'+card.card_number+' に '+store.selectedOptions[0].textContent+' の来店ポイントを付与しますか？'))return;
  const result=await cardAction('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'visit',p_store_id:storeId},'pointStatus',v=>typeof v==='string'&&/^[0-9a-f-]{36}$/i.test(v));
- if(result&&card===selectedCard){try{const fresh=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'select'});if(card===selectedCard&&Number.isFinite(Number(fresh.balance)))$('balance').textContent='共通残高 '+Number(fresh.balance).toLocaleString('ja-JP')+'pt'}catch(_){}}
+ if(result&&card===selectedCard){try{const fresh=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'select'});if(card===selectedCard&&Number.isFinite(Number(fresh.balance))){card.balance=Number(fresh.balance);$('balance').textContent='共通残高 '+card.balance.toLocaleString('ja-JP')+'pt';syncCheckout()}}catch(_){}}
 });
 $('suspendInline')?.addEventListener('click',async()=>{
  const card=selectedCard;if(!card||!confirm('カード No.'+card.card_number+' を一時停止しますか？旧カードではポイント操作ができなくなります。'))return;
