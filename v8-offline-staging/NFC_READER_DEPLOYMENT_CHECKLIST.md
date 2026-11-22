@@ -38,3 +38,11 @@
 - 既存スタッフ画面の `localStorage` セッションを使うため、Cloudflare PagesとGitHub Pagesの異なるオリジン間では認証を共有できない。
 - `main/v8-offline-staging/staff.html` は `connect-src 'none'` の隔離版。これをそのまま運用環境へ上書きしない。
 - **未承認の公開操作は実施しない**。公開用のビルド経路、配信先の現行ファイル、ロールバック手段を確認してから、必要な変更範囲の承認を得る。
+
+## 公開サイトの実地確認（2026-11-22）
+- `https://shop-point-nfc-customer-test-1107.pages.dev/staff` は公開中。タイトルは「BEES POINT NFC｜スタッフ用 v5.6.41」。画面には「カード読取専用ページを開く」導線が存在する。
+- そのリンク先は `https://shop-point-nfc-customer-test-1107.pages.dev/staff-card-reader`。現行公開版は「既存のNFCカードを読み取って、カードURLを確認します。ポイント操作や会員情報の変更は行いません。」と明記された読取専用画面。
+- 開発候補の `/staff-card-reader-live-candidate.html` と `/common/staff_card_reader.js` は公開サイト上では専用ページとして配信されていない（当該パスを取得するとお客様画面プレビューが返る）。**候補の公開完了と扱わない**。
+- 公開スタッフ画面の v5.6.41 と、GitHub `v8-offline-staging/staff.html` の隔離版は別。隔離版を公開スタッフ画面に上書きしない。
+- したがって残作業は「NFC読取機能の新規作成」ではなく、「認証が動く公開オリジンへ未公開の管理機能付き候補を安全に追加し、既存導線を切り替える前に検証する」こと。
+- Cloudflare Pagesの実際のデプロイ元と現行成果物のバックアップ・ロールバック手順は未確認。**公開導線切替は保留**。
