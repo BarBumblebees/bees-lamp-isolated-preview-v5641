@@ -110,7 +110,7 @@ test('clearing selected card disables actions and pending checkout rejects negat
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
  assert.match(code,/\['awardVisitInline','checkoutInline','checkoutRetryInline','suspendInline','saveName','saveNote','prepareReissueInline','confirmReissueInline'\]/);
  assert.match(code,/p\.total_yen>=0/);
- assert.match(code,/p\.redeem_points>=0&&p\.redeem_points<=p\.total_yen/);
+ assert.match(code,/p\.redeem_points>=0&&p\.redeem_points<=2147483647&&p\.redeem_points%10===0&&p\.redeem_points<=p\.total_yen/);
 });
 
 test('selecting a verified directory card restores rename and preserves known note',()=>{
