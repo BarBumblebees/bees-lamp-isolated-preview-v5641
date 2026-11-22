@@ -236,3 +236,10 @@ test('authentication rechecks shared staff session after permission request',()=
  assert.match(auth,/latest\.access_token!==stored\.access_token/);
  assert.match(auth,/Number\(latest\.expires_at\)<=Date\.now\(\)\/1000\+90/);
 });
+
+test('card directory mismatch explains why management remains locked',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/カード番号に一致する登録カードを一意に確認できないため管理操作は停止しています/);
+ assert.match(code,/カードと会員IDの照合が完了しないため管理操作は停止しています/);
+ assert.match(code,/カード一覧の応答を確認できないため管理操作は停止しています/);
+});
