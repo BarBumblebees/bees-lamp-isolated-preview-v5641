@@ -139,7 +139,7 @@ function checkoutNumbers(){
 function syncCheckout(){
  const p=pendingCheckout(),v=checkoutNumbers(),store=$('pointStore'),card=selectedCard;
  const otherPending=Boolean(localStorage.getItem(STAFF_CHECKOUT_PENDING));
- const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&store?.value&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!store?.value||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;
+ const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&store?.value&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!store?.value||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;$('prepareReissueInline').disabled=!card||!card.revoked_at||actionBusy||!!p||otherPending;$('confirmReissueInline').disabled=!pendingReissue||pendingReissue.card!==card||!$('reissueWritten').checked||actionBusy||!!p||otherPending;
  $('checkoutInline').disabled=!valid;
  $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
  $('checkoutRetryInline').disabled=!card||!card.pointAllowed||actionBusy||!!otherPending||!!p?.invalid||String(card?.id||'')!==p?.card_id;
@@ -189,8 +189,9 @@ $('prepareReissueInline')?.addEventListener('click',()=>{
  const card=selectedCard;if(!card||!card.revoked_at||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)){$('reissueStatus').textContent='再発行の前に旧カードを一時停止してください。';return}
  const bytes=crypto.getRandomValues(new Uint8Array(32));pendingReissue={card,token:btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'')};
  $('reissueUrl').value='shop-point-nfc-customer-test-1107.pages.dev/#card='+pendingReissue.token;
- $('reissueWritten').checked=false;$('reissuePanel').classList.remove('hidden');$('reissueStatus').textContent='新品カードにURLを書き込み、確認してから確定してください。';
+ $('reissueWritten').checked=false;$('reissuePanel').classList.remove('hidden');syncCheckout();$('reissueStatus').textContent='新品カードにURLを書き込み、確認してから確定してください。';
 });
+$('reissueWritten')?.addEventListener('change',syncCheckout);
 $('copyReissueUrl')?.addEventListener('click',async()=>{if(!pendingReissue)return;try{await navigator.clipboard.writeText($('reissueUrl').value);$('reissueStatus').textContent='URLをコピーしました。'}catch(_){$('reissueStatus').textContent='コピーできません。URLを確認してください。'}});
 $('confirmReissueInline')?.addEventListener('click',async()=>{
  const pending=pendingReissue;if(!pending||pending.card!==selectedCard||!$('reissueWritten').checked||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;
