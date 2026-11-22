@@ -59,6 +59,8 @@ async function resolveDirectoryCard(r,mine){
  $('editName').value=selected.display_name||'';
  const note=typeof selected.customer_note==='string'?selected.customer_note:typeof r.customer_note==='string'?r.customer_note:typeof r.memo==='string'?r.memo:null;
  $('editNote').value=note||'';
+ if(note!==null)selected.customer_note=note;
+ $('saveName').disabled=false;
  $('saveNote').disabled=note===null;
  if(note===null)$('manageStatus').textContent='既存メモを取得できないため、上書き防止のためメモ編集は停止しています。';
  $('inlineManage').classList.remove('hidden');
