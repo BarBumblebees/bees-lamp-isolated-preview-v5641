@@ -215,3 +215,8 @@ test('checkout reports changed pending receipt instead of success',()=>{
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
  assert.match(code,/throw Error\('処理中に端末の会計記録が変更されました。管理者に履歴照合を依頼してください。'\)/);
 });
+
+test('card suspension warns about reissue recovery after page reload',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/停止後にページを閉じたり再読込すると、この専用ページから再発行を再開できない可能性があります/);
+});
