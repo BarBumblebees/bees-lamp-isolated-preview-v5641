@@ -140,7 +140,7 @@ function syncCheckout(){
  const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&store?.value&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!store?.value||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;
  $('checkoutInline').disabled=!valid;
  $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
- $('checkoutRetryInline').disabled=!card||!card.pointAllowed||actionBusy||!!otherPending||!!p?.invalid||String(card.id)!==p?.card_id;
+ $('checkoutRetryInline').disabled=!card||!card.pointAllowed||actionBusy||!!otherPending||!!p?.invalid||String(card?.id||'')!==p?.card_id;
  $('checkoutPreview').textContent=(p||otherPending)?'未確認の会計があります。二重処理を防ぐため新しい会計を停止しています。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
 }
 $('checkoutTotal')?.addEventListener('input',syncCheckout);
@@ -179,9 +179,9 @@ $('awardVisitInline')?.addEventListener('click',async()=>{
  if(result&&card===selectedCard){try{const fresh=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'select'});if(card===selectedCard&&Number.isFinite(Number(fresh.balance))){card.balance=Number(fresh.balance);$('balance').textContent='共通残高 '+card.balance.toLocaleString('ja-JP')+'pt';syncCheckout()}}catch(_){}}
 });
 $('suspendInline')?.addEventListener('click',async()=>{
- const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)||!confirm('カード No.'+card.card_number+' を一時停止しますか？旧カードではポイント操作ができなくなります。'))return;
+ const card=selectedCard;if(!card||card.revoked_at||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)||!confirm('カード No.'+card.card_number+' を一時停止しますか？旧カードではポイント操作ができなくなります。'))return;
  const result=await cardAction('/rest/v1/rpc/manage_registered_card_v1',{p_card_id:card.id,p_action:'revoke',p_value:null},'reissueStatus',v=>v?.status==='revoked');
- if(result&&card===selectedCard){card.revoked_at=true;$('suspendInline').disabled=true;$('reissueStatus').textContent='一時停止しました。新カードURLを準備できます。'}
+ if(result&&card===selectedCard){card.revoked_at=true;syncCheckout();$('suspendInline').disabled=true;$('reissueStatus').textContent='一時停止しました。新カードURLを準備できます。'}
 });
 $('prepareReissueInline')?.addEventListener('click',()=>{
  const card=selectedCard;if(!card||!card.revoked_at||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)){$('reissueStatus').textContent='再発行の前に旧カードを一時停止してください。';return}
