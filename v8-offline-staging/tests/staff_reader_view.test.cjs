@@ -157,3 +157,9 @@ test('stale NFC lookup completion cannot unlock a newer request',()=>{
  assert.match(code,/finally\{if\(mine===epoch\)\{busy=false;\$\('lookup'\)\.disabled/);
  assert.doesNotMatch(code,/finally\{busy=false;if\(mine===epoch\)/);
 });
+
+test('pending checkout validates UUID structure and nonempty identifiers',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/\[0-9a-f\]\{8\}-\[0-9a-f\]\{4\}/);
+ assert.match(code,/p\.card_id\.length>0&&typeof p\.store_id==='string'&&p\.store_id\.length>0/);
+});
