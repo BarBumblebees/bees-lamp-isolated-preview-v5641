@@ -32,6 +32,8 @@ async function authenticate(){
 function render(r){
  clearMember();$('name').textContent=r.display_name+' 様';$('balance').textContent='共通残高 '+Number(r.balance).toLocaleString('ja-JP')+'pt';
  $('metadata').textContent='カード No.'+(r.card_number||'未割当')+' ／ 発行店舗 '+(r.issued_store_name||'記録なし');
+ const memo=$('cardMemo');if(memo){const note=typeof r.customer_note==='string'?r.customer_note:typeof r.memo==='string'?r.memo:null;memo.textContent=note===null?'メモ：この照会では取得できません':('メモ：'+(note||'登録なし'));}
+ const cardNo=String(r.card_number||'').trim();for(const id of ['editLink','historyLink','reissueLink']){const link=$(id);if(link){link.title=cardNo?'カード No.'+cardNo+' を既存のカード一覧で確認':'既存のカード一覧を開く';}}
  const history=Array.isArray(r.history)?r.history:[];
  if(!history.length){const li=document.createElement('li');li.textContent='履歴がありません。';$('history').append(li)}
  for(const h of history){const li=document.createElement('li');const when=h.created_at?new Date(h.created_at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'}):'';li.textContent=(h.store||h.encounter_staff_name||'ポイント操作')+' ／ '+String(h.kind||'')+' ／ '+(Number(h.delta)>0?'+':'')+String(h.delta)+'pt '+when;$('history').append(li)}
