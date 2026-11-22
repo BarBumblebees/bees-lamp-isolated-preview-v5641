@@ -93,7 +93,8 @@ $('saveNote')?.addEventListener('click',()=>saveCardField('note'));
 $('loadHistory')?.addEventListener('click',async()=>{const card=selectedCard;if(!card)return;const el=$('fullHistory');el.textContent='履歴を取得中…';try{const data=await manageRequest('/rest/v1/rpc/registered_card_activity_v2',{p_card_id:card.id});if(card!==selectedCard)return;el.replaceChildren();for(const item of data.history||[]){const p=document.createElement('p');p.textContent=[item.created_at?new Date(item.created_at).toLocaleString('ja-JP'):'',item.kind||'ポイント操作',item.store_name||'',String(item.delta)+'pt'].filter(Boolean).join(' · ');el.append(p)}if(!el.childNodes.length)el.textContent='履歴はありません。'}catch(e){if(card===selectedCard)el.textContent='履歴を取得できません。'+e.message}});
 
 
-const CHECKOUT_PENDING='bees-reader.checkout-pending.v1';
+// Use the same pending-checkout slot as the existing staff page so both screens block overlapping receipts.
+const CHECKOUT_PENDING='shop-point-nfc.checkout-pending.v5';
 function pendingCheckout(){try{const p=JSON.parse(localStorage.getItem(CHECKOUT_PENDING)||'null');return p&&typeof p.request_id==='string'&&typeof p.card_id==='string'?p:null}catch(_){return null}}
 function checkoutNumbers(){
  const read=id=>{const raw=$(id).value.trim();if(!/^(0|[1-9][0-9]*)$/.test(raw))return null;const n=Number(raw);return Number.isSafeInteger(n)&&n<=2147483647?n:null};
