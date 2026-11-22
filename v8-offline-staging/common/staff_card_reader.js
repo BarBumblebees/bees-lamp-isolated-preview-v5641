@@ -129,7 +129,7 @@ async function executeCheckout(p){
 }
 $('checkoutInline')?.addEventListener('click',async()=>{
  const card=selectedCard,store=$('pointStore'),v=checkoutNumbers();if(!card||card.revoked_at||v.reason||!store.value||actionBusy||pendingCheckout())return;
- if(!confirm('会員：'+card.display_name+' 様\n店舗：'+store.selectedOptions[0].textContent+'\\n税込会計：'+v.total+'円\\n利用：'+v.redeem+'pt\\n実際の支払：'+v.paid+'円\\n付与：'+v.earned+'pt\\nこの内容で確定しますか？'))return;
+ if(!confirm(['会員：'+card.display_name+' 様','店舗：'+store.selectedOptions[0].textContent,'税込会計：'+v.total+'円','利用：'+v.redeem+'pt','実際の支払：'+v.paid+'円','付与：'+v.earned+'pt','この内容で確定しますか？'].join(String.fromCharCode(10))))return;
  const p={request_id:crypto.randomUUID(),card_id:String(card.id),store_id:store.value,total_yen:v.total,redeem_points:v.redeem};
  try{localStorage.setItem(CHECKOUT_PENDING,JSON.stringify(p));if(pendingCheckout()?.request_id!==p.request_id)throw Error('保存確認に失敗')}catch(_){$('pointStatus').textContent='受付IDを保存できないため会計は実行していません。';return}
  await executeCheckout(p);
