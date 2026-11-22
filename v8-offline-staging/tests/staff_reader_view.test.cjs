@@ -139,3 +139,9 @@ test('card switch clears previous checkout and reissue confirmation without remo
  assert.match(code,/\$\('checkoutRedeem'\)\.value='0'/);
  assert.match(code,/!pending\.card\.revoked_at/);
 });
+
+test('checkout retry rejects revoked card and concurrent actions',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/if\(!card\|\|!card\.pointAllowed\|\|card\.revoked_at\|\|actionBusy/);
+ assert.match(code,/!selectedCard\?\.pointAllowed\|\|selectedCard\.revoked_at\|\|actionBusy/);
+});
