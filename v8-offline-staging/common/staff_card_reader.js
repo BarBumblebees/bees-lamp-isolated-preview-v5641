@@ -34,13 +34,15 @@ async function authenticate(){
 async function resolveDirectoryCard(r,mine){
  const number=String(r.card_number||'').trim();if(!number)return;
  const data=await api('/rest/v1/rpc/list_registered_cards_v2',{p_query:number,p_kind:'',p_status:'active',p_offset:0},access);
- if(mine!==epoch||!Array.isArray(data?.cards))return;
+ if(mine!==epoch)return;
+ if(!Array.isArray(data?.cards)){ $('status').textContent='会員照会完了。カード一覧の応答を確認できないため管理操作は停止しています。';return}
  const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number);
- if(matches.length!==1||!matches[0].id)return;
+ if(matches.length!==1||!matches[0].id){$('status').textContent='会員照会完了。カード番号に一致する登録カードを一意に確認できないため管理操作は停止しています。';return}
  const candidate=matches[0];
  // Server-side select checks directory permissions and resolves the authoritative member identity.
  const detail=await api('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:candidate.id,p_action:'select'},access);
- if(mine!==epoch||!detail||String(detail.member_id||'')!==String(r.member_id)||!Number.isFinite(Number(detail.balance)))return;
+ if(mine!==epoch)return;
+ if(!detail||String(detail.member_id||'')!==String(r.member_id)||!Number.isFinite(Number(detail.balance))){$('status').textContent='会員照会完了。カードと会員IDの照合が完了しないため管理操作は停止しています。';return}
  selectedCard={...candidate,member_id:detail.member_id,balance:Number(detail.balance),display_name:detail.display_name||r.display_name};
  // The existing staff directory grants point actions separately from member editing.
  const pointAllowed=await api('/rest/v1/rpc/staff_directory_points_access_v1',{},access).catch(()=>false);
