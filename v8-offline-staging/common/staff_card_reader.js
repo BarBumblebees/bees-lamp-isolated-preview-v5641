@@ -34,9 +34,28 @@ async function resolveDirectoryCard(r,mine){
  const number=String(r.card_number||'').trim();if(!number)return;
  const data=await api('/rest/v1/rpc/list_registered_cards_v2',{p_query:number,p_kind:'',p_status:'active',p_offset:0},access);
  if(mine!==epoch||!Array.isArray(data?.cards))return;
- const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number&&(!r.member_id||String(c.member_id||'')===String(r.member_id)));
- if(matches.length!==1)return;
- selectedCard=matches[0];try{const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});if(mine===epoch&&selectedCard===matches[0]){const select=$('pointStore');select.replaceChildren();const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:Array.isArray(stores?.stock_stores)?stores.stock_stores:[];for(const row of rows){const id=row.id||row.store_id,name=row.name||row.store_name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}}}catch(_){}if(mine!==epoch||selectedCard!==matches[0])return;syncCheckout();$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
+ const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number);
+ if(matches.length!==1||!matches[0].id)return;
+ const candidate=matches[0];
+ // Server-side select checks directory permissions and resolves the authoritative member identity.
+ const detail=await api('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:candidate.id,p_action:'select'},access);
+ if(mine!==epoch||!detail||String(detail.member_id||'')!==String(r.member_id)||!Number.isFinite(Number(detail.balance)))return;
+ selectedCard={...candidate,member_id:detail.member_id,balance:Number(detail.balance),display_name:detail.display_name||r.display_name};
+ const selected=selectedCard;
+ try{
+  const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});
+  if(mine!==epoch||selectedCard!==selected)return;
+  const select=$('pointStore');select.replaceChildren();
+  const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:[];
+  for(const row of rows){const id=row.id||row.store_id,name=row.name||row.store_name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}
+  if(detail.operation_store_id&&rows.some(row=>String(row.id||row.store_id)===String(detail.operation_store_id)))select.value=detail.operation_store_id;
+ }catch(_){if(mine!==epoch||selectedCard!==selected)return;$('pointStore').replaceChildren()}
+ if(mine!==epoch||selectedCard!==selected)return;
+ $('balance').textContent='共通残高 '+selected.balance.toLocaleString('ja-JP')+'pt';
+ $('editName').value=selected.display_name||'';
+ $('editNote').value=selected.customer_note||'';
+ $('inlineManage').classList.remove('hidden');
+ syncCheckout();
 }
 async function manageRequest(path,body){
  if(!selectedCard||!access||day!==jstDay())throw Error('カードを再読み取りしてください');
@@ -67,7 +86,7 @@ function render(r){
  $('member').classList.remove('hidden');
 }
 async function lookup(raw){
- if(busy)return;
+ if(busy||actionBusy)return;
  clearMember();$('cardUrl').value='';
  if(!isolated&&(!access||day!==jstDay())){reset('営業日または認証が無効です。再ログインしてください。');return}
  const card=validCard(raw);if(!card){$('status').textContent='カードURLの形式を確認してください。';return}
@@ -173,13 +192,13 @@ $('confirmReissueInline')?.addEventListener('click',async()=>{
 $('checkLogin').addEventListener('click',authenticate);
 $('lookup').addEventListener('click',()=>lookup($('cardUrl').value));
 $('start').addEventListener('click',async()=>{
- if(busy||(!isolated&&(!access||day!==jstDay()))){reset('スタッフ認証を確認してください。');return}
+ if(busy||actionBusy||(!isolated&&(!access||day!==jstDay()))){reset('スタッフ認証を確認してください。');return}
  epoch++;stop();clearMember();const mine=epoch;$('start').disabled=true;$('status').textContent='NFC読み取りを開始しています…';
  try{const instance=BeesNfcReader.start({validate:v=>!!validCard(v),onCard:v=>{if(mine===epoch)lookup(v)},onError:msg=>{if(mine===epoch)$('status').textContent=msg}});
  scanner=instance;$('stop').disabled=false;await instance.ready;if(mine===epoch)$('status').textContent='カードをスマホ背面へかざしてください。';
  }catch(_){if(mine===epoch){stop();$('start').disabled=false;$('status').textContent='NFCを開始できません。Android版Chromeを確認してください。'}}
 });
 $('stop').addEventListener('click',()=>{epoch++;stop();$('start').disabled=!access&&!isolated;$('status').textContent='読み取りを停止しました。'});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access&&!isolated}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden){epoch++;stop();if(!actionBusy)clearMember();$('cardUrl').value='';$('start').disabled=!access&&!isolated;$('lookup').disabled=!access&&!isolated}});
 authenticate();
 })();
