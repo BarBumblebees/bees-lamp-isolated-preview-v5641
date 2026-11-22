@@ -3,10 +3,10 @@ const BASE='https://cuoruflxfyubjpboqprb.supabase.co';
 const KEY='sb_publishable_EdoSdDxZAEeXDKzuN9gVDg_ThW89nz8';
 const STORAGE='shop-point-nfc.staff-session.v4';
 const $=id=>document.getElementById(id);
-let access=null,day=null,epoch=0,scanner=null,busy=false,selectedCard=null;
+let access=null,day=null,epoch=0,scanner=null,busy=false,selectedCard=null,pendingReissue=null,actionBusy=false;
 const isolated=(()=>{const meta=document.querySelector('meta[http-equiv="Content-Security-Policy"]');return !!meta&&/connect-src\s+'none'/.test(meta.content)})();
 const jstDay=()=>new Date(Date.now()+3600000).toISOString().slice(0,10);
-function clearMember(){selectedCard=null;const manage=$('inlineManage');if(manage)manage.classList.add('hidden');if($('fullHistory'))$('fullHistory').replaceChildren();if($('manageStatus'))$('manageStatus').textContent=''; $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
+function clearMember(){selectedCard=null;pendingReissue=null;if($('reissuePanel'))$('reissuePanel').classList.add('hidden');if($('reissueUrl'))$('reissueUrl').value='';if($('pointStore'))$('pointStore').replaceChildren();const manage=$('inlineManage');if(manage)manage.classList.add('hidden');if($('fullHistory'))$('fullHistory').replaceChildren();if($('manageStatus'))$('manageStatus').textContent=''; $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
 function stop(){if(scanner){scanner.stop();scanner=null}$('stop').disabled=true}
 function reset(message){epoch++;stop();busy=false;access=null;day=null;clearMember();$('cardUrl').value='';$('start').disabled=true;$('lookup').disabled=true;$('authStatus').textContent=message;$('status').textContent='スタッフ認証が必要です。'}
 function validCard(value){try{const raw=String(value||'').trim();const u=new URL(/^https:\/\//i.test(raw)?raw:'https://'+raw);if(u.protocol!=='https:'||!(u.hostname==='shop-point-nfc-customer-test-1107.pages.dev'||u.hostname.endsWith('.shop-point-nfc-customer-test-1107.pages.dev'))||u.port||u.username||u.password||u.search||!['/','/index.html'].includes(u.pathname))return null;const m=u.hash.match(/^#card=([A-Za-z0-9_-]{43})$/);return m?m[1]:null}catch(_){return null}}
@@ -35,7 +35,7 @@ async function resolveDirectoryCard(r,mine){
  if(mine!==epoch||!Array.isArray(data?.cards))return;
  const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number&&(!r.member_id||String(c.member_id||'')===String(r.member_id)));
  if(matches.length!==1)return;
- selectedCard=matches[0];$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
+ selectedCard=matches[0];try{const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});if(mine===epoch&&selectedCard){const select=$('pointStore');select.replaceChildren();const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:[];for(const row of rows){const id=row.store_id||row.id,name=row.store_name||row.name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}}}catch(_){}if(mine!==epoch)return;$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
 }
 async function manageRequest(path,body){
  if(!selectedCard||!access||day!==jstDay())throw Error('カードを再読み取りしてください');
@@ -90,6 +90,38 @@ async function lookup(raw){
 $('saveName')?.addEventListener('click',()=>saveCardField('name'));
 $('saveNote')?.addEventListener('click',()=>saveCardField('note'));
 $('loadHistory')?.addEventListener('click',async()=>{const card=selectedCard;if(!card)return;const el=$('fullHistory');el.textContent='履歴を取得中…';try{const data=await manageRequest('/rest/v1/rpc/registered_card_activity_v2',{p_card_id:card.id});if(card!==selectedCard)return;el.replaceChildren();for(const item of data.history||[]){const p=document.createElement('p');p.textContent=[item.created_at?new Date(item.created_at).toLocaleString('ja-JP'):'',item.kind||'ポイント操作',item.store_name||'',String(item.delta)+'pt'].filter(Boolean).join(' · ');el.append(p)}if(!el.childNodes.length)el.textContent='履歴はありません。'}catch(e){if(card===selectedCard)el.textContent='履歴を取得できません。'+e.message}});
+
+async function cardAction(path,body,statusId,verify){
+ const card=selectedCard;if(!card||actionBusy)return;actionBusy=true;const status=$(statusId);status.textContent='処理中…';
+ try{const result=await manageRequest(path,body);if(card!==selectedCard)return;if(!verify(result))throw Error('結果を確認できません。再操作せず履歴を確認してください。');status.textContent='操作が完了しました。';return result}
+ catch(e){if(card===selectedCard)status.textContent='操作結果を確認できません。'+e.message}
+ finally{actionBusy=false}
+}
+$('awardVisitInline')?.addEventListener('click',async()=>{
+ const card=selectedCard,store=$('pointStore'),storeId=store?.value;if(!card||!storeId||actionBusy)return;
+ if(!confirm('カード No.'+card.card_number+' に '+store.selectedOptions[0].textContent+' の来店ポイントを付与しますか？'))return;
+ const result=await cardAction('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'visit',p_store_id:storeId},'pointStatus',v=>typeof v==='string'&&/^[0-9a-f-]{36}$/i.test(v));
+ if(result&&card===selectedCard){try{const fresh=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'select'});if(card===selectedCard&&Number.isFinite(Number(fresh.balance)))$('balance').textContent='共通残高 '+Number(fresh.balance).toLocaleString('ja-JP')+'pt'}catch(_){}}
+});
+$('suspendInline')?.addEventListener('click',async()=>{
+ const card=selectedCard;if(!card||!confirm('カード No.'+card.card_number+' を一時停止しますか？旧カードではポイント操作ができなくなります。'))return;
+ const result=await cardAction('/rest/v1/rpc/manage_registered_card_v1',{p_card_id:card.id,p_action:'revoke',p_value:null},'reissueStatus',v=>v?.status==='revoked');
+ if(result&&card===selectedCard){card.revoked_at=true;$('suspendInline').disabled=true;$('reissueStatus').textContent='一時停止しました。新カードURLを準備できます。'}
+});
+$('prepareReissueInline')?.addEventListener('click',()=>{
+ const card=selectedCard;if(!card||!card.revoked_at||actionBusy){$('reissueStatus').textContent='再発行の前に旧カードを一時停止してください。';return}
+ const bytes=crypto.getRandomValues(new Uint8Array(32));pendingReissue={card,token:btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'')};
+ $('reissueUrl').value='shop-point-nfc-customer-test-1107.pages.dev/#card='+pendingReissue.token;
+ $('reissueWritten').checked=false;$('reissuePanel').classList.remove('hidden');$('reissueStatus').textContent='新品カードにURLを書き込み、確認してから確定してください。';
+});
+$('copyReissueUrl')?.addEventListener('click',async()=>{if(!pendingReissue)return;try{await navigator.clipboard.writeText($('reissueUrl').value);$('reissueStatus').textContent='URLをコピーしました。'}catch(_){$('reissueStatus').textContent='コピーできません。URLを確認してください。'}});
+$('confirmReissueInline')?.addEventListener('click',async()=>{
+ const pending=pendingReissue;if(!pending||pending.card!==selectedCard||!$('reissueWritten').checked||actionBusy)return;
+ if(!confirm('カード No.'+pending.card.card_number+' を再発行しますか？旧URLは無効になります。'))return;
+ const result=await cardAction('/rest/v1/rpc/reissue_card_with_qr_v1',{p_card_id:pending.card.id,p_card_token:pending.token},'reissueStatus',v=>v?.status==='reissued');
+ if(result&&pending===pendingReissue){pendingReissue=null;$('reissueUrl').value='';$('reissuePanel').classList.add('hidden');$('reissueStatus').textContent='再発行が完了しました。新カードを読み直してください。';clearMember()}
+});
+
 $('checkLogin').addEventListener('click',authenticate);
 $('lookup').addEventListener('click',()=>lookup($('cardUrl').value));
 $('start').addEventListener('click',async()=>{
