@@ -226,3 +226,13 @@ test('checkout response must confirm requested redeemed points',()=>{
  assert.match(code,/Number\(result\.redeemed_points\)!==p\.redeem_points/);
  assert.match(code,/Number\.isSafeInteger\(Number\(result\.earned_points\)\)/);
 });
+
+test('authentication rechecks shared staff session after permission request',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ const start=code.indexOf('async function authenticate()');
+ const end=code.indexOf('async function resolveDirectoryCard',start);
+ const auth=code.slice(start,end);
+ assert.ok(auth.indexOf('let latest;')>auth.indexOf("await api('/rest/v1/rpc/staff_card_stock_stores'"));
+ assert.match(auth,/latest\.access_token!==stored\.access_token/);
+ assert.match(auth,/Number\(latest\.expires_at\)<=Date\.now\(\)\/1000\+90/);
+});
