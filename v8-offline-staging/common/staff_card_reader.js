@@ -5,7 +5,7 @@ const STORAGE='shop-point-nfc.staff-session.v4';
 const $=id=>document.getElementById(id);
 let access=null,day=null,epoch=0,scanner=null,busy=false,selectedCard=null,pendingReissue=null,actionBusy=false;
 const isolated=(()=>{const meta=document.querySelector('meta[http-equiv="Content-Security-Policy"]');return !!meta&&/connect-src\s+'none'/.test(meta.content)})();
-const jstDay=()=>new Date(Date.now()+3600000).toISOString().slice(0,10);
+const jstDay=()=>new Date(Date.now()+9*3600000).toISOString().slice(0,10);
 function clearMember(){selectedCard=null;pendingReissue=null;if($('reissuePanel'))$('reissuePanel').classList.add('hidden');if($('reissueUrl'))$('reissueUrl').value='';if($('pointStore'))$('pointStore').replaceChildren();const manage=$('inlineManage');if(manage)manage.classList.add('hidden');if($('fullHistory'))$('fullHistory').replaceChildren();if($('manageStatus'))$('manageStatus').textContent=''; $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
 function stop(){if(scanner){scanner.stop();scanner=null}$('stop').disabled=true}
 function reset(message){epoch++;stop();busy=false;access=null;day=null;clearMember();$('cardUrl').value='';$('start').disabled=true;$('lookup').disabled=true;$('authStatus').textContent=message;$('status').textContent='スタッフ認証が必要です。'}
@@ -35,12 +35,12 @@ async function resolveDirectoryCard(r,mine){
  if(mine!==epoch||!Array.isArray(data?.cards))return;
  const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number&&(!r.member_id||String(c.member_id||'')===String(r.member_id)));
  if(matches.length!==1)return;
- selectedCard=matches[0];try{const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});if(mine===epoch&&selectedCard){const select=$('pointStore');select.replaceChildren();const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:[];for(const row of rows){const id=row.store_id||row.id,name=row.store_name||row.name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}}}catch(_){}if(mine!==epoch)return;$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
+ selectedCard=matches[0];try{const stores=await manageRequest('/rest/v1/rpc/staff_card_stock_stores',{});if(mine===epoch&&selectedCard===matches[0]){const select=$('pointStore');select.replaceChildren();const rows=Array.isArray(stores)?stores:Array.isArray(stores?.stores)?stores.stores:Array.isArray(stores?.stock_stores)?stores.stock_stores:[];for(const row of rows){const id=row.store_id||row.id,name=row.store_name||row.name;if(id&&name){const option=document.createElement('option');option.value=id;option.textContent=name;select.append(option)}}}}catch(_){}if(mine!==epoch||selectedCard!==matches[0])return;$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
 }
 async function manageRequest(path,body){
  if(!selectedCard||!access||day!==jstDay())throw Error('カードを再読み取りしてください');
  let current;try{current=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(_){}
- if(!current||current.access_token!==access||Number(current.expires_at)<=Date.now()/1000+90)throw Error('スタッフ画面で再ログインしてください');
+ if(!current||current.business_day!==day||current.access_token!==access||Number(current.expires_at)<=Date.now()/1000+90)throw Error('スタッフ画面で再ログインしてください');
  return api(path,body,access);
 }
 async function saveCardField(kind){
@@ -98,7 +98,7 @@ async function cardAction(path,body,statusId,verify){
  finally{actionBusy=false}
 }
 $('awardVisitInline')?.addEventListener('click',async()=>{
- const card=selectedCard,store=$('pointStore'),storeId=store?.value;if(!card||!storeId||actionBusy)return;
+ const card=selectedCard,store=$('pointStore'),storeId=store?.value;if(!card||!storeId||actionBusy||!Array.from(store.options).some(o=>o.value===storeId))return;
  if(!confirm('カード No.'+card.card_number+' に '+store.selectedOptions[0].textContent+' の来店ポイントを付与しますか？'))return;
  const result=await cardAction('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'visit',p_store_id:storeId},'pointStatus',v=>typeof v==='string'&&/^[0-9a-f-]{36}$/i.test(v));
  if(result&&card===selectedCard){try{const fresh=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:card.id,p_action:'select'});if(card===selectedCard&&Number.isFinite(Number(fresh.balance)))$('balance').textContent='共通残高 '+Number(fresh.balance).toLocaleString('ja-JP')+'pt'}catch(_){}}
@@ -119,7 +119,7 @@ $('confirmReissueInline')?.addEventListener('click',async()=>{
  const pending=pendingReissue;if(!pending||pending.card!==selectedCard||!$('reissueWritten').checked||actionBusy)return;
  if(!confirm('カード No.'+pending.card.card_number+' を再発行しますか？旧URLは無効になります。'))return;
  const result=await cardAction('/rest/v1/rpc/reissue_card_with_qr_v1',{p_card_id:pending.card.id,p_card_token:pending.token},'reissueStatus',v=>v?.status==='reissued');
- if(result&&pending===pendingReissue){pendingReissue=null;$('reissueUrl').value='';$('reissuePanel').classList.add('hidden');$('reissueStatus').textContent='再発行が完了しました。新カードを読み直してください。';clearMember()}
+ if(result&&pending===pendingReissue){clearMember();$('status').textContent='再発行が完了しました。新カードを読み直してください。'}
 });
 
 $('checkLogin').addEventListener('click',authenticate);
