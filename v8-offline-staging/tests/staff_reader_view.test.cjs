@@ -124,3 +124,10 @@ test('old card edit completion cannot enable controls for a newer selection',()=
  assert.match(code,/if\(card===selectedCard\)button\.disabled=kind==='note'/);
  assert.match(code,/\$\('cardMemo'\)\.textContent=''/);
 });
+
+test('reissue buttons become available only in correct suspended and written states',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/\$\('prepareReissueInline'\)\.disabled=!card\|\|!card\.revoked_at/);
+ assert.match(code,/\$\('confirmReissueInline'\)\.disabled=!pendingReissue/);
+ assert.match(code,/\$\('reissueWritten'\)\?\.addEventListener\('change',syncCheckout\)/);
+});
