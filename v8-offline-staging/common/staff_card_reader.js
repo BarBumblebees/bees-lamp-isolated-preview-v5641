@@ -24,7 +24,8 @@ async function authenticate(){
   if(!stored.access_token||Number(stored.expires_at)<=Date.now()/1000+90)throw Error('スタッフ画面でログインし直してください');
   await api('/rest/v1/rpc/staff_card_stock_stores',{},stored.access_token);
   if(mine!==epoch)return;
-  if(stored.business_day!==jstDay())throw Error('営業日が切り替わりました');
+  let latest;try{latest=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(_){}
+  if(!latest||latest.business_day!==jstDay()||latest.business_day!==stored.business_day||latest.access_token!==stored.access_token||Number(latest.expires_at)<=Date.now()/1000+90)throw Error('認証中にスタッフセッションが変更または失効しました');
   access=stored.access_token;day=stored.business_day;
   $('authStatus').textContent='スタッフ権限を確認しました。';
   $('start').disabled=false;$('lookup').disabled=false;$('status').textContent='カードをかざしてください。';
