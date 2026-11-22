@@ -45,10 +45,10 @@ async function manageRequest(path,body){
  return api(path,body,access);
 }
 async function saveCardField(kind){
- const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;actionBusy=true;const status=$('manageStatus');const input=$(kind==='name'?'editName':'editNote');const value=input.value.trim();
+ const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;const status=$('manageStatus');const input=$(kind==='name'?'editName':'editNote');const value=input.value.trim();
  if(kind==='name'&&(!value||[...value].length>8)){status.textContent='登録名は1〜8文字です。';return}
  if(kind==='note'&&[...value].length>60){status.textContent='メモは60文字以内です。';return}
- const button=$(kind==='name'?'saveName':'saveNote');button.disabled=true;status.textContent='保存中…';
+ actionBusy=true;syncCheckout();const button=$(kind==='name'?'saveName':'saveNote');button.disabled=true;status.textContent='保存中…';
  try{const result=kind==='name'?await manageRequest('/rest/v1/rpc/manage_registered_card_v1',{p_card_id:card.id,p_action:'rename',p_value:value}):await manageRequest('/rest/v1/rpc/save_registered_card_note_v1',{p_card_id:card.id,p_note:value});
  if(card!==selectedCard)return;
  if(kind==='name'){if(result?.status!=='renamed'||typeof result.display_name!=='string')throw Error('保存結果を確認できません');card.display_name=result.display_name;$('name').textContent=result.display_name+' 様';input.value=result.display_name}
@@ -96,7 +96,7 @@ $('loadHistory')?.addEventListener('click',async()=>{const card=selectedCard;if(
 // Separate storage schema: never overwrite the existing staff page's pending receipt.
 const CHECKOUT_PENDING='bees-reader.checkout-pending.v1';
 const STAFF_CHECKOUT_PENDING='shop-point-nfc.checkout-pending.v5';
-function pendingCheckout(){try{const p=JSON.parse(localStorage.getItem(CHECKOUT_PENDING)||'null');return p&&typeof p.request_id==='string'&&typeof p.card_id==='string'?p:null}catch(_){return null}}
+function pendingCheckout(){try{const raw=localStorage.getItem(CHECKOUT_PENDING);if(!raw)return null;const p=JSON.parse(raw);return p&&/^[0-9a-f-]{36}$/i.test(p.request_id)&&typeof p.card_id==='string'&&typeof p.store_id==='string'&&Number.isSafeInteger(p.total_yen)&&Number.isSafeInteger(p.redeem_points)?p:{invalid:true}}catch(_){return {invalid:true}}}
 function checkoutNumbers(){
  const read=id=>{const raw=$(id).value.trim();if(!/^(0|[1-9][0-9]*)$/.test(raw))return null;const n=Number(raw);return Number.isSafeInteger(n)&&n<=2147483647?n:null};
  const total=read('checkoutTotal'),redeem=read('checkoutRedeem');
@@ -157,14 +157,14 @@ $('suspendInline')?.addEventListener('click',async()=>{
  if(result&&card===selectedCard){card.revoked_at=true;$('suspendInline').disabled=true;$('reissueStatus').textContent='一時停止しました。新カードURLを準備できます。'}
 });
 $('prepareReissueInline')?.addEventListener('click',()=>{
- const card=selectedCard;if(!card||!card.revoked_at||actionBusy||pendingCheckout()){$('reissueStatus').textContent='再発行の前に旧カードを一時停止してください。';return}
+ const card=selectedCard;if(!card||!card.revoked_at||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING)){$('reissueStatus').textContent='再発行の前に旧カードを一時停止してください。';return}
  const bytes=crypto.getRandomValues(new Uint8Array(32));pendingReissue={card,token:btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'')};
  $('reissueUrl').value='shop-point-nfc-customer-test-1107.pages.dev/#card='+pendingReissue.token;
  $('reissueWritten').checked=false;$('reissuePanel').classList.remove('hidden');$('reissueStatus').textContent='新品カードにURLを書き込み、確認してから確定してください。';
 });
 $('copyReissueUrl')?.addEventListener('click',async()=>{if(!pendingReissue)return;try{await navigator.clipboard.writeText($('reissueUrl').value);$('reissueStatus').textContent='URLをコピーしました。'}catch(_){$('reissueStatus').textContent='コピーできません。URLを確認してください。'}});
 $('confirmReissueInline')?.addEventListener('click',async()=>{
- const pending=pendingReissue;if(!pending||pending.card!==selectedCard||!$('reissueWritten').checked||actionBusy||pendingCheckout())return;
+ const pending=pendingReissue;if(!pending||pending.card!==selectedCard||!$('reissueWritten').checked||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;
  if(!confirm('カード No.'+pending.card.card_number+' を再発行しますか？旧URLは無効になります。'))return;
  const result=await cardAction('/rest/v1/rpc/reissue_card_with_qr_v1',{p_card_id:pending.card.id,p_card_token:pending.token},'reissueStatus',v=>v?.status==='reissued');
  if(result&&pending===pendingReissue){clearMember();$('status').textContent='再発行が完了しました。新カードを読み直してください。'}
