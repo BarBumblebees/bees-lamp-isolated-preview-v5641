@@ -153,7 +153,7 @@ async function executeCheckout(p){
  actionBusy=true;syncCheckout();status.textContent='会計結果を確認中…';
  try{
   const result=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:p.card_id,p_action:'checkout',p_request_id:p.request_id,p_store_id:p.store_id,p_total_yen:p.total_yen,p_redeem_points:p.redeem_points});
-  if(!result||result.balance_after==null||result.earned_points==null||result.redeemed_points==null||!Number.isFinite(Number(result.balance_after))||!Number.isFinite(Number(result.earned_points))||!Number.isFinite(Number(result.redeemed_points)))throw Error('結果を確認できません');
+  if(!result||result.balance_after==null||result.earned_points==null||result.redeemed_points==null||!Number.isFinite(Number(result.balance_after))||!Number.isSafeInteger(Number(result.earned_points))||Number(result.earned_points)<0||!Number.isSafeInteger(Number(result.redeemed_points))||Number(result.redeemed_points)!==p.redeem_points)throw Error('結果を確認できません');
   const saved=pendingCheckout();if(!saved||saved.invalid||saved.request_id!==p.request_id||saved.card_id!==p.card_id||saved.store_id!==p.store_id||saved.total_yen!==p.total_yen||saved.redeem_points!==p.redeem_points)throw Error('処理中に端末の会計記録が変更されました。管理者に履歴照合を依頼してください。');localStorage.removeItem(CHECKOUT_PENDING);
   if(card===selectedCard){card.balance=Number(result.balance_after);$('balance').textContent='共通残高 '+card.balance.toLocaleString('ja-JP')+'pt';status.textContent='会計確定：利用 '+result.redeemed_points+'pt ／ 付与 '+result.earned_points+'pt';$('checkoutTotal').value='';$('checkoutRedeem').value='0'}
  }catch(e){if(card===selectedCard)status.textContent='会計結果が未確認です。新しい会計をせず、前回の受付IDで再確認してください。 '+e.message}
