@@ -220,3 +220,9 @@ test('card suspension warns about reissue recovery after page reload',()=>{
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
  assert.match(code,/停止後にページを閉じたり再読込すると、この専用ページから再発行を再開できない可能性があります/);
 });
+
+test('checkout response must confirm requested redeemed points',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/Number\(result\.redeemed_points\)!==p\.redeem_points/);
+ assert.match(code,/Number\.isSafeInteger\(Number\(result\.earned_points\)\)/);
+});
