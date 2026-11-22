@@ -141,7 +141,7 @@ function syncCheckout(){
  $('checkoutInline').disabled=!valid;
  $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
  $('checkoutRetryInline').disabled=!card||!card.pointAllowed||actionBusy||!!otherPending||!!p?.invalid||String(card?.id||'')!==p?.card_id;
- $('checkoutPreview').textContent=(p||otherPending)?'未確認の会計があります。二重処理を防ぐため新しい会計を停止しています。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
+ $('checkoutPreview').textContent=p?.invalid?'保存された会計データを読み取れません。新しい会計を停止しています。既存スタッフ画面で履歴を確認し、管理者に復旧を依頼してください。':(p||otherPending)?'未確認の会計があります。二重処理を防ぐため新しい会計を停止しています。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
 }
 $('checkoutTotal')?.addEventListener('input',syncCheckout);
 $('checkoutRedeem')?.addEventListener('input',syncCheckout);
