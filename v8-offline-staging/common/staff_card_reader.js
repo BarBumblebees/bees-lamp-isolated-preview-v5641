@@ -114,7 +114,7 @@ async function lookup(raw){
   if(day!==jstDay()){reset('営業日が切り替わりました。');return}
   render(r);$('status').textContent='会員照会が完了しました。';try{await resolveDirectoryCard(r,mine)}catch(_){if(mine===epoch)$('status').textContent='会員照会完了。編集権限を確認できないため照会のみ表示しています。'}
  }catch(_){if(mine===epoch)$('status').textContent='会員照会できませんでした。スタッフ認証と接続を確認してください。'}
- finally{busy=false;if(mine===epoch){$('lookup').disabled=!access&&!isolated;$('start').disabled=!access}}
+ finally{if(mine===epoch){busy=false;$('lookup').disabled=!access&&!isolated;$('start').disabled=!access}}
 }
 $('saveName')?.addEventListener('click',()=>saveCardField('name'));
 $('saveNote')?.addEventListener('click',()=>saveCardField('note'));
