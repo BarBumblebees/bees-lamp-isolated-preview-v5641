@@ -139,14 +139,15 @@ function syncCheckout(){
  const otherPending=Boolean(localStorage.getItem(STAFF_CHECKOUT_PENDING));
  const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&store?.value&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!store?.value||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;
  $('checkoutInline').disabled=!valid;
- $('checkoutRetryInline').classList.toggle('hidden',!p);
+ $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
+ $('checkoutRetryInline').disabled=!card||!card.pointAllowed||actionBusy||!!otherPending||!!p?.invalid||String(card.id)!==p?.card_id;
  $('checkoutPreview').textContent=(p||otherPending)?'未確認の会計があります。二重処理を防ぐため新しい会計を停止しています。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
 }
 $('checkoutTotal')?.addEventListener('input',syncCheckout);
 $('checkoutRedeem')?.addEventListener('input',syncCheckout);
 $('pointStore')?.addEventListener('change',syncCheckout);
 async function executeCheckout(p){
- const card=selectedCard;const status=$('pointStatus');if(!card||!card.pointAllowed||actionBusy||p.card_id!==String(card.id)||pendingCheckout()?.request_id!==p.request_id)return;
+ const card=selectedCard;const status=$('pointStatus');if(!card||!card.pointAllowed||actionBusy||localStorage.getItem(STAFF_CHECKOUT_PENDING)||p.card_id!==String(card.id)||pendingCheckout()?.request_id!==p.request_id)return;
  actionBusy=true;syncCheckout();status.textContent='会計結果を確認中…';
  try{
   const result=await manageRequest('/rest/v1/rpc/manage_card_directory_points_v1',{p_card_id:p.card_id,p_action:'checkout',p_request_id:p.request_id,p_store_id:p.store_id,p_total_yen:p.total_yen,p_redeem_points:p.redeem_points});
@@ -163,7 +164,7 @@ $('checkoutInline')?.addEventListener('click',async()=>{
  try{localStorage.setItem(CHECKOUT_PENDING,JSON.stringify(p));if(pendingCheckout()?.request_id!==p.request_id)throw Error('保存確認に失敗')}catch(_){$('pointStatus').textContent='受付IDを保存できないため会計は実行していません。';return}
  await executeCheckout(p);
 });
-$('checkoutRetryInline')?.addEventListener('click',async()=>{const p=pendingCheckout();if(!p)return;if(!selectedCard||String(selectedCard.id)!==p.card_id){$('pointStatus').textContent='前回の対象カードを読み取ってください。';return}if(!confirm('前回と同じ受付IDで結果を再確認します。'))return;await executeCheckout(p)});
+$('checkoutRetryInline')?.addEventListener('click',async()=>{const p=pendingCheckout();if(!p||p.invalid||!selectedCard?.pointAllowed||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;if(!selectedCard||String(selectedCard.id)!==p.card_id){$('pointStatus').textContent='前回の対象カードを読み取ってください。';return}if(!confirm('前回と同じ受付IDで結果を再確認します。'))return;await executeCheckout(p)});
 
 async function cardAction(path,body,statusId,verify){
  const card=selectedCard;if(!card||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;actionBusy=true;syncCheckout();const status=$(statusId);status.textContent='処理中…';
