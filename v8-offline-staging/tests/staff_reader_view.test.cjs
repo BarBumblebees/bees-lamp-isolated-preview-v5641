@@ -105,3 +105,10 @@ test('reader checkout preview handles no selected card without dereferencing bal
  assert.match(code,/!card\?'カードを読み取ると会計内容を確認できます。'/);
  assert.match(code,/button\.disabled=kind==='note'&&typeof card\.customer_note!=='string'/);
 });
+
+test('clearing selected card disables actions and pending checkout rejects negative amounts',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/\['awardVisitInline','checkoutInline','checkoutRetryInline','suspendInline','saveName','saveNote','prepareReissueInline','confirmReissueInline'\]/);
+ assert.match(code,/p\.total_yen>=0/);
+ assert.match(code,/p\.redeem_points>=0&&p\.redeem_points<=p\.total_yen/);
+});
