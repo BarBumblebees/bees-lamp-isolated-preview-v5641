@@ -99,3 +99,9 @@ test('live reader checkout state is safe before selecting a card',()=>{
  assert.match(code,/card\.revoked_at=true;syncCheckout\(\)/);
  assert.match(code,/staff_directory_points_access_v1/);
 });
+
+test('reader checkout preview handles no selected card without dereferencing balance',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/!card\?'カードを読み取ると会計内容を確認できます。'/);
+ assert.match(code,/button\.disabled=kind==='note'&&typeof card\.customer_note!=='string'/);
+});
