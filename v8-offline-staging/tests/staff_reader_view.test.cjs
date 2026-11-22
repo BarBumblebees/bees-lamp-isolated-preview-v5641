@@ -175,3 +175,10 @@ test('checkout store must be a listed authorized option',()=>{
  assert.match(code,/const validStore=Boolean\(store\?\.value&&Array\.from\(store\.options\)\.some\(o=>o\.value===store\.value\)\)/);
  assert.match(code,/!Array\.from\(store\.options\)\.some\(o=>o\.value===store\.value\)\|\|actionBusy/);
 });
+
+test('pending checkout rejects out-of-range and non-ten-point redemptions',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/p\.total_yen<=2147483647/);
+ assert.match(code,/p\.redeem_points<=2147483647&&p\.redeem_points%10===0/);
+ assert.match(code,/p\.total_yen>0\|\|p\.redeem_points>0/);
+});
