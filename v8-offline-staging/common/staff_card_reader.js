@@ -3,10 +3,10 @@ const BASE='https://cuoruflxfyubjpboqprb.supabase.co';
 const KEY='sb_publishable_EdoSdDxZAEeXDKzuN9gVDg_ThW89nz8';
 const STORAGE='shop-point-nfc.staff-session.v4';
 const $=id=>document.getElementById(id);
-let access=null,day=null,epoch=0,scanner=null,busy=false;
+let access=null,day=null,epoch=0,scanner=null,busy=false,selectedCard=null;
 const isolated=(()=>{const meta=document.querySelector('meta[http-equiv="Content-Security-Policy"]');return !!meta&&/connect-src\s+'none'/.test(meta.content)})();
 const jstDay=()=>new Date(Date.now()+3600000).toISOString().slice(0,10);
-function clearMember(){ $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
+function clearMember(){selectedCard=null;const manage=$('inlineManage');if(manage)manage.classList.add('hidden');if($('fullHistory'))$('fullHistory').replaceChildren();if($('manageStatus'))$('manageStatus').textContent=''; $('member').classList.add('hidden');$('name').textContent='';$('balance').textContent='';$('metadata').textContent='';$('history').replaceChildren() }
 function stop(){if(scanner){scanner.stop();scanner=null}$('stop').disabled=true}
 function reset(message){epoch++;stop();busy=false;access=null;day=null;clearMember();$('cardUrl').value='';$('start').disabled=true;$('lookup').disabled=true;$('authStatus').textContent=message;$('status').textContent='スタッフ認証が必要です。'}
 function validCard(value){try{const raw=String(value||'').trim();const u=new URL(/^https:\/\//i.test(raw)?raw:'https://'+raw);if(u.protocol!=='https:'||!(u.hostname==='shop-point-nfc-customer-test-1107.pages.dev'||u.hostname.endsWith('.shop-point-nfc-customer-test-1107.pages.dev'))||u.port||u.username||u.password||u.search||!['/','/index.html'].includes(u.pathname))return null;const m=u.hash.match(/^#card=([A-Za-z0-9_-]{43})$/);return m?m[1]:null}catch(_){return null}}
@@ -28,6 +28,32 @@ async function authenticate(){
   $('authStatus').textContent='スタッフ権限を確認しました。';
   $('start').disabled=false;$('lookup').disabled=false;$('status').textContent='カードをかざしてください。';
  }catch(_){reset('認証を確認できません。通常のスタッフ画面で再ログインしてください。')}
+}
+async function resolveDirectoryCard(r,mine){
+ const number=String(r.card_number||'').trim();if(!number)return;
+ const data=await api('/rest/v1/rpc/list_registered_cards_v2',{p_query:number,p_kind:'',p_status:'active',p_offset:0},access);
+ if(mine!==epoch||!Array.isArray(data?.cards))return;
+ const matches=data.cards.filter(c=>String(c.card_number||'').trim()===number&&(!r.member_id||String(c.member_id||'')===String(r.member_id)));
+ if(matches.length!==1)return;
+ selectedCard=matches[0];$('inlineManage').classList.remove('hidden');$('editName').value=selectedCard.display_name||'';$('editNote').value=selectedCard.customer_note||'';
+}
+async function manageRequest(path,body){
+ if(!selectedCard||!access||day!==jstDay())throw Error('カードを再読み取りしてください');
+ let current;try{current=JSON.parse(localStorage.getItem(STORAGE)||'null')}catch(_){}
+ if(!current||current.access_token!==access||Number(current.expires_at)<=Date.now()/1000+90)throw Error('スタッフ画面で再ログインしてください');
+ return api(path,body,access);
+}
+async function saveCardField(kind){
+ const card=selectedCard;if(!card)return;const status=$('manageStatus');const input=$(kind==='name'?'editName':'editNote');const value=input.value.trim();
+ if(kind==='name'&&(!value||[...value].length>8)){status.textContent='登録名は1〜8文字です。';return}
+ if(kind==='note'&&[...value].length>60){status.textContent='メモは60文字以内です。';return}
+ const button=$(kind==='name'?'saveName':'saveNote');button.disabled=true;status.textContent='保存中…';
+ try{const result=kind==='name'?await manageRequest('/rest/v1/rpc/manage_registered_card_v1',{p_card_id:card.id,p_action:'rename',p_value:value}):await manageRequest('/rest/v1/rpc/save_registered_card_note_v1',{p_card_id:card.id,p_note:value});
+ if(card!==selectedCard)return;
+ if(kind==='name'){if(result?.status!=='renamed'||typeof result.display_name!=='string')throw Error('保存結果を確認できません');card.display_name=result.display_name;$('name').textContent=result.display_name+' 様';input.value=result.display_name}
+ else{if(typeof result!=='string')throw Error('保存結果を確認できません');card.customer_note=result;input.value=result;$('cardMemo').textContent='メモ：'+(result||'登録なし')}
+ status.textContent='保存しました。';
+ }catch(e){if(card===selectedCard)status.textContent='保存できません。'+e.message}finally{button.disabled=false}
 }
 function render(r){
  clearMember();$('name').textContent=r.display_name+' 様';$('balance').textContent='共通残高 '+Number(r.balance).toLocaleString('ja-JP')+'pt';
@@ -57,10 +83,13 @@ async function lookup(raw){
   if(mine!==epoch)return;
   if(!r||r.status!=='active'||!r.member_id||typeof r.display_name!=='string'||!Number.isFinite(Number(r.balance)))throw Error('会員データを確認できません');
   if(day!==jstDay()){reset('営業日が切り替わりました。');return}
-  render(r);$('status').textContent='会員照会が完了しました。ポイント操作はできません。';
+  render(r);$('status').textContent='会員照会が完了しました。';try{await resolveDirectoryCard(r,mine)}catch(_){if(mine===epoch)$('status').textContent='会員照会完了。編集権限を確認できないため照会のみ表示しています。'}
  }catch(_){if(mine===epoch)$('status').textContent='会員照会できませんでした。スタッフ認証と接続を確認してください。'}
  finally{if(mine===epoch){busy=false;$('lookup').disabled=!access&&!isolated;$('start').disabled=!access}}
 }
+$('saveName')?.addEventListener('click',()=>saveCardField('name'));
+$('saveNote')?.addEventListener('click',()=>saveCardField('note'));
+$('loadHistory')?.addEventListener('click',async()=>{const card=selectedCard;if(!card)return;const el=$('fullHistory');el.textContent='履歴を取得中…';try{const data=await manageRequest('/rest/v1/rpc/registered_card_activity_v2',{p_card_id:card.id});if(card!==selectedCard)return;el.replaceChildren();for(const item of data.history||[]){const p=document.createElement('p');p.textContent=[item.created_at?new Date(item.created_at).toLocaleString('ja-JP'):'',item.kind||'ポイント操作',item.store_name||'',String(item.delta)+'pt'].filter(Boolean).join(' · ');el.append(p)}if(!el.childNodes.length)el.textContent='履歴はありません。'}catch(e){if(card===selectedCard)el.textContent='履歴を取得できません。'+e.message}});
 $('checkLogin').addEventListener('click',authenticate);
 $('lookup').addEventListener('click',()=>lookup($('cardUrl').value));
 $('start').addEventListener('click',async()=>{
