@@ -190,3 +190,13 @@ test('checkout replay requires all persisted receipt fields to match',()=>{
  }
  assert.match(code,/savedBefore\.invalid/);
 });
+
+test('successful checkout clears only the identical persisted receipt',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ const start=code.indexOf('const saved=pendingCheckout();if(saved&&!saved.invalid');
+ assert.ok(start>=0);
+ const end=code.indexOf('localStorage.removeItem(CHECKOUT_PENDING)',start);
+ assert.ok(end>start);
+ const guard=code.slice(start,end);
+ for(const field of ['request_id','card_id','store_id','total_yen','redeem_points'])assert.ok(guard.includes('saved.'+field+'===p.'+field));
+});
