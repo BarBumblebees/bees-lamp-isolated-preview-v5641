@@ -80,7 +80,7 @@ async function saveCardField(kind){
  if(kind==='name'){if(result?.status!=='renamed'||typeof result.display_name!=='string')throw Error('保存結果を確認できません');card.display_name=result.display_name;$('name').textContent=result.display_name+' 様';input.value=result.display_name}
  else{if(typeof result!=='string')throw Error('保存結果を確認できません');card.customer_note=result;input.value=result;$('cardMemo').textContent='メモ：'+(result||'登録なし')}
  status.textContent='保存しました。';
- }catch(e){if(card===selectedCard)status.textContent='保存できません。'+e.message}finally{actionBusy=false;button.disabled=false;syncCheckout()}
+ }catch(e){if(card===selectedCard)status.textContent='保存できません。'+e.message}finally{actionBusy=false;button.disabled=kind==='note'&&typeof card.customer_note!=='string';syncCheckout()}
 }
 function render(r){
  clearMember();$('name').textContent=r.display_name+' 様';$('balance').textContent='共通残高 '+Number(r.balance).toLocaleString('ja-JP')+'pt';
@@ -141,7 +141,7 @@ function syncCheckout(){
  $('checkoutInline').disabled=!valid;
  $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
  $('checkoutRetryInline').disabled=!card||!card.pointAllowed||actionBusy||!!otherPending||!!p?.invalid||String(card?.id||'')!==p?.card_id;
- $('checkoutPreview').textContent=p?.invalid?'保存された会計データを読み取れません。新しい会計を停止しています。既存スタッフ画面で履歴を確認し、管理者に復旧を依頼してください。':(p||otherPending)?'未確認の会計があります。二重処理を防ぐため新しい会計を停止しています。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
+ $('checkoutPreview').textContent=p?.invalid?'保存された会計データを読み取れません。新しい会計を停止しています。既存スタッフ画面で履歴を確認し、管理者に復旧を依頼してください。':(p||otherPending)?'未確認の会計があります。二重処理を防ぐため新しい会計を停止しています。':!card?'カードを読み取ると会計内容を確認できます。':v.reason||('実際の支払 '+v.paid+'円 ／ 利用 '+v.redeem+'pt ／ 付与 '+v.earned+'pt ／ 予想残高 '+(Number(card.balance)-v.redeem+v.earned)+'pt');
 }
 $('checkoutTotal')?.addEventListener('input',syncCheckout);
 $('checkoutRedeem')?.addEventListener('input',syncCheckout);
