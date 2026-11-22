@@ -203,7 +203,7 @@ $('confirmReissueInline')?.addEventListener('click',async()=>{
 $('checkLogin').addEventListener('click',authenticate);
 $('lookup').addEventListener('click',()=>lookup($('cardUrl').value));
 $('start').addEventListener('click',async()=>{
- if(busy||actionBusy||(!isolated&&(!access||day!==jstDay()))){reset('スタッフ認証を確認してください。');return}
+ if(busy||actionBusy){$('status').textContent='処理中です。完了後に読み取りを開始してください。';return}if(!isolated&&(!access||day!==jstDay())){reset('スタッフ認証を確認してください。');return}
  epoch++;stop();clearMember();const mine=epoch;$('start').disabled=true;$('status').textContent='NFC読み取りを開始しています…';
  try{const instance=BeesNfcReader.start({validate:v=>!!validCard(v),onCard:v=>{if(mine===epoch)lookup(v)},onError:msg=>{if(mine===epoch)$('status').textContent=msg}});
  scanner=instance;$('stop').disabled=false;await instance.ready;if(mine===epoch)$('status').textContent='カードをスマホ背面へかざしてください。';
