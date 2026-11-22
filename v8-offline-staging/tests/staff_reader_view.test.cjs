@@ -118,3 +118,9 @@ test('selecting a verified directory card restores rename and preserves known no
  assert.match(code,/\$\('saveName'\)\.disabled=false/);
  assert.match(code,/if\(note!==null\)selected\.customer_note=note/);
 });
+
+test('old card edit completion cannot enable controls for a newer selection',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/if\(card===selectedCard\)button\.disabled=kind==='note'/);
+ assert.match(code,/\$\('cardMemo'\)\.textContent=''/);
+});
