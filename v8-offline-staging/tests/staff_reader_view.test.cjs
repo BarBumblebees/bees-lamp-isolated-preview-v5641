@@ -67,7 +67,7 @@ test('read-only mode blocks all point mutation click handlers before any network
  }
 });
 
-test('separate reader has its own scanner, authorized lookup and no point mutation RPCs',()=>{
+test('isolated reader stays read-only while live candidate requires authorized card selection',()=>{
  const page=fs.readFileSync(path.join(__dirname,'../staff-card-reader.html'),'utf8');
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
  assert.match(page,/common\/staff_card_reader\.js/);
@@ -76,6 +76,19 @@ test('separate reader has its own scanner, authorized lookup and no point mutati
  assert.match(code,/staff_card_stock_stores/);
  assert.match(code,/staff_prepared_card_status/);
  assert.match(code,/staff_card_details_v3/);
- assert.doesNotMatch(code,/award_visit_point|award_encounter_point|process_checkout|activate_card|grant_points/);
+ assert.match(code,/p_action:'select'/);
+ assert.match(code,/String\(detail.member_id\|\|''\)!==String\(r.member_id\)/);
+ assert.match(code,/CHECKOUT_PENDING/);
+ assert.match(code,/p_request_id:p.request_id/);
+ assert.match(code,/pendingCheckout\(\)/);
+ assert.doesNotMatch(code,/activate_card|grant_type=refresh_token/);
  assert.doesNotMatch(code,/grant_type=refresh_token/);
+});
+
+test('live candidate includes checkout and reissue controls while isolated reader cannot mutate',()=>{
+ const live=fs.readFileSync(path.join(__dirname,'../staff-card-reader-live-candidate.html'),'utf8');
+ const isolated=fs.readFileSync(path.join(__dirname,'../staff-card-reader.html'),'utf8');
+ for(const id of ['checkoutInline','checkoutRetryInline','awardVisitInline','suspendInline','confirmReissueInline'])assert.match(live,new RegExp('id="'+id+'"'));
+ assert.match(isolated,/connect-src 'none'/);
+ assert.match(live,/connect-src https:\/\/cuoruflxfyubjpboqprb\.supabase\.co/);
 });
