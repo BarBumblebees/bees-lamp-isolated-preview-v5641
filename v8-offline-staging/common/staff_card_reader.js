@@ -139,7 +139,7 @@ function checkoutNumbers(){
 function syncCheckout(){
  const p=pendingCheckout(),v=checkoutNumbers(),store=$('pointStore'),card=selectedCard;
  const otherPending=Boolean(localStorage.getItem(STAFF_CHECKOUT_PENDING));
- const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&store?.value&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!store?.value||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;$('prepareReissueInline').disabled=!card||!card.revoked_at||actionBusy||!!p||otherPending;$('confirmReissueInline').disabled=!pendingReissue||pendingReissue.card!==card||!$('reissueWritten').checked||actionBusy||!!p||otherPending;
+ const validStore=Boolean(store?.value&&Array.from(store.options).some(o=>o.value===store.value));const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&validStore&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!validStore||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;$('prepareReissueInline').disabled=!card||!card.revoked_at||actionBusy||!!p||otherPending;$('confirmReissueInline').disabled=!pendingReissue||pendingReissue.card!==card||!$('reissueWritten').checked||actionBusy||!!p||otherPending;
  $('checkoutInline').disabled=!valid;
  $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
  $('checkoutRetryInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||actionBusy||!!otherPending||!!p?.invalid||String(card?.id||'')!==p?.card_id;
@@ -160,7 +160,7 @@ async function executeCheckout(p){
  finally{actionBusy=false;syncCheckout()}
 }
 $('checkoutInline')?.addEventListener('click',async()=>{
- const card=selectedCard,store=$('pointStore'),v=checkoutNumbers();if(!card||!card.pointAllowed||card.revoked_at||v.reason||!store.value||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;
+ const card=selectedCard,store=$('pointStore'),v=checkoutNumbers();if(!card||!card.pointAllowed||card.revoked_at||v.reason||!store.value||!Array.from(store.options).some(o=>o.value===store.value)||actionBusy||pendingCheckout()||localStorage.getItem(STAFF_CHECKOUT_PENDING))return;
  if(!confirm(['会員：'+card.display_name+' 様','店舗：'+store.selectedOptions[0].textContent,'税込会計：'+v.total+'円','利用：'+v.redeem+'pt','実際の支払：'+v.paid+'円','付与：'+v.earned+'pt','この内容で確定しますか？'].join(String.fromCharCode(10))))return;
  const p={request_id:crypto.randomUUID(),card_id:String(card.id),store_id:store.value,total_yen:v.total,redeem_points:v.redeem};
  try{localStorage.setItem(CHECKOUT_PENDING,JSON.stringify(p));if(pendingCheckout()?.request_id!==p.request_id)throw Error('保存確認に失敗')}catch(_){$('pointStatus').textContent='受付IDを保存できないため会計は実行していません。';return}
