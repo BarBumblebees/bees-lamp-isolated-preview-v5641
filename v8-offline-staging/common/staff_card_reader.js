@@ -124,7 +124,7 @@ $('loadHistory')?.addEventListener('click',async()=>{const card=selectedCard;if(
 // Separate storage schema: never overwrite the existing staff page's pending receipt.
 const CHECKOUT_PENDING='bees-reader.checkout-pending.v1';
 const STAFF_CHECKOUT_PENDING='shop-point-nfc.checkout-pending.v5';
-function pendingCheckout(){try{const raw=localStorage.getItem(CHECKOUT_PENDING);if(!raw)return null;const p=JSON.parse(raw);return p&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p.request_id)&&typeof p.card_id==='string'&&p.card_id.length>0&&typeof p.store_id==='string'&&p.store_id.length>0&&Number.isSafeInteger(p.total_yen)&&p.total_yen>=0&&Number.isSafeInteger(p.redeem_points)&&p.redeem_points>=0&&p.redeem_points<=p.total_yen? p:{invalid:true}}catch(_){return {invalid:true}}}
+function pendingCheckout(){try{const raw=localStorage.getItem(CHECKOUT_PENDING);if(!raw)return null;const p=JSON.parse(raw);return p&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p.request_id)&&typeof p.card_id==='string'&&p.card_id.length>0&&typeof p.store_id==='string'&&p.store_id.length>0&&Number.isSafeInteger(p.total_yen)&&p.total_yen>=0&&p.total_yen<=2147483647&&Number.isSafeInteger(p.redeem_points)&&p.redeem_points>=0&&p.redeem_points<=2147483647&&p.redeem_points%10===0&&p.redeem_points<=p.total_yen&&(p.total_yen>0||p.redeem_points>0)? p:{invalid:true}}catch(_){return {invalid:true}}}
 function checkoutNumbers(){
  const read=id=>{const raw=$(id).value.trim();if(!/^(0|[1-9][0-9]*)$/.test(raw))return null;const n=Number(raw);return Number.isSafeInteger(n)&&n<=2147483647?n:null};
  const total=read('checkoutTotal'),redeem=read('checkoutRedeem');
