@@ -92,3 +92,10 @@ test('live candidate includes checkout and reissue controls while isolated reade
  assert.match(isolated,/connect-src 'none'/);
  assert.match(live,/connect-src https:\/\/cuoruflxfyubjpboqprb\.supabase\.co/);
 });
+
+test('live reader checkout state is safe before selecting a card',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/String\(card\?\.id\|\|''\)!==p\?\.card_id/);
+ assert.match(code,/card\.revoked_at=true;syncCheckout\(\)/);
+ assert.match(code,/staff_directory_points_access_v1/);
+});
