@@ -151,3 +151,9 @@ test('interrupted lookup releases busy lock and stop clears previous card',()=>{
  assert.match(code,/finally\{busy=false;if\(mine===epoch\)/);
  assert.match(code,/\$\('stop'\)\.addEventListener\('click',\(\)=>\{epoch\+\+;stop\(\);busy=false;if\(!actionBusy\)clearMember\(\)/);
 });
+
+test('stale NFC lookup completion cannot unlock a newer request',()=>{
+ const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
+ assert.match(code,/finally\{if\(mine===epoch\)\{busy=false;\$\('lookup'\)\.disabled/);
+ assert.doesNotMatch(code,/finally\{busy=false;if\(mine===epoch\)/);
+});
