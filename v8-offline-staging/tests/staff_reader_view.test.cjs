@@ -96,7 +96,7 @@ test('live candidate includes checkout and reissue controls while isolated reade
 test('live reader checkout state is safe before selecting a card',()=>{
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
  assert.match(code,/String\(card\?\.id\|\|''\)!==p\?\.card_id/);
- assert.match(code,/card\.revoked_at=true;syncCheckout\(\)/);
+ assert.match(code,/\$\('suspendInline'\)\.disabled=true/);
  assert.match(code,/staff_directory_points_access_v1/);
 });
 
@@ -216,9 +216,11 @@ test('checkout reports changed pending receipt instead of success',()=>{
  assert.match(code,/throw Error\('処理中に端末の会計記録が変更されました。管理者に履歴照合を依頼してください。'\)/);
 });
 
-test('card suspension warns about reissue recovery after page reload',()=>{
+test('card suspension is fail-closed until reissue recovery is verified',()=>{
  const code=fs.readFileSync(path.join(__dirname,'../common/staff_card_reader.js'),'utf8');
- assert.match(code,/停止後にページを閉じたり再読込すると、この専用ページから再発行を再開できない可能性があります/);
+ assert.match(code,/旧カード停止・再発行は復旧手順の検証完了まで/);
+ assert.match(code,/\$\('suspendInline'\)\.disabled=true/);
+ assert.doesNotMatch(code,/p_action:'revoke'/);
 });
 
 test('checkout response must confirm requested redeemed points',()=>{
