@@ -1,0 +1,46 @@
+name: Package NFC reader isolated preview
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/package-nfc-reader-preview.yml'
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check JavaScript syntax
+        run: |
+          node --check v8-offline-staging/common/staff_card_reader.js
+          node --check v8-offline-staging/common/bees_nfc_reader.js
+      - name: Run static regression tests
+        run: node --test v8-offline-staging/tests/staff_reader_view.test.cjs
+      - name: Build safe isolated preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist/v8-offline-staging
+          cp -a v8-offline-staging/. dist/v8-offline-staging/
+          rm -rf dist/v8-offline-staging/tests
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('dist/v8-offline-staging/staff-card-reader-live-candidate.html')
+          s=p.read_text(encoding='utf-8')
+          expected="connect-src https://cuoruflxfyubjpboqprb.supabase.co"
+          assert s.count(expected)==1, "Candidate CSP changed; abort package"
+          p.write_text(s.replace(expected,"connect-src 'none'"),encoding='utf-8')
+          assert "connect-src 'none'" in p.read_text(encoding='utf-8')
+          assert Path('dist/v8-offline-staging/staff.html').exists()
+          PY
+          (cd dist && zip -q -r ../BEES_POINT_NFC_隔離読取ページ_プレビュー.zip v8-offline-staging)
+          unzip -t BEES_POINT_NFC_隔離読取ページ_プレビュー.zip | tail -1
+          sha256sum BEES_POINT_NFC_隔離読取ページ_プレビュー.zip > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bees-point-nfc-reader-isolated-preview
+          path: |
+            BEES_POINT_NFC_隔離読取ページ_プレビュー.zip
+            SHA256SUMS.txt
+          retention-days: 30
