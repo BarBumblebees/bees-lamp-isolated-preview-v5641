@@ -142,7 +142,7 @@ function checkoutNumbers(){
 function syncCheckout(){
  const p=pendingCheckout(),v=checkoutNumbers(),store=$('pointStore'),card=selectedCard;
  const otherPending=Boolean(localStorage.getItem(STAFF_CHECKOUT_PENDING));
- const validStore=Boolean(store?.value&&Array.from(store.options).some(o=>o.value===store.value));const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&validStore&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!validStore||actionBusy||!!p||otherPending;$('suspendInline').disabled=!card||!!card.revoked_at||actionBusy||!!p||otherPending;$('prepareReissueInline').disabled=!card||!card.revoked_at||actionBusy||!!p||otherPending;$('confirmReissueInline').disabled=!pendingReissue||pendingReissue.card!==card||!$('reissueWritten').checked||actionBusy||!!p||otherPending;
+ const validStore=Boolean(store?.value&&Array.from(store.options).some(o=>o.value===store.value));const valid=Boolean(card&&card.pointAllowed&&!card.revoked_at&&validStore&&!v.reason&&!actionBusy&&!p&&!otherPending);$('awardVisitInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||!validStore||actionBusy||!!p||otherPending;$('suspendInline').disabled=true;$('prepareReissueInline').disabled=!card||!card.revoked_at||actionBusy||!!p||otherPending;$('confirmReissueInline').disabled=!pendingReissue||pendingReissue.card!==card||!$('reissueWritten').checked||actionBusy||!!p||otherPending;
  $('checkoutInline').disabled=!valid;
  $('checkoutRetryInline').classList.toggle('hidden',!p||p.invalid===true);
  $('checkoutRetryInline').disabled=!card||!card.pointAllowed||!!card.revoked_at||actionBusy||!!otherPending||!!p?.invalid||String(card?.id||'')!==p?.card_id;
