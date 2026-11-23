@@ -17,6 +17,14 @@ jobs:
           node --check v8-offline-staging/common/bees_nfc_reader.js
       - name: Run static regression tests
         run: node --test v8-offline-staging/tests/staff_reader_view.test.cjs
+      - name: Verify fallback link points to existing reader
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('v8-offline-staging/staff-card-reader-live-candidate.html').read_text(encoding='utf-8')
+          assert 'href="./staff-card-reader.html"' in s
+          assert 'href="./nfc-reader.html"' not in s
+          PY
       - name: Verify card suspension is fail-closed
         run: |
           python3 - <<'PY'
