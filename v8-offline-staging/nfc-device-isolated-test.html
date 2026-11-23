@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>BEES POINT NFC｜NFC実機読取・隔離テスト</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;max-width:620px;margin:auto;padding:22px;background:#eef5f0;color:#173d2b}main{background:white;padding:22px;border-radius:16px}button{font:inherit;padding:14px;width:100%;margin:8px 0;border:0;border-radius:9px;background:#17513b;color:white}button:disabled{opacity:.5}#status{padding:12px;background:#fff0cc;border-radius:8px;overflow-wrap:anywhere}small{color:#456}</style></head>
+<body><main><h1>🐝 NFC実機読取テスト</h1><p>隔離検証専用。会員照会・ポイント付与・会計処理は一切行いません。読み取ったURL・トークンは表示・保存・送信しません。</p><p><strong>Android Chrome / HTTPS / NFC有効</strong>で操作してください。</p><button id="start">カードを読み取る</button><button id="stop" disabled>読み取り停止</button><p id="status" role="status" aria-live="polite">開始ボタンを押してください。</p><small>本ページは外部通信をCSPで禁止しています。NFCデータは判定後すぐ破棄します。</small></main>
+<script>
+(()=>{'use strict';const start=document.getElementById('start'),stop=document.getElementById('stop'),status=document.getElementById('status');let controller=null;const say=s=>status.textContent=s;
+const decode=r=>{try{if(r.recordType==='absolute-url'&&typeof r.mediaType==='string')return r.mediaType;if(r.recordType==='url'&&r.data)return new TextDecoder().decode(r.data)}catch(_){}return null};
+start.addEventListener('click',async()=>{if(!('NDEFReader' in window)){say('Web NFC非対応です。Android版Chromeを確認してください。');return}controller=new AbortController();start.disabled=true;stop.disabled=false;say('読み取り待機中。カードをかざしてください。');try{const reader=new NDEFReader();reader.onreadingerror=()=>say('読み取り失敗。もう一度かざしてください。');reader.onreading=e=>{let hasUrl=false;for(const r of e.message?.records||[]){const u=decode(r);if(u){try{const parsed=new URL(u);if(parsed.protocol==='https:'||parsed.protocol==='http:'){hasUrl=true;break}}catch(_){}}}say(hasUrl?'URL形式のNFCデータを読み取れました（URLは非表示）':'NFCは検知しましたが、URL形式のデータではありません');};await reader.scan({signal:controller.signal})}catch(e){say(e?.name==='NotAllowedError'?'NFC許可が必要です。Chromeの権限設定を確認してください。':'読取開始に失敗しました。NFCとChromeを確認してください。');start.disabled=false;stop.disabled=true}});
+stop.addEventListener('click',()=>{controller?.abort();controller=null;start.disabled=false;stop.disabled=true;say('読み取りを停止しました。')});
+})();
+</script></body></html>
