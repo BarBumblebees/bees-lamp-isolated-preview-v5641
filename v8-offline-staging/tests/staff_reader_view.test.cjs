@@ -245,3 +245,10 @@ test('card directory mismatch explains why management remains locked',()=>{
  assert.match(code,/カードと会員IDの照合が完了しないため管理操作は停止しています/);
  assert.match(code,/カード一覧の応答を確認できないため管理操作は停止しています/);
 });
+
+
+test('live reader fallback links to the existing read-only page',()=>{
+ const live=fs.readFileSync(path.join(__dirname,'../staff-card-reader-live-candidate.html'),'utf8');
+ assert.match(live,/href="\.\/staff-card-reader\.html"/);
+ assert.doesNotMatch(live,/href="\.\/nfc-reader\.html"/);
+});
