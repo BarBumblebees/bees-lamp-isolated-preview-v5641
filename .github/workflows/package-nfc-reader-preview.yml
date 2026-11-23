@@ -17,6 +17,15 @@ jobs:
           node --check v8-offline-staging/common/bees_nfc_reader.js
       - name: Run static regression tests
         run: node --test v8-offline-staging/tests/staff_reader_view.test.cjs
+      - name: Verify card suspension is fail-closed
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('v8-offline-staging/common/staff_card_reader.js').read_text(encoding='utf-8')
+          assert "$('suspendInline').disabled=true" in s
+          assert "p_action:'revoke'" not in s
+          assert '旧カード停止・再発行は復旧手順の検証完了まで' in s
+          PY
       - name: Build safe isolated preview
         shell: bash
         run: |
