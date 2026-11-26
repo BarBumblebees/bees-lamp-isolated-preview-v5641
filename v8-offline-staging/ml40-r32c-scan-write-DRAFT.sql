@@ -250,14 +250,7 @@ BEGIN
   IF NOT FOUND THEN RAISE EXCEPTION 'invalid member' USING ERRCODE='42501'; END IF;
   PERFORM 1 FROM private.member_card_credentials c WHERE c.id=p_card_id AND c.member_id=p_member_id
     AND c.revoked_at IS NULL AND c.replaced_by IS NULL
-    AND (p_card_token ~ '^[A-Za-z0-9_-]{43} FOR SHARE OF c;
-  IF NOT FOUND THEN RAISE EXCEPTION 'invalid card binding' USING ERRCODE='42501'; END IF;
-  INSERT INTO private.ml40_balance_versions_v1(member_id,revision) VALUES(p_member_id,0) ON CONFLICT (member_id) DO NOTHING;
-  SELECT v.revision INTO STRICT v_revision FROM private.ml40_balance_versions_v1 v WHERE v.member_id=p_member_id FOR UPDATE OF v;
-  SELECT coalesce(sum(t.delta),0) INTO v_balance FROM public.point_transactions t WHERE t.member_id=p_member_id;
-  RETURN pg_catalog.jsonb_build_object('balance',v_balance,'revision',v_revision::text);
-END;
-$function$; AND c.token_hash=extensions.digest(p_card_token,'sha256')) FOR SHARE OF c;
+    AND (p_card_token ~ '^[A-Za-z0-9_-]{43}$' AND c.token_hash=extensions.digest(p_card_token,'sha256')) FOR SHARE OF c;
   IF NOT FOUND THEN RAISE EXCEPTION 'invalid card binding' USING ERRCODE='42501'; END IF;
   INSERT INTO private.ml40_balance_versions_v1(member_id,revision) VALUES(p_member_id,0) ON CONFLICT (member_id) DO NOTHING;
   SELECT v.revision INTO STRICT v_revision FROM private.ml40_balance_versions_v1 v WHERE v.member_id=p_member_id FOR UPDATE OF v;
