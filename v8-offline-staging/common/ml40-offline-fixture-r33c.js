@@ -26,7 +26,7 @@ function create({now=()=>Date.now()}={}){
   if(name.endsWith('_checkout_snapshot_v1'))return {...env(m,s),...(route==='scan'?{route}:{}),balance:m.balance,revision:String(m.revision)};
   if(name.endsWith('_checkout_confirm_v1')){
    if(p.p_expected_balance!==m.balance||p.p_expected_revision!==String(m.revision))throw Error('stale');
-   const id=uid(seq++),d={...env(m,s),...(route==='scan'?{route}:{}),status:'issued',confirmation_id:id,total:p.p_total,redeem:p.p_redeem,balance_before:m.balance,revision_before:String(m.revision),server_now:new Date(now()).toISOString(),expires_at:new Date(now()+120000).toISOString()};confirms.set(id,{...d,route,used:false});return d;
+   const issuedAt=now(),id=uid(seq++),d={...env(m,s),...(route==='scan'?{route}:{}),status:'issued',confirmation_id:id,total:p.p_total,redeem:p.p_redeem,balance_before:m.balance,revision_before:String(m.revision),server_now:new Date(issuedAt).toISOString(),expires_at:new Date(issuedAt+120000).toISOString()};confirms.set(id,{...d,route,used:false});return d;
   }
   if(route!=='directory')throw Error('offline_scan_read_only');
   let r;if(receipts.has(p.p_request_id))throw Error('do_not_resend');
