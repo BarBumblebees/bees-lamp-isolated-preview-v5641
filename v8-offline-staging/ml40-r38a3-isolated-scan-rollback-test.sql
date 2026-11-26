@@ -1,0 +1,24 @@
+-- Append to draft transaction in place of COMMIT. Isolated only.
+SELECT set_config('request.jwt.claims',(SELECT jsonb_build_object('sub',u.id,'session_id',s.id,'role','authenticated')::text FROM auth.users u JOIN auth.sessions s ON s.user_id=u.id WHERE u.email='ml40-r22-writer@example.invalid' ORDER BY s.created_at DESC LIMIT 1),true) IS NOT NULL AS session_configured;
+SET LOCAL ROLE authenticated;
+DO $$ DECLARE d jsonb; rev text; cid uuid; BEGIN
+ d:=public.ml40_r38a3_checkout_snapshot_v1('18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX'); IF d->>'balance' IS DISTINCT FROM '0' OR d->'scan_capability'->>'visit_delta' IS DISTINCT FROM '7' OR d->'scan_capability'->>'checkout' IS DISTINCT FROM 'true' THEN RAISE EXCEPTION 'initial capability'; END IF;
+ BEGIN PERFORM public.ml40_r38a3_checkout_snapshot_v1('18400000-0000-4000-8000-000000000011'::uuid,'18400000-0000-4000-8000-000000000021'::uuid,'18400000-0000-4000-8000-000000000001'::uuid,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX'); RAISE EXCEPTION 'other fixture accepted'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+ rev:=d->>'revision';d:=public.ml40_r38a3_checkout_confirm_v1('18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,100,0,0,rev,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX');cid:=(d->>'confirmation_id')::uuid;
+ d:=public.ml40_r38a3_checkout_once_v1('18403803-0000-4000-8000-000000000001'::uuid,cid,'18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,100,0,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX');IF d->'result'->>'balance_after' IS DISTINCT FROM '5' THEN RAISE EXCEPTION 'checkout result';END IF;
+ IF d IS DISTINCT FROM public.ml40_r38a3_checkout_once_v1('18403803-0000-4000-8000-000000000001'::uuid,cid,'18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,100,0,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX') THEN RAISE EXCEPTION 'checkout replay';END IF;
+ d:=public.ml40_r38a3_point_once_v1('18403803-0000-4000-8000-000000000002'::uuid,'18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,'visit',7,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX');IF d->'result'->>'balance' IS DISTINCT FROM '12' THEN RAISE EXCEPTION 'visit result'; END IF;
+ IF d IS DISTINCT FROM public.ml40_r38a3_point_once_v1('18403803-0000-4000-8000-000000000002'::uuid,'18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,'visit',7,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX') THEN RAISE EXCEPTION 'visit replay';END IF;
+ d:=public.ml40_r38a3_checkout_snapshot_v1('18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX');IF d->'scan_capability'->>'checkout' IS DISTINCT FROM 'false' OR d->'scan_capability'->>'visit' IS DISTINCT FROM 'false' THEN RAISE EXCEPTION 'completion flags';END IF;
+END $$;
+RESET ROLE;
+UPDATE ml40_r18_trial.member_card_credentials SET revoked_at=now() WHERE id='18400000-0000-4000-8000-000000000023'::uuid;
+SET LOCAL ROLE authenticated;
+DO $$ BEGIN
+ BEGIN PERFORM public.ml40_r38a3_checkout_snapshot_v1('18400000-0000-4000-8000-000000000013'::uuid,'18400000-0000-4000-8000-000000000023'::uuid,'18400000-0000-4000-8000-000000000002'::uuid,'R35D_TEST_ONLY_XXXXXXXXXXXXXXXXXXXXXXXXXXXX'); RAISE EXCEPTION 'revoked card accepted'; EXCEPTION WHEN insufficient_privilege THEN NULL;END;
+ IF public.ml40_r38a3_receipt_v1('18403803-0000-4000-8000-000000000001'::uuid)->>'status' IS DISTINCT FROM 'confirmed' OR public.ml40_r38a3_receipt_v1('18403803-0000-4000-8000-000000000002'::uuid)->>'status' IS DISTINCT FROM 'confirmed' THEN RAISE EXCEPTION 'receipt after revoke'; END IF;
+END $$;
+RESET ROLE;
+DO $$ BEGIN IF (SELECT count(*) FROM ml40_r38a3_scan_trial.ml40_operation_receipts_v1)<>2 OR (SELECT count(*) FROM ml40_r18_trial.checkout_requests)<>4 OR (SELECT sum(delta) FROM ml40_r18_trial.point_transactions WHERE member_id='18400000-0000-4000-8000-000000000013'::uuid)<>12 OR has_function_privilege('anon','public.ml40_r38a3_receipt_v1(uuid)','EXECUTE') THEN RAISE EXCEPTION 'final verification'; END IF; END $$;
+SELECT 'R38A3A rollback assertions PASS' AS result;
+ROLLBACK;
