@@ -1,0 +1,1 @@
+R33E standalone extract of R33C embedded panel from e2cd6ca808a0ebd3cf185ca3642fa7130c357a44. Actual staff shell not published. Strict no-network CSP, fake data only; no real login, card access or database writes. verify.html performs simulated DOM checks; not evidence until executed. Refresh resets fixture state. Existing pages preserved.
