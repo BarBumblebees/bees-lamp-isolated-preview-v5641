@@ -53,25 +53,25 @@ function receipt(e,d,session){
 }
 function create({session,sendRead,readContract,cardHost,allowLive=false}){
  if(typeof session!=='function'||typeof sendRead!=='function'||!readContract||allowLive!==false)fail();
- let epoch=0,selection=null,credential=null,capability=null,rows=[],offset=0,more=false,filter=null,inFlight=false;
+ let epoch=0,selection=null,credential=null,capability=null,rows=[],offset=0,more=false,filter=null,listContext=null,inFlight=false;
  function current(){const s=session();if(!base(s))fail();return Object.freeze({environment:'production',current:true,actor_id:s.actor_id,session_id:s.session_id,generation:s.generation,epoch});}
  const keys=['actor_id','session_id','generation','epoch','environment'];
  function alive(s){try{return same(s,current(),keys);}catch{return false;}}
- function clear(){epoch++;selection=null;credential=null;capability=null;rows=[];offset=0;more=false;filter=null;}
+ function clear(){epoch++;selection=null;credential=null;capability=null;rows=[];offset=0;more=false;filter=null;listContext=null;}
  async function read(descriptor,s){if(!alive(s))fail();const d=await sendRead(descriptor);if(!alive(s))fail();return d;}
  function selected(){if(!selection||!alive(selection))fail();return selection;}
  async function guarded(fn){if(inFlight)fail();inFlight=true;try{return await fn();}finally{inFlight=false;}}
  async function list(query='',append=false){return guarded(async()=>{
  if(typeof query!=='string'||[...query].length>80)fail();
- if(!append){clear();filter=query;}else if(filter!==query||!more)fail();
+ if(!append){clear();filter=query;}else if(filter!==query||!more||!alive(listContext))fail();
  const s=current(),start=offset,d=await read(req('ml40_api_list_registered_cards_v2',{p_query:query,p_kind:'all',p_offset:start,p_status:'active'}),s);
  const parsed=readContract.directory(d,'active');if(!d.capabilities||typeof d.capabilities.write!=='boolean'||typeof d.capabilities.detail!=='boolean'||(d.capabilities.write&&!d.capabilities.detail))fail();
  if(append&&(!capability||capability.write!==d.capabilities.write||capability.detail!==d.capabilities.detail))fail();
  const seen=new Set(rows.map(r=>r.cardId));if(parsed.cards.some(r=>seen.has(r.cardId)))fail();
- rows=[...rows,...parsed.cards];offset+=parsed.cards.length;more=parsed.hasMore;capability=Object.freeze({detail:d.capabilities.detail,write:d.capabilities.write});
+ listContext=s;rows=[...rows,...parsed.cards];offset+=parsed.cards.length;more=parsed.hasMore;capability=Object.freeze({detail:d.capabilities.detail,write:d.capabilities.write});
  return Object.freeze({rows:Object.freeze([...rows]),hasMore:more,capability});});}
  async function selectDirectory(row,store){return guarded(async()=>{
- if(!uuid(store)||!rows.includes(row)||!capability?.detail)fail();
+ if(!uuid(store)||!rows.includes(row)||!capability?.detail||!alive(listContext))fail();
  const cap=capability;clear();const s=current();
  const m=await read(req('ml40_api_directory_memo_read_v1',{p_card_id:row.cardId,p_store_id:store}),s);
  if(!m||m.card_id!==row.cardId||m.store_id!==store||!uuid(m.member_id)||typeof m.memo!=='string'||[...m.memo].length>60||!int(m.memo_version,0,2147483647))fail();
