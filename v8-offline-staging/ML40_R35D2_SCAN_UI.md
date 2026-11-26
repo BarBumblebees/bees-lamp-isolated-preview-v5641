@@ -1,0 +1,2 @@
+# R35D2 hardware read candidate
+Same isolated login/session as R35C2; scanner accepts only exact synthetic QR/NFC URL, posts only dedicated marker to authenticated scan API. Real production card URLs rejected locally. QR camera, Web NFC read-only, local image decoding for single-device trial; no image upload, no NFC writing. Directory display and shared receipt recovery preserved; scan member 900103 read-only, memo hidden, no mutation. Syntax checked; browser integration and hardware not yet tested. Not published. No DB mutation in this step.
