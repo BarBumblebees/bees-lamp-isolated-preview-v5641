@@ -1,0 +1,9 @@
+(()=>{'use strict';const $=id=>document.getElementById(id),t=BeesTransportR20.create(),R=BeesProductionReadContract;let epoch=0,busy=false;
+const status=s=>{$('status').textContent=s;};
+function invalidate(){epoch++;$('rows').replaceChildren();}
+function ui(){const c=t.current();$('auth').hidden=!!c;$('work').hidden=!c;$('signIn').disabled=busy;$('list').disabled=busy;}
+function failed(){status('照会できません。接続・権限・セッションを確認してください。');}
+$('login').onsubmit=async e=>{e.preventDefault();if(busy)return;busy=true;ui();let password=$('password').value;$('password').value='';try{await t.signIn($('email').value,password);status('認証成功。会員一覧で試験権限を確認してください。');}catch{failed();}finally{password='';busy=false;ui();}};
+$('logout').onclick=async()=>{invalidate();busy=false;ui();try{await t.logout();status('ログアウトしました。');}catch{status('端末の認証を消去しました。サーバー側の終了は未確認です。');}ui();};
+$('list').onclick=async()=>{if(busy||!t.current())return;invalidate();const e=epoch;busy=true;ui();try{const raw=await t.rpc(R.request('directory',{query:'',kind:'all',offset:0,status:'active'}));if(e!==epoch||!t.current())return;const d=R.directory(raw,'active');if(raw.trial_capabilities?.detail!==false||raw.trial_capabilities?.write!==false||d.scopeStoreName!=='ML40試験店舗A'||d.hasMore||d.cards.some(c=>c.store!=='ML40試験店舗A'||c.note!==''))throw Error('scope_mismatch');for(const row of d.cards){const div=document.createElement('div');div.className='member-row';div.textContent=`No.${row.cardNumber||'—'} ${row.name}　${row.balance}pt`; $('rows').append(div);}status(`${d.cards.length}件の会員を取得しました（一覧のみ）。`);}catch{if(e===epoch){invalidate();failed();}}finally{busy=false;ui();}};
+window.addEventListener('pagehide',()=>{t.clear();invalidate();});document.addEventListener('visibilitychange',()=>{if(document.hidden)invalidate();});setInterval(()=>{if(!t.current()&&!$('work').hidden){invalidate();status('再ログインしてください。');ui();}},1000);ui();})();
