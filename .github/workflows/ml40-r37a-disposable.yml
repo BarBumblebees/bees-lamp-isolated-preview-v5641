@@ -1,0 +1,41 @@
+name: ML40 R37A disposable concurrent checkout
+on:
+  push:
+    branches: [ml40-r30-staff-integration-draft]
+    paths:
+      - 'v8-offline-staging/r37a-disposable/**'
+      - '.github/workflows/ml40-r37a-disposable.yml'
+permissions:
+  contents: read
+jobs:
+  concurrent-checkout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable-r37a
+          POSTGRES_DB: r37a
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d r37a"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: disposable-r37a
+      PGDATABASE: r37a
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load exact isolated fixture definitions and candidate SQL
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r37a-disposable/fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r37a-disposable/candidate.sql
+      - name: Verify independent backend waits and resulting receipts
+        run: python3 v8-offline-staging/r37a-disposable/race.py
