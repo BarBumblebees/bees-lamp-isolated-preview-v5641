@@ -1,0 +1,23 @@
+/* R34D2 isolated memo-only panel. */
+(()=>{'use strict';
+const $=id=>document.getElementById('r34-'+id),T=BeesTransportR22;
+const transport=T.create(),ctl=BeesR34Read.create({transport,contract:BeesProductionReadContract,scope:{card:T.card,member:T.member,store:T.store}});
+const TEST_NOTE='ML40動作確認・R34D';let busy=false,rows=[],ready=false,fault=false,ops=null;
+function status(s){$('status').textContent=s;}
+function clear(){ctl.clear();rows=[];$('rows').replaceChildren();$('list').hidden=true;$('detail').hidden=true;$('summary').textContent='';$('memo').value='';$('history').replaceChildren();}
+function ui(){const a=!!transport.current();$('login').hidden=a;$('work').hidden=!a;for(const id of ['signin','logout','open','search'])$(id).disabled=busy;for(const b of $('rows').querySelectorAll('button'))b.disabled=busy;let p=null;try{p=ops?.pending();}catch{fault=true;}const d=ctl.selected,stop=busy||!ready||fault||!d;$('signin').disabled=busy||!ready||fault;$('memo').disabled=stop||!!p;$('save').disabled=stop||!!p||d?.memo===TEST_NOTE||$('memo').value!==TEST_NOTE||!ops?.canSave($('memo').value);$('recover').hidden=!p||p.action!=='memo';$('recover').disabled=stop||!p||p.action!=='memo'||p.actor_id!==d?.actor_id;$('pending').textContent=fault?'安全な保存領域を使用できません。操作停止。':p?(p.action==='memo'?'未照合メモ受付あり。同じ会員で受付照合してください。':'別操作の未照合受付があります。元の試験画面で照合してください。'):d?.memo===TEST_NOTE?'今回のメモ更新は保存済みです。':'';}
+async function run(fn){if(busy)return;busy=true;ui();try{await fn();}catch{clear();let p=null;try{p=ops?.pending();}catch{fault=true;}status(p?'未照合受付あり。再保存せず受付を照合してください。':'操作を停止しました。認証・権限・通信状態をご確認ください。');}finally{busy=false;ui();}}
+function render(){BeesMemberListView.render({rows:rows.map(r=>({member_no:r.cardNumber,nickname:r.name,row:r})),query:$('search').value,body:$('rows'),scroll:$('scroll'),status:$('count'),disabled:busy,onSelect:m=>void run(async()=>{const d=await ctl.select(m.row);$('list').hidden=true;$('detail').hidden=false;$('summary').textContent='No.'+d.card_number+'　'+d.name+' ／ '+d.balance+'pt';$('memo').value=d.memo;$('history').replaceChildren();for(const h of d.history){const p=document.createElement('p');p.textContent=h.kind+' '+h.delta+'pt ／ '+(h.store||'');$('history').append(p);}status('隔離会員を照会しました。指定の試験メモのみ保存できます。');})});}
+$('login').onsubmit=e=>{e.preventDefault();if(!ready||fault)return;void run(async()=>{const p=$('password').value;$('password').value='';await transport.signIn(T.email,p);status('隔離アカウントで認証しました。会員一覧を開いてください。');});};
+$('logout').onclick=()=>void run(async()=>{clear();await transport.logout();status('ログアウトしました。');});
+$('open').onclick=()=>void run(async()=>{clear();rows=await ctl.list();$('search').value='';$('list').hidden=false;render();status('隔離DBから会員一覧を取得しました。');});
+$('search').oninput=()=>{if(!busy&&!$('list').hidden)render();};
+window.addEventListener('pagehide',()=>{transport.clear();clear();});document.addEventListener('visibilitychange',()=>{if(document.hidden)clear();});
+$('memo').oninput=ui;
+$('save').onclick=()=>void run(async()=>{if(fault||$('memo').value!==TEST_NOTE)throw Error('trial_memo');const r=await ops.save(TEST_NOTE);clear();status('試験メモ保存・受付照合済み。メモ版 '+r.result.memo_version+'。');});
+$('recover').onclick=()=>void run(async()=>{if(fault)return;await ops.recover();clear();status('メモ受付照合完了。再保存していません。');});
+function storageError(){fault=true;ready=false;status('別の試験画面が開いているか、安全な保存領域を使用できません。');ui();}
+if(!navigator.locks||!globalThis.isSecureContext||!crypto.randomUUID||!crypto.subtle){storageError();return;}
+navigator.locks.request('bees.ml40.r22.isolated.writer',{ifAvailable:true},async lock=>{if(!lock){storageError();return;}try{const j=BeesPendingR22.create(localStorage);j.read();const probe='bees.ml40.r34d2.probe';localStorage.setItem(probe,'1');if(localStorage.getItem(probe)!=='1')throw Error('storage');localStorage.removeItem(probe);ops=BeesR34Memo.create({transport,reader:ctl,journal:j,newId:()=>crypto.randomUUID(),api:BeesDirectoryApiIsolatedR19,subtle:crypto.subtle});ready=true;ui();await new Promise(()=>{});}catch{storageError();}}).catch(storageError);
+setInterval(()=>{if(!transport.current()&&!$('work').hidden){clear();status('ログイン期限が切れました。');}ui();},1000);ui();
+})();
