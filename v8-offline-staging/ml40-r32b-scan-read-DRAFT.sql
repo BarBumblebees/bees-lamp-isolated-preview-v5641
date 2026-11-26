@@ -1,0 +1,45 @@
+-- ML40 R32B read-only real-card binding candidate. Not approved for production.
+-- Does not change existing NFC/QR permissions or grant directory access.
+BEGIN;
+SET LOCAL lock_timeout='3s';
+SET LOCAL statement_timeout='60s';
+CREATE FUNCTION public.ml40_api_scan_read_v1(p_card_token text)
+RETURNS jsonb
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO ''
+AS $function$
+DECLARE
+  v_card record;
+  v_balance bigint;
+  v_history jsonb;
+BEGIN
+  IF auth.uid() IS NULL OR public.is_shop_staff() IS DISTINCT FROM true
+    OR NOT EXISTS(SELECT 1 FROM public.staff_profiles s WHERE s.id=auth.uid() AND s.active IS TRUE AND s.retired_at IS NULL AND s.role IN ('staff','store_admin','super_admin'))
+  THEN RAISE EXCEPTION 'current authorized staff session required' USING ERRCODE='42501'; END IF;
+  IF p_card_token IS NULL OR p_card_token !~ '^[A-Za-z0-9_-]{43}$' THEN
+    RETURN jsonb_build_object('environment','production','status','unknown'); END IF;
+  SELECT c.id,c.member_id,c.card_number,c.revoked_at,c.replaced_by,c.issued_at,c.issued_store_id,
+    m.display_name,s.name AS issued_store_name,sp.display_name AS issued_staff_name
+  INTO v_card FROM private.member_card_credentials c
+  LEFT JOIN public.members m ON m.id=c.member_id
+  LEFT JOIN public.stores s ON s.id=c.issued_store_id
+  LEFT JOIN public.staff_profiles sp ON sp.id=c.issued_by
+  WHERE c.token_hash=extensions.digest(p_card_token,'sha256');
+  IF NOT FOUND THEN RETURN jsonb_build_object('environment','production','status','unknown'); END IF;
+  IF v_card.revoked_at IS NOT NULL OR v_card.replaced_by IS NOT NULL THEN
+    RETURN jsonb_build_object('environment','production','status','revoked'); END IF;
+  IF v_card.member_id IS NULL THEN RETURN jsonb_build_object('environment','production','status','prepared','card_number',lpad(v_card.card_number::text,6,'0')); END IF;
+  IF v_card.display_name IS NULL THEN RETURN jsonb_build_object('environment','production','status','unknown'); END IF;
+  SELECT coalesce(sum(t.delta),0) INTO v_balance FROM public.point_transactions t WHERE t.member_id=v_card.member_id;
+  SELECT coalesce(jsonb_agg(jsonb_build_object('kind',h.kind,'delta',h.delta,'created_at',h.created_at,'store',CASE WHEN h.kind='encounter' THEN 'スタッフ遭遇ポイント' ELSE coalesce(s.name,'不明な店舗') END,'encounter_staff_name',CASE WHEN h.kind='encounter' THEN h.encounter_staff_name ELSE NULL END) ORDER BY h.created_at DESC,h.id DESC),'[]'::jsonb)
+  INTO v_history FROM (SELECT t.id,t.kind,t.delta,t.created_at,t.store_id,t.encounter_staff_name FROM public.point_transactions t WHERE t.member_id=v_card.member_id ORDER BY t.created_at DESC,t.id DESC LIMIT 20) h
+  LEFT JOIN public.stores s ON s.id=h.store_id;
+  RETURN jsonb_build_object('environment','production','status','active','route','scan',
+    'actor_id',auth.uid(),'session_id',auth.jwt()->>'session_id','card_id',v_card.id,'member_id',v_card.member_id,
+    'card_number',lpad(v_card.card_number::text,6,'0'),'display_name',v_card.display_name,'balance',v_balance,
+    'issued_store_id',v_card.issued_store_id,'issued_store_name',v_card.issued_store_name,'issued_staff_name',v_card.issued_staff_name,'issued_at',v_card.issued_at,
+    'history',v_history,'scan_write_enabled',false);
+END;
+$function$;
+REVOKE ALL ON FUNCTION public.ml40_api_scan_read_v1(text) FROM PUBLIC,anon,authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.ml40_api_scan_read_v1(text) TO authenticated;
+COMMIT;
