@@ -241,6 +241,7 @@ body.nfc-dedicated #nfcDedicatedNav {display:flex}
   <p id="staffAccessStatus" class="hint" role="status"></p>
   <button id="refreshStaffAccess" class="secondary staff-compact-action" type="button">権限を再確認</button>
   <button id="openNfcDedicated" type="button" class="secondary staff-compact-action">NFCカードを読み取る</button>
+  <button id="openMl40Operations" type="button" class="secondary staff-compact-action" disabled>会員操作（ML40 隔離試験）</button><p id="ml40EntryStatus" class="hint" role="status">隔離専用アカウントで別途認証します。</p>
   <button id="openCustomerPreview" class="secondary staff-compact-action" type="button">お客様画面プレビュー</button>
 </section>
 <section class="card" id="separateReaderEntry" aria-label="カード読取専用ページ"><h2>カード読取専用ページ</h2><p class="hint">隔離版の独立ページでスタッフ認証後にNFCカードを読み取り、会員情報・残高を照会できます。ポイント更新・会計操作は行いません。</p><a href="./staff-card-reader-dedicated-isolated.html" style="display:block;padding:14px;background:#184b3d;color:#fff;text-align:center;border-radius:10px;text-decoration:none;font-weight:700">カード読取専用ページを開く</a></section>
@@ -2798,4 +2799,5 @@ document.addEventListener('click',()=>{if(document.body.classList.contains('nfc-
 })();
 </script>
 <script src="./common/offline_demo_entry.js"></script>
+<script src="./common/ml40-staff-entry-r30.js"></script><script src="./common/ml40-staff-bind-r30.js"></script>
 </body></html>
