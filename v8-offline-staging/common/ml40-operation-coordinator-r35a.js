@@ -1,0 +1,29 @@
+/* R35A common operation coordinator for the staff panel. Offline/dependency-injected only. */
+(function(root){'use strict';
+const ids=['actor_id','member_id','card_id','store_id'];
+const keys=[...ids,'session_id','generation','epoch','route','environment'];
+const fail=x=>{throw Error(x)};
+const integer=(n,min,max)=>Number.isSafeInteger(n)&&n>=min&&n<=max;
+function create({controller,bridge,clock,newId,digest,pointPolicy,allowLive=false}){
+ if(allowLive!==false||!controller||!bridge||![clock,newId,digest,pointPolicy].every(x=>typeof x==='function'))fail('draft_only');
+ let state=null,approval=null,busy=false,epoch=0;
+ function clear(){epoch++;state=approval=null;controller.clear();}
+ function same(a,b){return !!a&&!!b&&keys.every(k=>a[k]===b[k]);}
+ function current(){const s=controller.selection,a=bridge.session();if(!state||!same(s,state.selection)||!a||a.actor_id!==s.actor_id||a.session_id!==s.session_id||a.generation!==s.generation)fail('selection_changed');return state;}
+ function guard(s,g){try{return epoch===g&&same(current().selection,s);}catch{return false;}}
+ async function exclusive(fn){if(busy)fail('busy');busy=true;try{return await fn();}finally{busy=false;}}
+ function writable(s){if(!s.canWrite||s.route!=='directory'||bridge.blocked())fail('write_denied');}
+ async function list(query='',append=false){return exclusive(async()=>{if(!append){epoch++;state=approval=null;}return controller.list(query,append);});}
+ async function selectDirectory(row,store){return exclusive(async()=>{const g=++epoch;state=approval=null;const r=await controller.selectDirectory(row,store);if(g!==epoch||!same(controller.selection,r.selection))fail('selection_changed');state=Object.freeze(r);return state;});}
+ async function selectScan(raw,store){return exclusive(async()=>{const g=++epoch;state=approval=null;const r=await controller.selectScan(raw,store);if(g!==epoch)fail('selection_changed');if(r.status==='active'){if(!same(controller.selection,r.selection)||r.selection.canWrite)fail('scan_not_read_only');state=Object.freeze(r);}return r;});}
+ function checkoutInput(x,total,redeem){const before=x.snapshot.balance,revision=x.snapshot.revision;if(!integer(total,1,100000000)||!integer(redeem,0,Math.min(total,before))||redeem%10)fail('amount');return {total,redeem,before,revision};}
+ function intent(s,action,extra){return {environment:'production',route:s.route,action,...Object.fromEntries(ids.map(k=>[k,s[k]])),request_id:newId(),...extra};}
+ async function confirm(total,redeem){return exclusive(async()=>{approval=null;const x=current(),s=x.selection,g=epoch;writable(s);const p=checkoutInput(x,total,redeem),start=clock();const d=await bridge.confirm(controller.describe('checkout_confirm',p),()=>guard(s,g));if(!guard(s,g))fail('selection_changed');const a=root.BeesR33Production.confirmation(s,d,p,{start,end:clock()});approval=Object.freeze({value:a,selection:s,epoch:g});return a;});}
+ function canCommit(total,redeem){try{const x=current(),s=x.selection,a=approval,p=checkoutInput(x,total,redeem);writable(s);return !busy&&!!a&&guard(a.selection,a.epoch)&&a.value.deadline>clock()&&Object.keys(p).every(k=>p[k]===a.value[k]);}catch{return false;}}
+ async function commit(total,redeem){if(!canCommit(total,redeem))fail('not_confirmed');return exclusive(async()=>{const x=current(),s=x.selection,g=epoch,a=approval.value;approval=null;const p=checkoutInput(x,total,redeem),e=intent(s,'checkout',{...p,confirmation_id:a.confirmation_id});const d=controller.describe('checkout_once',e),r=await bridge.write(d,e,()=>guard(s,g)&&a.deadline>clock());clear();return r;});}
+ async function memo(raw){return exclusive(async()=>{approval=null;const x=current(),s=x.selection,g=epoch;writable(s);const note=root.BeesR34Memo.normalize(raw);if(note===s.memo||!integer(s.memo_version,0,2147483646))fail('memo_unchanged_or_version');const note_sha256=await digest(note);if(!guard(s,g)||bridge.blocked())fail('selection_changed');const e=intent(s,'memo',{memo_version:s.memo_version,note_sha256}),d=controller.describe('memo_once',{...e,note});const r=await bridge.write(d,e,()=>guard(s,g));clear();return r;});}
+ async function point(action){return exclusive(async()=>{approval=null;const s=current().selection,g=epoch;writable(s);if(!['visit','encounter'].includes(action))fail('action');const delta=pointPolicy(s,action);if(!integer(delta,1,2147483647)||(action==='encounter'&&delta!==1))fail('point_policy');const e=intent(s,action,{delta}),d=controller.describe('point_once',e);const r=await bridge.write(d,e,()=>guard(s,g)&&pointPolicy(s,action)===delta);clear();return r;});}
+ async function recover(){return exclusive(async()=>{approval=null;const x=current(),p=bridge.pending();if(!p||!ids.every(k=>p[k]===x.selection[k])||p.route!==x.selection.route)fail('pending_owner');const r=await bridge.recover();clear();return r;});}
+ return Object.freeze({list,selectDirectory,selectScan,clear,confirm,commit,canCommit,memo,point,recover,get state(){try{return current();}catch{return null;}},get blocked(){return bridge.blocked();},writeEnabled:false});
+}
+root.BeesR35Operations=Object.freeze({create,writeEnabled:false});})(globalThis);
