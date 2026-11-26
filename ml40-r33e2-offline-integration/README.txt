@@ -1,0 +1,1 @@
+R33E2: same isolated offline fixture as R33E, fixed confirmation issuance timestamp. Existing pages preserved. No real auth, DB, NFC or QR. Browser check remains required.
