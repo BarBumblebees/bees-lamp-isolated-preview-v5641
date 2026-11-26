@@ -1,0 +1,61 @@
+-- R37B2 distinct integration checks with actual R37B1 prerequisite. Disposable only.
+INSERT INTO fixture.stores VALUES('00000000-0000-0000-0000-000000000003'::uuid,'Synthetic A',true,5),('00000000-0000-0000-0000-000000000008'::uuid,'Synthetic B',true,7);
+INSERT INTO fixture.staff_profiles(id,role,default_store_id,active,display_name,encounter_points_enabled) VALUES('00000000-0000-0000-0000-000000000001'::uuid,'store_admin','00000000-0000-0000-0000-000000000003'::uuid,true,'Synthetic writer',true),('00000000-0000-0000-0000-000000000006'::uuid,'store_admin','00000000-0000-0000-0000-000000000003'::uuid,true,'Synthetic other',false);
+INSERT INTO auth.sessions VALUES('00000000-0000-0000-0000-000000000002'::uuid,'00000000-0000-0000-0000-000000000001'::uuid,now()),('00000000-0000-0000-0000-000000000007'::uuid,'00000000-0000-0000-0000-000000000006'::uuid,now());
+INSERT INTO fixture.directory_point_grants VALUES('00000000-0000-0000-0000-000000000001'::uuid,'00000000-0000-0000-0000-000000000003'::uuid),('00000000-0000-0000-0000-000000000006'::uuid,'00000000-0000-0000-0000-000000000003'::uuid);
+INSERT INTO fixture.members(id,display_name) VALUES('00000000-0000-0000-0000-000000000004'::uuid,'Synthetic A'),('00000000-0000-0000-0000-000000000009'::uuid,'Synthetic B');
+INSERT INTO fixture.member_card_credentials(id,member_id,issued_store_id,token_hash,card_number,issued_at,issued_by) VALUES('00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,extensions.digest(repeat('A',43),'sha256'),900001,now(),'00000000-0000-0000-0000-000000000001'::uuid),('00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,extensions.digest(repeat('B',43),'sha256'),900002,now(),'00000000-0000-0000-0000-000000000001'::uuid);
+INSERT INTO fixture.point_transactions(member_id,kind,delta) VALUES('00000000-0000-0000-0000-000000000004'::uuid,'seed',100);
+SELECT set_config('request.jwt.claims',jsonb_build_object('sub','00000000-0000-0000-0000-000000000001'::uuid,'session_id','00000000-0000-0000-0000-000000000002'::uuid,'role','authenticated')::text,false);
+SET ROLE authenticated;
+DO $$ DECLARE d jsonb; BEGIN
+ d:=public.ml40_api_scan_read_v1(repeat('B',43)); IF d->>'status' IS DISTINCT FROM 'active' OR d->>'member_id' IS DISTINCT FROM '00000000-0000-0000-0000-000000000009'::uuid::text OR d->>'balance' IS DISTINCT FROM '0' THEN RAISE EXCEPTION 'scan binding'; END IF;
+ IF public.ml40_api_scan_read_v1(repeat('Z',43))->>'status' IS DISTINCT FROM 'unknown' THEN RAISE EXCEPTION 'unknown token'; END IF;
+ BEGIN PERFORM public.ml40_api_directory_checkout_confirm_v1('00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,210,10,100,'1'); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_directory_checkout_confirm_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ BEGIN PERFORM public.ml40_api_scan_checkout_confirm_v1('00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,100,0,0,'0',repeat('B',43)); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_scan_checkout_confirm_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ BEGIN PERFORM public.ml40_api_directory_point_once_v1('00000000-0000-0000-0000-000000000102'::uuid,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,'visit',5); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_directory_point_once_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ BEGIN PERFORM public.ml40_api_scan_point_once_v1('00000000-0000-0000-0000-000000000103'::uuid,'00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,'visit',7,repeat('B',43)); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_scan_point_once_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+END $$;
+RESET ROLE;
+DO $$ BEGIN IF (SELECT count(*) FROM private.ml40_checkout_confirmations_v1)<>0 OR (SELECT count(*) FROM private.ml40_operation_receipts_v1)<>0 THEN RAISE EXCEPTION 'denial wrote records'; END IF; END $$;
+INSERT INTO private.staff_point_store_grants_v1 VALUES('00000000-0000-0000-0000-000000000001'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,'checkout.execute',true),('00000000-0000-0000-0000-000000000001'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,'point.visit.award',true),('00000000-0000-0000-0000-000000000001'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,'checkout.execute',true),('00000000-0000-0000-0000-000000000001'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,'point.visit.award',true);
+SET ROLE authenticated;
+DO $$ DECLARE d jsonb; r jsonb; rev text; c uuid; BEGIN
+ d:=public.ml40_api_directory_memo_read_v1('00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid); IF d->>'memo_version' IS DISTINCT FROM '0' THEN RAISE EXCEPTION 'memo initial'; END IF;
+ r:=public.ml40_api_directory_memo_once_v1('00000000-0000-0000-0000-000000000101'::uuid,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,0,'R37B2 メモ'); IF r->'result'->>'memo_version' IS DISTINCT FROM '1' OR r->>'status' IS DISTINCT FROM 'confirmed' THEN RAISE EXCEPTION 'memo write'; END IF;
+ IF r IS DISTINCT FROM public.ml40_api_directory_memo_once_v1('00000000-0000-0000-0000-000000000101'::uuid,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,0,'R37B2 メモ') THEN RAISE EXCEPTION 'memo replay'; END IF;
+ r:=public.ml40_api_directory_point_once_v1('00000000-0000-0000-0000-000000000102'::uuid,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,'visit',5); IF r->'result'->>'balance' IS DISTINCT FROM '105' THEN RAISE EXCEPTION 'directory visit'; END IF;
+ r:=public.ml40_api_directory_point_once_v1('00000000-0000-0000-0000-000000000104'::uuid,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,'encounter',1); IF r->'result'->>'balance' IS DISTINCT FROM '106' THEN RAISE EXCEPTION 'encounter'; END IF;
+ d:=public.ml40_api_directory_checkout_snapshot_v1('00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid); rev:=d->>'revision';
+ d:=public.ml40_api_directory_checkout_confirm_v1('00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,210,10,106,rev); c:=(d->>'confirmation_id')::uuid;
+ r:=public.ml40_api_directory_checkout_once_v1('00000000-0000-0000-0000-000000000105'::uuid,c,'00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,210,10); IF r->'result'->>'balance_after' IS DISTINCT FROM '106' THEN RAISE EXCEPTION 'directory checkout'; END IF;
+ d:=public.ml40_api_scan_checkout_snapshot_v1('00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,repeat('B',43)); rev:=d->>'revision';
+ BEGIN PERFORM public.ml40_api_scan_checkout_confirm_v1('00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,100,0,0,rev,repeat('A',43)); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_scan_checkout_confirm_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ d:=public.ml40_api_scan_checkout_confirm_v1('00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,100,0,0,rev,repeat('B',43)); c:=(d->>'confirmation_id')::uuid;
+ BEGIN PERFORM public.ml40_api_scan_checkout_once_v1('00000000-0000-0000-0000-000000000106'::uuid,c,'00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,100,0,repeat('A',43)); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_scan_checkout_once_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ r:=public.ml40_api_scan_checkout_once_v1('00000000-0000-0000-0000-000000000106'::uuid,c,'00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,100,0,repeat('B',43)); IF r->'result'->>'balance_after' IS DISTINCT FROM '5' THEN RAISE EXCEPTION 'scan checkout'; END IF;
+ r:=public.ml40_api_scan_point_once_v1('00000000-0000-0000-0000-000000000103'::uuid,'00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,'visit',7,repeat('B',43)); IF r->'result'->>'balance' IS DISTINCT FROM '12' THEN RAISE EXCEPTION 'scan visit'; END IF;
+END $$;
+RESET ROLE;
+UPDATE private.staff_point_store_grants_v1 SET active=false;
+UPDATE fixture.member_card_credentials SET revoked_at=now() WHERE id='00000000-0000-0000-0000-000000000010'::uuid;
+SET ROLE authenticated;
+DO $$ BEGIN
+ IF public.ml40_api_scan_read_v1(repeat('B',43))->>'status' IS DISTINCT FROM 'revoked' THEN RAISE EXCEPTION 'revoked scan'; END IF;
+ BEGIN PERFORM public.ml40_api_directory_checkout_confirm_v1('00000000-0000-0000-0000-000000000004'::uuid,'00000000-0000-0000-0000-000000000005'::uuid,'00000000-0000-0000-0000-000000000003'::uuid,210,10,106,'0'); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_directory_checkout_confirm_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ BEGIN PERFORM public.ml40_api_scan_point_once_v1('00000000-0000-0000-0000-000000000107'::uuid,'00000000-0000-0000-0000-000000000009'::uuid,'00000000-0000-0000-0000-000000000010'::uuid,'00000000-0000-0000-0000-000000000008'::uuid,'visit',7,repeat('B',43)); RAISE EXCEPTION 'unexpected acceptance: public.ml40_api_scan_point_once_v1'; EXCEPTION WHEN SQLSTATE '42501' THEN NULL; END;
+ IF public.ml40_operation_receipt_v1('00000000-0000-0000-0000-000000000105'::uuid)->>'status' IS DISTINCT FROM 'confirmed' THEN RAISE EXCEPTION 'directory receipt after scope revoke'; END IF;
+ IF public.ml40_api_scan_receipt_v1('00000000-0000-0000-0000-000000000106'::uuid)->>'status' IS DISTINCT FROM 'confirmed' THEN RAISE EXCEPTION 'scan receipt after scope/card revoke'; END IF;
+ IF public.ml40_api_scan_receipt_v1('00000000-0000-0000-0000-000000000105'::uuid)->>'status' IS DISTINCT FROM 'unknown' OR public.ml40_operation_receipt_v1('00000000-0000-0000-0000-000000000106'::uuid)->>'status' IS DISTINCT FROM 'unknown' THEN RAISE EXCEPTION 'route receipt separation'; END IF;
+END $$;
+RESET ROLE;
+SELECT set_config('request.jwt.claims',jsonb_build_object('sub','00000000-0000-0000-0000-000000000006'::uuid,'session_id','00000000-0000-0000-0000-000000000007'::uuid,'role','authenticated')::text,false);
+SET ROLE authenticated;
+DO $$ BEGIN
+ IF public.ml40_operation_receipt_v1('00000000-0000-0000-0000-000000000105'::uuid)->>'status' IS DISTINCT FROM 'unknown' OR public.ml40_api_scan_receipt_v1('00000000-0000-0000-0000-000000000106'::uuid)->>'status' IS DISTINCT FROM 'unknown' THEN RAISE EXCEPTION 'other actor receipt'; END IF;
+END $$;
+RESET ROLE;
+DO $$ BEGIN
+ IF (SELECT count(*) FROM private.ml40_operation_receipts_v1)<>6 OR (SELECT count(*) FROM fixture.checkout_requests)<>2 OR (SELECT count(*) FROM private.ml40_checkout_confirmations_v1)<>2 OR (SELECT sum(delta) FROM fixture.point_transactions WHERE member_id='00000000-0000-0000-0000-000000000004'::uuid)<>106 OR (SELECT sum(delta) FROM fixture.point_transactions WHERE member_id='00000000-0000-0000-0000-000000000009'::uuid)<>12 OR (SELECT note FROM fixture.member_customer_notes WHERE member_id='00000000-0000-0000-0000-000000000004'::uuid) IS DISTINCT FROM 'R37B2 メモ' THEN RAISE EXCEPTION 'final state mismatch'; END IF;
+END $$;
+SELECT 'R37B2 integrated actual prerequisite PASS';
