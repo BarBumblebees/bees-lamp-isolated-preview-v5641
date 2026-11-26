@@ -1,0 +1,45 @@
+name: ML40 R38A2 scan capability
+on:
+  push:
+    branches: [ml40-r30-staff-integration-draft]
+    paths:
+      - 'v8-offline-staging/r38a2-disposable/**'
+      - '.github/workflows/ml40-r38a2-disposable.yml'
+permissions:
+  contents: read
+jobs:
+  scope:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: disposable-r37b1
+          POSTGRES_DB: r37b1
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d r37b1"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: disposable-r37b1
+      PGDATABASE: r37b1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load synthetic fixture and observed old RPC shapes
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r37a-disposable/fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r37b1-disposable/old-rpc-fixture.sql
+      - name: Apply scoped prerequisite and new API candidate in disposable database
+        run: |
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r37b1-disposable/scope-mapped.sql
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r37a-disposable/candidate.sql
+          psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r38a2-disposable/capability-mapped.sql
+      - name: Assert card-bound capability and revocation
+        run: psql -X -v ON_ERROR_STOP=1 -f v8-offline-staging/r38a2-disposable/assert.sql
